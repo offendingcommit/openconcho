@@ -12,7 +12,7 @@ function SettingsPage() {
 
 	return (
 		<div
-			className="min-h-screen flex items-center justify-center p-4"
+			className="flex-1 flex items-center justify-center p-4 overflow-auto"
 			style={{ background: "var(--bg)" }}
 		>
 			<motion.div
