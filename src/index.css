@@ -5,50 +5,70 @@
 @import "@fontsource/dm-sans/500.css";
 @import "@fontsource/dm-sans/600.css";
 
+/* ─── Tailwind v4 theme bridge ─── */
+@theme inline {
+  --color-background:         var(--bg);
+  --color-foreground:         var(--text-1);
+  --color-card:               var(--bg-2);
+  --color-card-foreground:    var(--text-1);
+  --color-muted:              var(--bg-3);
+  --color-muted-foreground:   var(--text-3);
+  --color-primary:            var(--accent);
+  --color-primary-foreground: #ffffff;
+  --color-secondary:          var(--bg-3);
+  --color-secondary-foreground: var(--text-2);
+  --color-border:             var(--border);
+  --color-ring:               var(--accent);
+  --radius-sm:                6px;
+  --radius-md:                8px;
+  --radius-lg:                12px;
+  --radius-xl:                16px;
+}
+
 /* ─── Theme tokens ─── */
 :root,
 [data-theme="dark"] {
-  --bg:         #0c0c10;
-  --bg-2:       #111118;
-  --bg-3:       #16161f;
-  --surface:    rgba(255, 255, 255, 0.02);
-  --border:     rgba(255, 255, 255, 0.06);
-  --border-2:   rgba(255, 255, 255, 0.10);
-  --text-1:     #e4e4f0;
-  --text-2:     rgba(148, 163, 184, 0.75);
-  --text-3:     rgba(148, 163, 184, 0.40);
-  --text-4:     rgba(148, 163, 184, 0.25);
-  --accent:     #6366f1;
-  --accent-dim: rgba(99, 102, 241, 0.12);
-  --accent-border: rgba(99, 102, 241, 0.30);
-  --accent-text: #a5b4fc;
-  --sidebar-bg: linear-gradient(180deg, #111118 0%, #0e0e15 100%);
-  --grid-line:  rgba(99, 102, 241, 0.03);
-  --glow:       rgba(79, 70, 229, 0.08);
-  --scrollbar:  rgba(99, 102, 241, 0.2);
-  --card-hover: rgba(99, 102, 241, 0.06);
+  --bg:            #0c0c10;
+  --bg-2:          #111118;
+  --bg-3:          #1a1a24;
+  --surface:       rgba(255, 255, 255, 0.03);
+  --border:        rgba(255, 255, 255, 0.08);
+  --border-2:      rgba(255, 255, 255, 0.13);
+  --text-1:        #e8e8f4;
+  --text-2:        #94a3b8;
+  --text-3:        #64748b;
+  --text-4:        #475569;
+  --accent:        #6366f1;
+  --accent-dim:    rgba(99, 102, 241, 0.15);
+  --accent-border: rgba(99, 102, 241, 0.35);
+  --accent-text:   #a5b4fc;
+  --sidebar-bg:    linear-gradient(180deg, #111118 0%, #0e0e15 100%);
+  --grid-line:     rgba(99, 102, 241, 0.03);
+  --glow:          rgba(79, 70, 229, 0.08);
+  --scrollbar:     rgba(99, 102, 241, 0.2);
+  --card-hover:    rgba(99, 102, 241, 0.06);
 }
 
 [data-theme="light"] {
-  --bg:         #f8f8fc;
-  --bg-2:       #ffffff;
-  --bg-3:       #f0f0f8;
-  --surface:    rgba(0, 0, 0, 0.02);
-  --border:     rgba(0, 0, 0, 0.07);
-  --border-2:   rgba(0, 0, 0, 0.12);
-  --text-1:     #1a1a2e;
-  --text-2:     rgba(30, 30, 60, 0.65);
-  --text-3:     rgba(30, 30, 60, 0.40);
-  --text-4:     rgba(30, 30, 60, 0.25);
-  --accent:     #4f46e5;
-  --accent-dim: rgba(79, 70, 229, 0.08);
+  --bg:            #f8f8fc;
+  --bg-2:          #ffffff;
+  --bg-3:          #f0f0f8;
+  --surface:       rgba(0, 0, 0, 0.02);
+  --border:        rgba(0, 0, 0, 0.08);
+  --border-2:      rgba(0, 0, 0, 0.14);
+  --text-1:        #1a1a2e;
+  --text-2:        #374151;
+  --text-3:        #6b7280;
+  --text-4:        #9ca3af;
+  --accent:        #4f46e5;
+  --accent-dim:    rgba(79, 70, 229, 0.08);
   --accent-border: rgba(79, 70, 229, 0.25);
-  --accent-text: #4f46e5;
-  --sidebar-bg: linear-gradient(180deg, #ffffff 0%, #f4f4fc 100%);
-  --grid-line:  rgba(79, 70, 229, 0.04);
-  --glow:       rgba(79, 70, 229, 0.06);
-  --scrollbar:  rgba(79, 70, 229, 0.2);
-  --card-hover: rgba(79, 70, 229, 0.04);
+  --accent-text:   #4f46e5;
+  --sidebar-bg:    linear-gradient(180deg, #ffffff 0%, #f4f4fc 100%);
+  --grid-line:     rgba(79, 70, 229, 0.04);
+  --glow:          rgba(79, 70, 229, 0.06);
+  --scrollbar:     rgba(79, 70, 229, 0.2);
+  --card-hover:    rgba(79, 70, 229, 0.04);
 }
 
 /* ─── Base ─── */

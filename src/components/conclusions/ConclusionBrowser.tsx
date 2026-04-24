@@ -1,21 +1,21 @@
-import { useState } from "react";
-import { Link, useParams } from "@tanstack/react-router";
-import { motion, AnimatePresence } from "framer-motion";
-import { z } from "zod";
-import { Lightbulb, Search, X, Clock, ArrowLeft, Eye, Plus, Trash2 } from "lucide-react";
 import {
 	useConclusions,
-	useQueryConclusions,
 	useCreateConclusion,
 	useDeleteConclusion,
+	useQueryConclusions,
 } from "@/api/queries";
-import { PageLoader } from "@/components/shared/LoadingSpinner";
-import { ErrorAlert } from "@/components/shared/ErrorAlert";
-import { Pagination } from "@/components/shared/Pagination";
-import { EmptyState } from "@/components/shared/EmptyState";
-import { FormModal } from "@/components/shared/FormModal";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import type { components } from "@/api/schema.d.ts";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorAlert } from "@/components/shared/ErrorAlert";
+import { FormModal } from "@/components/shared/FormModal";
+import { PageLoader } from "@/components/shared/LoadingSpinner";
+import { Pagination } from "@/components/shared/Pagination";
+import { Link, useParams } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, Clock, Eye, Lightbulb, Plus, Search, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import { z } from "zod";
 
 type Conclusion = components["schemas"]["Conclusion"];
 
@@ -58,7 +58,9 @@ export function ConclusionBrowser() {
 	const total = (data as { total?: number } | undefined)?.total ?? 0;
 
 	const displayedConclusions: Conclusion[] = activeSearch
-		? Array.isArray(searchResults) ? searchResults : []
+		? Array.isArray(searchResults)
+			? searchResults
+			: []
 		: conclusions;
 
 	function handleSearch(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -144,7 +146,10 @@ export function ConclusionBrowser() {
 							initial={{ opacity: 0, scale: 0.8 }}
 							animate={{ opacity: 1, scale: 1 }}
 							exit={{ opacity: 0, scale: 0.8 }}
-							onClick={() => { setActiveSearch(""); setSearchQuery(""); }}
+							onClick={() => {
+								setActiveSearch("");
+								setSearchQuery("");
+							}}
 							className="px-3 py-2.5 rounded-xl text-sm transition-all"
 							style={{
 								background: "var(--surface)",
@@ -182,8 +187,8 @@ export function ConclusionBrowser() {
 							className="text-xs font-mono mb-3"
 							style={{ color: "var(--text-4)" }}
 						>
-							{displayedConclusions.length} result{displayedConclusions.length !== 1 ? "s" : ""}{" "}
-							for &ldquo;{activeSearch}&rdquo;
+							{displayedConclusions.length} result{displayedConclusions.length !== 1 ? "s" : ""} for
+							&ldquo;{activeSearch}&rdquo;
 						</motion.p>
 					)}
 					<div className="space-y-3">
@@ -201,7 +206,10 @@ export function ConclusionBrowser() {
 								}}
 							>
 								<div className="flex items-start justify-between gap-3">
-									<p className="text-sm leading-relaxed whitespace-pre-wrap flex-1" style={{ color: "var(--text-2)" }}>
+									<p
+										className="text-sm leading-relaxed whitespace-pre-wrap flex-1"
+										style={{ color: "var(--text-2)" }}
+									>
 										{c.content}
 									</p>
 									<button
@@ -224,15 +232,32 @@ export function ConclusionBrowser() {
 									</div>
 									{c.observed_id && (
 										<div className="flex items-center gap-1">
-											<span className="text-xs" style={{ color: "var(--text-4)" }}>→</span>
+											<span className="text-xs" style={{ color: "var(--text-4)" }}>
+												→
+											</span>
 											<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
 												{c.observed_id}
 											</span>
 										</div>
 									)}
+									{c.session_id && (
+										<Link
+											to={"/workspaces/$workspaceId/sessions/$sessionId" as never}
+											params={{ workspaceId, sessionId: c.session_id } as never}
+											onClick={(e) => e.stopPropagation()}
+											className="flex items-center gap-1 text-xs font-mono hover:underline"
+											style={{ color: "var(--accent-text)" }}
+										>
+											{c.session_id}
+										</Link>
+									)}
 									{c.created_at && (
 										<div className="flex items-center gap-1 ml-auto">
-											<Clock className="w-3 h-3" style={{ color: "var(--text-4)" }} strokeWidth={1.5} />
+											<Clock
+												className="w-3 h-3"
+												style={{ color: "var(--text-4)" }}
+												strokeWidth={1.5}
+											/>
 											<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
 												{new Date(c.created_at).toLocaleString()}
 											</span>
@@ -284,15 +309,26 @@ function CreateConclusionModal({
 }: {
 	open: boolean;
 	onClose: () => void;
-	onSubmit: (v: { observer_id: string; observed_id: string; content: string; session_id?: string | null }) => Promise<void>;
+	onSubmit: (v: {
+		observer_id: string;
+		observed_id: string;
+		content: string;
+		session_id?: string | null;
+	}) => Promise<void>;
 	loading: boolean;
 	error?: string;
 }) {
-	const [fields, setFields] = useState({ observer_id: "", observed_id: "", content: "", session_id: "" });
+	const [fields, setFields] = useState({
+		observer_id: "",
+		observed_id: "",
+		content: "",
+		session_id: "",
+	});
 	const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-	const set = (k: keyof typeof fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-		setFields((f) => ({ ...f, [k]: e.target.value }));
+	const set =
+		(k: keyof typeof fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+			setFields((f) => ({ ...f, [k]: e.target.value }));
 
 	const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -327,7 +363,9 @@ function CreateConclusionModal({
 							className="theme-input w-full text-sm px-3 py-2 rounded-lg"
 						/>
 						{validationErrors[field] && (
-							<p className="text-xs mt-1" style={{ color: "#f87171" }}>{validationErrors[field]}</p>
+							<p className="text-xs mt-1" style={{ color: "#f87171" }}>
+								{validationErrors[field]}
+							</p>
 						)}
 					</div>
 				))}
@@ -343,7 +381,9 @@ function CreateConclusionModal({
 						className="theme-input w-full text-sm px-3 py-2 rounded-lg resize-y"
 					/>
 					{validationErrors.content && (
-						<p className="text-xs mt-1" style={{ color: "#f87171" }}>{validationErrors.content}</p>
+						<p className="text-xs mt-1" style={{ color: "#f87171" }}>
+							{validationErrors.content}
+						</p>
 					)}
 				</div>
 				<div>
@@ -357,13 +397,21 @@ function CreateConclusionModal({
 						className="theme-input w-full text-sm px-3 py-2 rounded-lg"
 					/>
 				</div>
-				{error && <p className="text-xs" style={{ color: "#f87171" }}>{error}</p>}
+				{error && (
+					<p className="text-xs" style={{ color: "#f87171" }}>
+						{error}
+					</p>
+				)}
 				<div className="flex justify-end gap-2 pt-2">
 					<button
 						type="button"
 						onClick={onClose}
 						className="px-3 py-1.5 text-sm rounded-lg"
-						style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text-2)" }}
+						style={{
+							background: "var(--surface)",
+							border: "1px solid var(--border)",
+							color: "var(--text-2)",
+						}}
 					>
 						Cancel
 					</button>
@@ -371,7 +419,11 @@ function CreateConclusionModal({
 						type="submit"
 						disabled={loading}
 						className="px-3 py-1.5 text-sm rounded-lg font-medium disabled:opacity-50"
-						style={{ background: "var(--accent-dim)", border: "1px solid var(--accent-border)", color: "var(--accent-text)" }}
+						style={{
+							background: "var(--accent-dim)",
+							border: "1px solid var(--accent-border)",
+							color: "var(--accent-text)",
+						}}
 					>
 						{loading ? "Creating..." : "Create"}
 					</button>

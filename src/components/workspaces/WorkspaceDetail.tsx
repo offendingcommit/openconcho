@@ -1,24 +1,50 @@
-import { useState } from "react";
-import { Link, useParams, useNavigate } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { Boxes, Users, MessageSquare, Lightbulb, ArrowLeft, CircleDot, Trash2, Zap, Webhook } from "lucide-react";
-import {
-	useWorkspace,
-	useQueueStatus,
-	useDeleteWorkspace,
-	useScheduleDream,
-} from "@/api/queries";
-import { PageLoader } from "@/components/shared/LoadingSpinner";
+import { useDeleteWorkspace, useQueueStatus, useScheduleDream, useWorkspace } from "@/api/queries";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { JsonViewer } from "@/components/shared/JsonViewer";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { ScheduleDreamModal } from "@/components/workspaces/ScheduleDreamModal";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+	ArrowLeft,
+	Boxes,
+	ChevronDown,
+	CircleDot,
+	Lightbulb,
+	MessageSquare,
+	Trash2,
+	Users,
+	Webhook,
+	Zap,
+} from "lucide-react";
+import { useState } from "react";
 
 const NAV_SECTIONS = [
-	{ label: "Peers", icon: Users, to: "peers" as const, description: "Browse peer identities and memory" },
-	{ label: "Sessions", icon: MessageSquare, to: "sessions" as const, description: "View conversation sessions" },
-	{ label: "Conclusions", icon: Lightbulb, to: "conclusions" as const, description: "Browse memory conclusions" },
-	{ label: "Webhooks", icon: Webhook, to: "webhooks" as const, description: "Manage event webhooks" },
+	{
+		label: "Peers",
+		icon: Users,
+		to: "peers" as const,
+		description: "Browse peer identities and memory",
+	},
+	{
+		label: "Sessions",
+		icon: MessageSquare,
+		to: "sessions" as const,
+		description: "View conversation sessions",
+	},
+	{
+		label: "Conclusions",
+		icon: Lightbulb,
+		to: "conclusions" as const,
+		description: "Browse memory conclusions",
+	},
+	{
+		label: "Webhooks",
+		icon: Webhook,
+		to: "webhooks" as const,
+		description: "Manage event webhooks",
+	},
 ] as const;
 
 export function WorkspaceDetail() {
@@ -33,6 +59,7 @@ export function WorkspaceDetail() {
 
 	const [confirmDelete, setConfirmDelete] = useState(false);
 	const [dreamOpen, setDreamOpen] = useState(false);
+	const [sessionsExpanded, setSessionsExpanded] = useState(false);
 
 	const handleDelete = async () => {
 		await deleteWorkspace.mutateAsync(workspaceId);
@@ -52,7 +79,11 @@ export function WorkspaceDetail() {
 				</Link>
 				<div className="flex items-start justify-between gap-4 mb-1">
 					<div className="flex items-center gap-2 min-w-0">
-						<Boxes className="w-5 h-5 flex-shrink-0" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
+						<Boxes
+							className="w-5 h-5 flex-shrink-0"
+							style={{ color: "var(--accent)" }}
+							strokeWidth={1.5}
+						/>
 						<h1
 							className="text-xl font-semibold font-mono break-all tracking-tight"
 							style={{ color: "var(--text-1)" }}
@@ -87,7 +118,9 @@ export function WorkspaceDetail() {
 						</button>
 					</div>
 				</div>
-				<p className="text-sm" style={{ color: "var(--text-2)" }}>Workspace overview</p>
+				<p className="text-sm" style={{ color: "var(--text-2)" }}>
+					Workspace overview
+				</p>
 			</motion.div>
 
 			<div className="mt-8">
@@ -112,7 +145,11 @@ export function WorkspaceDetail() {
 											params={{ workspaceId } as never}
 											className="block rounded-xl p-5 group transition-all theme-card"
 										>
-											<Icon className="w-5 h-5 mb-3" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
+											<Icon
+												className="w-5 h-5 mb-3"
+												style={{ color: "var(--accent)" }}
+												strokeWidth={1.5}
+											/>
 											<h2 className="text-sm font-medium mb-0.5" style={{ color: "var(--text-1)" }}>
 												{s.label}
 											</h2>
@@ -139,24 +176,47 @@ export function WorkspaceDetail() {
 									</h2>
 									<div className="flex items-center gap-1.5">
 										{queue.pending_work_units > 0 ? (
-											<motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.5, repeat: Infinity }}>
-												<CircleDot className="w-3.5 h-3.5" style={{ color: "#f59e0b" }} strokeWidth={2} />
+											<motion.div
+												animate={{ opacity: [0.5, 1, 0.5] }}
+												transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
+											>
+												<CircleDot
+													className="w-3.5 h-3.5"
+													style={{ color: "#f59e0b" }}
+													strokeWidth={2}
+												/>
 											</motion.div>
 										) : (
-											<CircleDot className="w-3.5 h-3.5" style={{ color: "#34d399" }} strokeWidth={2} />
+											<CircleDot
+												className="w-3.5 h-3.5"
+												style={{ color: "#34d399" }}
+												strokeWidth={2}
+											/>
 										)}
 										<span
 											className="text-xs font-medium"
 											style={{ color: queue.pending_work_units > 0 ? "#f59e0b" : "#34d399" }}
 										>
-											{queue.pending_work_units === 0 ? "Idle" : `${queue.pending_work_units} pending`}
+											{queue.pending_work_units === 0
+												? "Idle"
+												: `${queue.pending_work_units} pending`}
 										</span>
 									</div>
 								</div>
-								<div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-									{(["total_work_units", "completed_work_units", "in_progress_work_units", "pending_work_units"] as const).map((key) => (
+								<div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+									{(
+										[
+											"total_work_units",
+											"completed_work_units",
+											"in_progress_work_units",
+											"pending_work_units",
+										] as const
+									).map((key) => (
 										<div key={key}>
-											<div className="text-2xl font-semibold font-mono" style={{ color: "var(--text-1)" }}>
+											<div
+												className="text-2xl font-semibold font-mono"
+												style={{ color: "var(--text-1)" }}
+											>
 												{queue[key]}
 											</div>
 											<div className="text-xs capitalize mt-0.5" style={{ color: "var(--text-3)" }}>
@@ -165,6 +225,108 @@ export function WorkspaceDetail() {
 										</div>
 									))}
 								</div>
+
+								{/* Per-session breakdown */}
+								{queue.sessions && Object.keys(queue.sessions).length > 0 && (
+									<div>
+										<button
+											onClick={() => setSessionsExpanded((v) => !v)}
+											className="flex items-center gap-1.5 text-xs font-medium w-full text-left"
+											style={{ color: "var(--text-3)" }}
+										>
+											<motion.div
+												animate={{ rotate: sessionsExpanded ? 0 : -90 }}
+												transition={{ duration: 0.15 }}
+											>
+												<ChevronDown className="w-3.5 h-3.5" strokeWidth={2} />
+											</motion.div>
+											{Object.keys(queue.sessions).length} session
+											{Object.keys(queue.sessions).length !== 1 ? "s" : ""}
+										</button>
+										<AnimatePresence initial={false}>
+											{sessionsExpanded && (
+												<motion.div
+													initial={{ height: 0, opacity: 0 }}
+													animate={{ height: "auto", opacity: 1 }}
+													exit={{ height: 0, opacity: 0 }}
+													transition={{ duration: 0.2 }}
+													className="overflow-hidden"
+												>
+													<div
+														className="mt-3 rounded-lg overflow-hidden"
+														style={{ border: "1px solid var(--border)" }}
+													>
+														<table className="w-full text-xs">
+															<thead>
+																<tr
+																	style={{
+																		background: "var(--bg-3)",
+																		borderBottom: "1px solid var(--border)",
+																	}}
+																>
+																	{["Session", "Total", "Done", "Active", "Pending"].map((h) => (
+																		<th
+																			key={h}
+																			className={`py-2 px-3 font-medium text-left ${h !== "Session" ? "text-right" : ""}`}
+																			style={{ color: "var(--text-3)" }}
+																		>
+																			{h}
+																		</th>
+																	))}
+																</tr>
+															</thead>
+															<tbody>
+																{Object.entries(queue.sessions).map(([sid, s], i) => (
+																	<tr
+																		key={sid}
+																		style={{
+																			borderTop: i > 0 ? "1px solid var(--border)" : undefined,
+																		}}
+																	>
+																		<td className="py-1.5 px-3">
+																			<Link
+																				to={"/workspaces/$workspaceId/sessions/$sessionId" as never}
+																				params={{ workspaceId, sessionId: sid } as never}
+																				className="font-mono truncate block max-w-[180px] hover:underline"
+																				style={{ color: "var(--accent-text)" }}
+																			>
+																				{sid}
+																			</Link>
+																		</td>
+																		<td
+																			className="py-1.5 px-3 text-right font-mono"
+																			style={{ color: "var(--text-2)" }}
+																		>
+																			{s.total_work_units}
+																		</td>
+																		<td
+																			className="py-1.5 px-3 text-right font-mono"
+																			style={{ color: "#34d399" }}
+																		>
+																			{s.completed_work_units}
+																		</td>
+																		<td
+																			className="py-1.5 px-3 text-right font-mono"
+																			style={{ color: "#f59e0b" }}
+																		>
+																			{s.in_progress_work_units}
+																		</td>
+																		<td
+																			className="py-1.5 px-3 text-right font-mono"
+																			style={{ color: "var(--text-3)" }}
+																		>
+																			{s.pending_work_units}
+																		</td>
+																	</tr>
+																))}
+															</tbody>
+														</table>
+													</div>
+												</motion.div>
+											)}
+										</AnimatePresence>
+									</div>
+								)}
 							</motion.div>
 						)}
 

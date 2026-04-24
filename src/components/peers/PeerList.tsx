@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { Link, useNavigate, useParams } from "@tanstack/react-router";
-import { motion, type Variants } from "framer-motion";
-import { Users, ChevronRight, Clock, ArrowLeft } from "lucide-react";
 import { usePeers } from "@/api/queries";
-import { PageLoader } from "@/components/shared/LoadingSpinner";
-import { ErrorAlert } from "@/components/shared/ErrorAlert";
-import { Pagination } from "@/components/shared/Pagination";
-import { EmptyState } from "@/components/shared/EmptyState";
 import type { components } from "@/api/schema.d.ts";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorAlert } from "@/components/shared/ErrorAlert";
+import { PageLoader } from "@/components/shared/LoadingSpinner";
+import { Pagination } from "@/components/shared/Pagination";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { type Variants, motion } from "framer-motion";
+import { ArrowLeft, ChevronRight, Clock, Eye, Users } from "lucide-react";
+import { useState } from "react";
 
 type Peer = components["schemas"]["Peer"];
 
@@ -32,11 +32,7 @@ export function PeerList() {
 
 	return (
 		<div className="p-8 max-w-3xl mx-auto">
-			<motion.div
-				initial={{ opacity: 0, y: -8 }}
-				animate={{ opacity: 1, y: 0 }}
-				className="mb-8"
-			>
+			<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
 				<Link
 					to="/workspaces/$workspaceId"
 					params={{ workspaceId } as never}
@@ -121,14 +117,28 @@ export function PeerList() {
 										strokeWidth={1.5}
 									/>
 								</div>
-								{peer.created_at && (
-									<div className="flex items-center gap-1">
-										<Clock className="w-3 h-3" style={{ color: "rgba(148,163,184,0.3)" }} strokeWidth={1.5} />
-										<p className="text-xs font-mono" style={{ color: "rgba(148,163,184,0.3)" }}>
-											{new Date(peer.created_at).toLocaleString()}
-										</p>
-									</div>
-								)}
+								<div className="flex items-center gap-2 flex-wrap">
+									{(peer.configuration as { observe_me?: boolean } | null)?.observe_me && (
+										<div className="flex items-center gap-1">
+											<Eye className="w-3 h-3" style={{ color: "#818cf8" }} strokeWidth={1.5} />
+											<span className="text-xs" style={{ color: "#818cf8" }}>
+												observed
+											</span>
+										</div>
+									)}
+									{peer.created_at && (
+										<div className="flex items-center gap-1">
+											<Clock
+												className="w-3 h-3"
+												style={{ color: "rgba(148,163,184,0.3)" }}
+												strokeWidth={1.5}
+											/>
+											<p className="text-xs font-mono" style={{ color: "rgba(148,163,184,0.3)" }}>
+												{new Date(peer.created_at).toLocaleString()}
+											</p>
+										</div>
+									)}
+								</div>
 							</motion.button>
 						))}
 					</motion.div>

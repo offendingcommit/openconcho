@@ -1,63 +1,158 @@
-import { useState } from "react";
+import { useQueueStatus, useWorkspaces } from "@/api/queries";
+import type { components } from "@/api/schema.d.ts";
+import { ErrorAlert } from "@/components/shared/ErrorAlert";
+import { PageLoader } from "@/components/shared/LoadingSpinner";
+import { COLOR } from "@/lib/constants";
+import { formatCount } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Boxes, Activity, LayoutDashboard } from "lucide-react";
-import { useWorkspaces, useQueueStatus } from "@/api/queries";
-import { PageLoader } from "@/components/shared/LoadingSpinner";
-import { ErrorAlert } from "@/components/shared/ErrorAlert";
+import { Activity, Boxes, ChevronRight, CircleDot, LayoutDashboard } from "lucide-react";
+import { useState } from "react";
 
-function QueueCard({ workspaceId }: { workspaceId: string }) {
+type QueueStatus = components["schemas"]["QueueStatus"];
+
+// ─── Per-workspace queue row ─────────────────────────────────────────────────
+
+function WorkspaceQueueRow({ workspaceId }: { workspaceId: string }) {
 	const { data, isLoading } = useQueueStatus(workspaceId);
 
-	if (isLoading)
-		return (
-			<div className="rounded-xl p-5 theme-card">
-				<PageLoader />
-			</div>
-		);
-	if (!data) return null;
-
-	const pending = data.pending_work_units;
+	const pending = data?.pending_work_units ?? 0;
+	const active = data?.in_progress_work_units ?? 0;
+	const done = data?.completed_work_units ?? 0;
+	const total = data?.total_work_units ?? 0;
+	const isActive = active > 0 || pending > 0;
 
 	return (
-		<div className="rounded-xl p-5 theme-card">
-			<div className="flex items-center justify-between mb-4">
-				<div className="flex items-center gap-2">
-					<Activity className="w-4 h-4" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
-					<h3 className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Queue Status</h3>
-				</div>
-				<span
-					className="text-xs font-mono px-2 py-0.5 rounded-full"
-					style={{
-						background: pending === 0 ? "rgba(52,211,153,0.1)" : "rgba(245,158,11,0.1)",
-						color: pending === 0 ? "#34d399" : "#f59e0b",
-						border: `1px solid ${pending === 0 ? "rgba(52,211,153,0.2)" : "rgba(245,158,11,0.2)"}`,
-					}}
+		<tr
+			style={{
+				borderTop: "1px solid var(--border)",
+				background: isActive ? COLOR.warningDim : undefined,
+			}}
+		>
+			<td className="py-2 px-4">
+				<Link
+					to="/workspaces/$workspaceId"
+					params={{ workspaceId } as never}
+					className="flex items-center gap-2 group"
 				>
-					{pending === 0 ? "Idle" : "Active"}
-				</span>
-			</div>
-			<div className="space-y-2">
-				{(["total_work_units", "completed_work_units", "in_progress_work_units", "pending_work_units"] as const).map((key) => (
-					<div key={key} className="flex justify-between text-xs">
-						<span className="capitalize" style={{ color: "var(--text-3)" }}>
-							{key.replace(/_work_units$/, "").replace(/_/g, " ")}
-						</span>
-						<span className="font-mono font-medium" style={{ color: "var(--text-1)" }}>
-							{data[key]}
+					<span
+						className="font-mono text-xs truncate max-w-[200px] group-hover:underline"
+						style={{ color: "var(--accent-text)" }}
+					>
+						{workspaceId}
+					</span>
+					<ChevronRight
+						className="w-3 h-3 opacity-0 group-hover:opacity-60 transition-opacity flex-shrink-0"
+						style={{ color: "var(--accent)" }}
+						strokeWidth={2}
+					/>
+				</Link>
+			</td>
+
+			<td className="py-2 px-4 text-right">
+				{isLoading ? (
+					<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
+						…
+					</span>
+				) : (
+					<div className="flex items-center justify-end gap-1.5">
+						{isActive ? (
+							<motion.div
+								animate={{ opacity: [0.5, 1, 0.5] }}
+								transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
+							>
+								<CircleDot className="w-3 h-3" style={{ color: COLOR.warning }} strokeWidth={2} />
+							</motion.div>
+						) : (
+							<CircleDot className="w-3 h-3" style={{ color: COLOR.success }} strokeWidth={2} />
+						)}
+						<span
+							className="text-xs font-medium"
+							style={{ color: isActive ? COLOR.warning : COLOR.success }}
+						>
+							{isActive ? `${formatCount(pending + active)} pending` : "Idle"}
 						</span>
 					</div>
-				))}
-			</div>
+				)}
+			</td>
+
+			{(
+				[
+					{ val: total, color: "var(--text-2)" },
+					{ val: done, color: COLOR.success },
+					{ val: active, color: COLOR.warning },
+					{ val: pending, color: "var(--text-3)" },
+				] as Array<{ val: number; color: string }>
+			).map(({ val, color }, i) => (
+				<td
+					// biome-ignore lint/suspicious/noArrayIndexKey: static positional columns
+					key={i}
+					className="py-2 px-4 text-right font-mono text-xs"
+					style={{ color: isLoading ? "var(--text-4)" : color }}
+				>
+					{isLoading ? "—" : formatCount(val)}
+				</td>
+			))}
+		</tr>
+	);
+}
+
+// ─── Aggregate banner ─────────────────────────────────────────────────────────
+// Each workspace row already called useQueueStatus — TanStack Query deduplicates
+// the fetches so calling the same hooks here just reads from cache.
+
+function GlobalQueueBanner({ workspaces }: { workspaces: Array<{ id: string }> }) {
+	const statuses = workspaces.map((ws) => {
+		// biome-ignore lint/correctness/useHookAtTopLevel: intentional map over stable list
+		const { data } = useQueueStatus(ws.id);
+		return data as QueueStatus | undefined;
+	});
+
+	const totalPending = statuses.reduce((s, d) => s + (d?.pending_work_units ?? 0), 0);
+	const totalActive = statuses.reduce((s, d) => s + (d?.in_progress_work_units ?? 0), 0);
+	const totalDone = statuses.reduce((s, d) => s + (d?.completed_work_units ?? 0), 0);
+	const allLoaded = statuses.every((d) => d !== undefined);
+
+	return (
+		<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+			{(
+				[
+					{ label: "Workspaces", value: workspaces.length, color: "var(--text-1)", always: true },
+				{ label: "Total done", value: totalDone, color: COLOR.success, always: false },
+				{ label: "Active", value: totalActive, color: COLOR.warning, always: false },
+				{
+					label: "Pending",
+					value: totalPending,
+					color: totalPending > 0 ? COLOR.warning : "var(--text-3)",
+					always: false,
+				},
+				] as Array<{ label: string; value: number; color: string; always: boolean }>
+			).map(({ label, value, color, always }) => (
+				<div key={label} className="rounded-xl p-4 theme-card">
+					<div
+						className="text-2xl font-semibold font-mono"
+						style={{ color: allLoaded || always ? color : "var(--text-4)" }}
+					>
+						{allLoaded || always ? formatCount(value) : "—"}
+					</div>
+					<div className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>
+						{label}
+					</div>
+				</div>
+			))}
 		</div>
 	);
 }
 
+// ─── Main dashboard ───────────────────────────────────────────────────────────
+
 export function Dashboard() {
 	const [page] = useState(1);
-	const { data, isLoading, error } = useWorkspaces(page, 6);
+	const { data, isLoading, error } = useWorkspaces(page, 50);
 
-	const workspaces = (data as { items?: Array<{ id: string; created_at?: string }> } | undefined)?.items ?? [];
+	const workspaces = (
+		data as { items?: Array<{ id: string; created_at?: string }> } | undefined
+	)?.items ?? [];
 	const total = (data as { total?: number } | undefined)?.total ?? 0;
 
 	return (
@@ -68,10 +163,29 @@ export function Dashboard() {
 				className="mb-8"
 			>
 				<div className="flex items-center gap-2 mb-1">
-					<LayoutDashboard className="w-5 h-5" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
-					<h1 className="text-xl font-semibold tracking-tight" style={{ color: "var(--text-1)" }}>
+					<LayoutDashboard
+						className="w-5 h-5"
+						style={{ color: "var(--accent)" }}
+						strokeWidth={1.5}
+					/>
+					<h1
+						className="text-xl font-semibold tracking-tight"
+						style={{ color: "var(--text-1)" }}
+					>
 						Dashboard
 					</h1>
+					{total > 0 && (
+						<span
+							className="ml-1 text-xs font-mono px-2 py-0.5 rounded-full"
+							style={{
+								background: COLOR.accentSubtle,
+								color: COLOR.accentText,
+								border: `1px solid ${COLOR.accentBorder}`,
+							}}
+						>
+							{total} workspace{total !== 1 ? "s" : ""}
+						</span>
+					)}
 				</div>
 				<p className="text-sm" style={{ color: "var(--text-2)" }}>
 					Overview of your Honcho instance
@@ -81,98 +195,90 @@ export function Dashboard() {
 			<ErrorAlert error={error instanceof Error ? error : null} />
 			{isLoading && <PageLoader />}
 
-			{!isLoading && (
+			{!isLoading && workspaces.length > 0 && (
 				<div className="space-y-4">
-					{/* Stat row */}
+					{/* Aggregate stat row */}
 					<motion.div
 						initial={{ opacity: 0, y: 8 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.05 }}
-						className="grid grid-cols-1 sm:grid-cols-3 gap-3"
 					>
-						{[
-							{ label: "Workspaces", value: total, icon: Boxes },
-						].map((stat) => {
-							const Icon = stat.icon;
-							return (
-								<div key={stat.label} className="rounded-xl p-5 theme-card">
-									<Icon className="w-5 h-5 mb-3" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
-									<div className="text-3xl font-semibold font-mono" style={{ color: "var(--text-1)" }}>
-										{stat.value}
-									</div>
-									<div className="text-xs mt-1" style={{ color: "var(--text-3)" }}>
-										{stat.label}
-									</div>
-								</div>
-							);
-						})}
+						<GlobalQueueBanner workspaces={workspaces} />
 					</motion.div>
 
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-						{/* Workspace list */}
-						<motion.div
-							initial={{ opacity: 0, y: 8 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.1 }}
-							className="rounded-xl p-5 theme-card"
+					{/* Per-workspace queue table */}
+					<motion.div
+						initial={{ opacity: 0, y: 8 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.12 }}
+						className="rounded-xl theme-card overflow-hidden"
+					>
+						<div
+							className="flex items-center gap-2 px-4 py-3"
+							style={{ borderBottom: "1px solid var(--border)" }}
 						>
-							<div className="flex items-center justify-between mb-4">
-								<div className="flex items-center gap-2">
-									<Boxes className="w-4 h-4" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
-									<h2 className="text-sm font-medium" style={{ color: "var(--text-1)" }}>
-										Recent Workspaces
-									</h2>
-								</div>
-								<Link
-									to="/workspaces"
-									className="text-xs transition-colors"
-									style={{ color: "var(--accent-text)" }}
-								>
-									View all →
-								</Link>
-							</div>
+							<Activity
+								className="w-4 h-4"
+								style={{ color: "var(--accent)" }}
+								strokeWidth={1.5}
+							/>
+							<h2 className="text-sm font-medium" style={{ color: "var(--text-1)" }}>
+								Queue Status
+							</h2>
+							<span className="text-xs ml-1" style={{ color: "var(--text-4)" }}>
+								all workspaces · updates every 10s
+							</span>
+						</div>
 
-							{workspaces.length === 0 ? (
-								<p className="text-sm" style={{ color: "var(--text-3)" }}>No workspaces found.</p>
-							) : (
-								<div className="space-y-1">
+						<div className="overflow-x-auto">
+							<table className="w-full text-xs">
+								<thead>
+									<tr style={{ background: "var(--bg-3)" }}>
+										{["Workspace", "Status", "Total", "Done", "Active", "Pending"].map((h) => (
+											<th
+												key={h}
+												className={`py-2 px-4 font-medium text-left ${h !== "Workspace" && h !== "Status" ? "text-right" : ""}`}
+												style={{ color: "var(--text-3)" }}
+											>
+												{h}
+											</th>
+										))}
+									</tr>
+								</thead>
+								<tbody>
 									{workspaces.map((ws) => (
-										<Link
-											key={ws.id}
-											to="/workspaces/$workspaceId"
-											params={{ workspaceId: ws.id } as never}
-											className="flex items-center justify-between py-2 px-3 rounded-lg transition-all group"
-											style={{ color: "var(--text-2)" }}
-										>
-											<span
-												className="font-mono text-xs truncate"
-												style={{ color: "var(--accent-text)" }}
-											>
-												{ws.id}
-											</span>
-											<span
-												className="text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-												style={{ color: "var(--text-4)" }}
-											>
-												→
-											</span>
-										</Link>
+										<WorkspaceQueueRow key={ws.id} workspaceId={ws.id} />
 									))}
-								</div>
-							)}
-						</motion.div>
+								</tbody>
+							</table>
+						</div>
+					</motion.div>
 
-						{/* Queue for first workspace */}
-						{workspaces[0] && (
-							<motion.div
-								initial={{ opacity: 0, y: 8 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.15 }}
+					{total > workspaces.length && (
+						<p className="text-xs text-center" style={{ color: "var(--text-4)" }}>
+							Showing {workspaces.length} of {total} workspaces.{" "}
+							<Link
+								to="/workspaces"
+								className="hover:underline"
+								style={{ color: "var(--accent-text)" }}
 							>
-								<QueueCard workspaceId={workspaces[0].id} />
-							</motion.div>
-						)}
-					</div>
+								View all →
+							</Link>
+						</p>
+					)}
+				</div>
+			)}
+
+			{!isLoading && workspaces.length === 0 && (
+				<div className="rounded-xl p-10 text-center theme-card">
+					<Boxes
+						className="w-8 h-8 mx-auto mb-3"
+						style={{ color: "var(--text-4)" }}
+						strokeWidth={1}
+					/>
+					<p className="text-sm" style={{ color: "var(--text-3)" }}>
+						No workspaces found.
+					</p>
 				</div>
 			)}
 		</div>

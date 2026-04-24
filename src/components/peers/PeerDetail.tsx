@@ -1,19 +1,21 @@
-import { useState } from "react";
-import { Link, useNavigate, useParams } from "@tanstack/react-router";
-import { motion, AnimatePresence } from "framer-motion";
-import { User, MessageCircle, Search, Save, X } from "lucide-react";
 import {
 	usePeer,
 	usePeerCard,
 	usePeerContext,
 	usePeerRepresentation,
-	useSetPeerCard,
 	useSearchPeer,
+	useSetPeerCard,
 } from "@/api/queries";
-import { PageLoader } from "@/components/shared/LoadingSpinner";
+import { Badge } from "@/components/shared/Badge";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { JsonViewer } from "@/components/shared/JsonViewer";
-import { Badge } from "@/components/shared/Badge";
+import { PageLoader } from "@/components/shared/LoadingSpinner";
+import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
+import { PeerCardViewer } from "@/components/shared/PeerCardViewer";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
+import { MessageCircle, Save, Search, User, X } from "lucide-react";
+import { useState } from "react";
 
 type Tab = "context" | "card" | "representation" | "metadata" | "search";
 
@@ -28,7 +30,10 @@ export function PeerDetail() {
 	const { data: peer, isLoading, error } = usePeer(workspaceId, peerId);
 	const { data: card, isLoading: cardLoading } = usePeerCard(workspaceId, peerId);
 	const { data: context, isLoading: contextLoading } = usePeerContext(workspaceId, peerId);
-	const { data: representation, isLoading: repLoading } = usePeerRepresentation(workspaceId, peerId);
+	const { data: representation, isLoading: repLoading } = usePeerRepresentation(
+		workspaceId,
+		peerId,
+	);
 
 	const setPeerCard = useSetPeerCard(workspaceId, peerId);
 	const searchPeer = useSearchPeer(workspaceId, peerId);
@@ -36,12 +41,11 @@ export function PeerDetail() {
 	const [cardDraft, setCardDraft] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState("");
 
-	const cardLines: string[] =
-		Array.isArray((card as { peer_card?: unknown })?.peer_card)
-			? ((card as { peer_card: string[] }).peer_card)
-			: typeof card === "string"
-				? [card]
-				: [];
+	const cardLines: string[] = Array.isArray((card as { peer_card?: unknown })?.peer_card)
+		? (card as { peer_card: string[] }).peer_card
+		: typeof card === "string"
+			? [card]
+			: [];
 
 	const tabs: Array<{ id: Tab; label: string }> = [
 		{ id: "context", label: "Context" },
@@ -55,13 +59,23 @@ export function PeerDetail() {
 		<div className="page-container">
 			<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
 				<div className="flex items-center gap-2 text-xs mb-4" style={{ color: "var(--text-3)" }}>
-					<Link to="/workspaces" className="hover:underline">Workspaces</Link>
+					<Link to="/workspaces" className="hover:underline">
+						Workspaces
+					</Link>
 					<span>/</span>
-					<Link to="/workspaces/$workspaceId" params={{ workspaceId } as never} className="hover:underline font-mono">
+					<Link
+						to="/workspaces/$workspaceId"
+						params={{ workspaceId } as never}
+						className="hover:underline font-mono"
+					>
 						{workspaceId}
 					</Link>
 					<span>/</span>
-					<Link to="/workspaces/$workspaceId/peers" params={{ workspaceId } as never} className="hover:underline">
+					<Link
+						to="/workspaces/$workspaceId/peers"
+						params={{ workspaceId } as never}
+						className="hover:underline"
+					>
 						Peers
 					</Link>
 				</div>
@@ -77,7 +91,9 @@ export function PeerDetail() {
 								{peerId}
 							</h1>
 						</div>
-						<p className="text-sm" style={{ color: "var(--text-2)" }}>Peer identity &amp; memory</p>
+						<p className="text-sm" style={{ color: "var(--text-2)" }}>
+							Peer identity &amp; memory
+						</p>
 					</div>
 					<button
 						onClick={() =>
@@ -132,29 +148,45 @@ export function PeerDetail() {
 							transition={{ duration: 0.2 }}
 							className="rounded-xl p-5 theme-card"
 						>
-							{tab === "context" && (
-								contextLoading ? <PageLoader /> : (
+							{tab === "context" &&
+								(contextLoading ? (
+									<PageLoader />
+								) : (
 									<>
-										<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>Peer Context</h2>
+										<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
+											Peer Context
+										</h2>
 										{typeof context === "string" ? (
-											<p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: "var(--text-2)" }}>{context}</p>
+											<p
+												className="text-sm whitespace-pre-wrap leading-relaxed"
+												style={{ color: "var(--text-2)" }}
+											>
+												{context}
+											</p>
 										) : (
 											<JsonViewer data={context} />
 										)}
 									</>
-								)
-							)}
+								))}
 
-							{tab === "card" && (
-								cardLoading ? <PageLoader /> : (
+							{tab === "card" &&
+								(cardLoading ? (
+									<PageLoader />
+								) : (
 									<>
 										<div className="flex items-center justify-between mb-3">
-											<h2 className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Peer Card</h2>
+											<h2 className="text-sm font-medium" style={{ color: "var(--text-1)" }}>
+												Peer Card
+											</h2>
 											{cardDraft === null ? (
 												<button
 													onClick={() => setCardDraft(cardLines.join("\n"))}
 													className="text-xs px-2 py-1 rounded-lg transition-colors"
-													style={{ background: "var(--accent-dim)", border: "1px solid var(--accent-border)", color: "var(--accent-text)" }}
+													style={{
+														background: "var(--accent-dim)",
+														border: "1px solid var(--accent-border)",
+														color: "var(--accent-text)",
+													}}
 												>
 													Edit
 												</button>
@@ -167,7 +199,11 @@ export function PeerDetail() {
 														}}
 														disabled={setPeerCard.isPending}
 														className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg disabled:opacity-50"
-														style={{ background: "var(--accent-dim)", border: "1px solid var(--accent-border)", color: "var(--accent-text)" }}
+														style={{
+															background: "var(--accent-dim)",
+															border: "1px solid var(--accent-border)",
+															color: "var(--accent-text)",
+														}}
 													>
 														<Save className="w-3 h-3" strokeWidth={2} />
 														Save
@@ -175,7 +211,11 @@ export function PeerDetail() {
 													<button
 														onClick={() => setCardDraft(null)}
 														className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg"
-														style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text-3)" }}
+														style={{
+															background: "var(--surface)",
+															border: "1px solid var(--border)",
+															color: "var(--text-3)",
+														}}
 													>
 														<X className="w-3 h-3" strokeWidth={2} />
 													</button>
@@ -196,34 +236,32 @@ export function PeerDetail() {
 												/>
 											) : (
 												<motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-													{cardLines.length > 0 ? (
-														<p className="text-sm whitespace-pre-wrap" style={{ color: "var(--text-2)" }}>
-															{cardLines.join("\n")}
-														</p>
-													) : (
-														<p className="text-sm" style={{ color: "var(--text-4)" }}>No card set.</p>
-													)}
+													<PeerCardViewer lines={cardLines} />
 												</motion.div>
 											)}
 										</AnimatePresence>
 									</>
-								)
-							)}
+								))}
 
-							{tab === "representation" && (
-								repLoading ? <PageLoader /> : (
+							{tab === "representation" &&
+								(repLoading ? (
+									<PageLoader />
+								) : (
 									<>
-										<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>Memory Representation</h2>
-										{representation && typeof (representation as { representation?: unknown }).representation === "string" ? (
-											<p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: "var(--text-2)" }}>
-												{(representation as { representation: string }).representation}
-											</p>
+										<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
+											Memory Representation
+										</h2>
+										{representation &&
+										typeof (representation as { representation?: unknown }).representation ===
+											"string" ? (
+											<MarkdownRenderer
+												content={(representation as { representation: string }).representation}
+											/>
 										) : (
 											<JsonViewer data={representation} maxHeight="400px" />
 										)}
 									</>
-								)
-							)}
+								))}
 
 							{tab === "search" && (
 								<>
@@ -249,21 +287,44 @@ export function PeerDetail() {
 											type="submit"
 											disabled={searchPeer.isPending}
 											className="px-3 py-2 text-sm rounded-lg font-medium"
-											style={{ background: "var(--accent-dim)", border: "1px solid var(--accent-border)", color: "var(--accent-text)" }}
+											style={{
+												background: "var(--accent-dim)",
+												border: "1px solid var(--accent-border)",
+												color: "var(--accent-text)",
+											}}
 										>
 											{searchPeer.isPending ? "…" : "Search"}
 										</button>
 									</form>
 									{searchPeer.data && (
 										<div className="space-y-3">
-											{(searchPeer.data as Array<{ id: string; content: string; peer_id?: string; created_at?: string }>).length === 0 ? (
-												<p className="text-sm" style={{ color: "var(--text-3)" }}>No results.</p>
+											{(
+												searchPeer.data as Array<{
+													id: string;
+													content: string;
+													peer_id?: string;
+													created_at?: string;
+												}>
+											).length === 0 ? (
+												<p className="text-sm" style={{ color: "var(--text-3)" }}>
+													No results.
+												</p>
 											) : (
-												(searchPeer.data as Array<{ id: string; content: string; peer_id?: string; created_at?: string }>).map((r) => (
+												(
+													searchPeer.data as Array<{
+														id: string;
+														content: string;
+														peer_id?: string;
+														created_at?: string;
+													}>
+												).map((r) => (
 													<div
 														key={r.id}
 														className="py-3 px-4 rounded-lg"
-														style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+														style={{
+															background: "var(--surface)",
+															border: "1px solid var(--border)",
+														}}
 													>
 														<div className="flex items-center gap-2 mb-1.5">
 															<Badge variant="blue">{r.peer_id ?? peerId}</Badge>
@@ -273,7 +334,12 @@ export function PeerDetail() {
 																</span>
 															)}
 														</div>
-														<p className="text-sm whitespace-pre-wrap" style={{ color: "var(--text-2)" }}>{r.content}</p>
+														<p
+															className="text-sm whitespace-pre-wrap"
+															style={{ color: "var(--text-2)" }}
+														>
+															{r.content}
+														</p>
 													</div>
 												))
 											)}
@@ -284,7 +350,9 @@ export function PeerDetail() {
 
 							{tab === "metadata" && (
 								<>
-									<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>Peer Metadata</h2>
+									<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
+										Peer Metadata
+									</h2>
 									<JsonViewer data={peer.metadata} maxHeight="400px" />
 								</>
 							)}

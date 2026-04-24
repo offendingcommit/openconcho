@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { Link, useNavigate, useParams } from "@tanstack/react-router";
-import { motion, type Variants } from "framer-motion";
-import { MessageSquare, ChevronRight, Clock, CircleDot, ArrowLeft } from "lucide-react";
 import { useSessions } from "@/api/queries";
-import { PageLoader } from "@/components/shared/LoadingSpinner";
-import { ErrorAlert } from "@/components/shared/ErrorAlert";
-import { Pagination } from "@/components/shared/Pagination";
-import { EmptyState } from "@/components/shared/EmptyState";
 import type { components } from "@/api/schema.d.ts";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorAlert } from "@/components/shared/ErrorAlert";
+import { PageLoader } from "@/components/shared/LoadingSpinner";
+import { Pagination } from "@/components/shared/Pagination";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { type Variants, motion } from "framer-motion";
+import { ArrowLeft, ChevronRight, CircleDot, Clock, MessageSquare } from "lucide-react";
+import { useState } from "react";
 
 type Session = components["schemas"]["Session"];
 
@@ -32,11 +32,7 @@ export function SessionList() {
 
 	return (
 		<div className="p-8 max-w-3xl mx-auto">
-			<motion.div
-				initial={{ opacity: 0, y: -8 }}
-				animate={{ opacity: 1, y: 0 }}
-				className="mb-8"
-			>
+			<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
 				<Link
 					to="/workspaces/$workspaceId"
 					params={{ workspaceId } as never}
@@ -105,7 +101,10 @@ export function SessionList() {
 								}}
 							>
 								<div className="flex items-center justify-between">
-									<span className="font-mono text-sm font-medium truncate" style={{ color: "#c7d2fe" }}>
+									<span
+										className="font-mono text-sm font-medium truncate"
+										style={{ color: "#c7d2fe" }}
+									>
 										{session.id}
 									</span>
 									<div className="flex items-center gap-2 shrink-0 ml-2">
@@ -113,11 +112,17 @@ export function SessionList() {
 											<div className="flex items-center gap-1">
 												<motion.div
 													animate={{ opacity: [0.5, 1, 0.5] }}
-													transition={{ duration: 2, repeat: Infinity }}
+													transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
 												>
-													<CircleDot className="w-3 h-3" style={{ color: "#34d399" }} strokeWidth={2} />
+													<CircleDot
+														className="w-3 h-3"
+														style={{ color: "#34d399" }}
+														strokeWidth={2}
+													/>
 												</motion.div>
-												<span className="text-xs" style={{ color: "#34d399" }}>Active</span>
+												<span className="text-xs" style={{ color: "#34d399" }}>
+													Active
+												</span>
 											</div>
 										)}
 										<ChevronRight
@@ -127,14 +132,32 @@ export function SessionList() {
 										/>
 									</div>
 								</div>
-								{session.created_at && (
-									<div className="flex items-center gap-1.5 mt-2">
-										<Clock className="w-3 h-3" style={{ color: "rgba(148,163,184,0.3)" }} strokeWidth={1.5} />
-										<p className="text-xs font-mono" style={{ color: "rgba(148,163,184,0.3)" }}>
-											{new Date(session.created_at).toLocaleString()}
-										</p>
-									</div>
-								)}
+								<div className="flex items-center gap-2 mt-2">
+									{session.created_at && (
+										<div className="flex items-center gap-1.5">
+											<Clock
+												className="w-3 h-3"
+												style={{ color: "rgba(148,163,184,0.3)" }}
+												strokeWidth={1.5}
+											/>
+											<p className="text-xs font-mono" style={{ color: "rgba(148,163,184,0.3)" }}>
+												{new Date(session.created_at).toLocaleString()}
+											</p>
+										</div>
+									)}
+									{(session.metadata as Record<string, string> | null)?.source && (
+										<span
+											className="text-xs font-mono px-1.5 py-0.5 rounded"
+											style={{
+												background: "rgba(99,102,241,0.08)",
+												border: "1px solid rgba(99,102,241,0.15)",
+												color: "rgba(148,163,184,0.6)",
+											}}
+										>
+											{(session.metadata as Record<string, string>).source}
+										</span>
+									)}
+								</div>
 							</motion.button>
 						))}
 					</motion.div>

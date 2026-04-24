@@ -1,27 +1,29 @@
-import { useState } from "react";
-import { Link, useParams, useNavigate } from "@tanstack/react-router";
-import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, Trash2, Copy, Search, Users, X } from "lucide-react";
 import {
-	useSessionMessages,
-	useSessionSummaries,
-	useSessionContext,
-	useSessionPeers,
-	useDeleteSession,
-	useCloneSession,
-	useSearchSession,
-	useRemovePeersFromSession,
-	usePeers,
 	useAddPeersToSession,
+	useCloneSession,
+	useDeleteSession,
+	usePeers,
+	useRemovePeersFromSession,
+	useSearchSession,
+	useSessionContext,
+	useSessionMessages,
+	useSessionPeers,
+	useSessionSummaries,
 } from "@/api/queries";
+import type { components } from "@/api/schema.d.ts";
+import { Badge } from "@/components/shared/Badge";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { JsonViewer } from "@/components/shared/JsonViewer";
 import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { Pagination } from "@/components/shared/Pagination";
-import { Badge } from "@/components/shared/Badge";
-import { JsonViewer } from "@/components/shared/JsonViewer";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import type { components } from "@/api/schema.d.ts";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlignLeft, Clock, Copy, MessageSquare, Search, Trash2, Users, X } from "lucide-react";
+import { useState } from "react";
 
 type Message = components["schemas"]["Message"];
+type SessionSummaries = components["schemas"]["SessionSummaries"];
+type Summary = components["schemas"]["Summary"];
 type Tab = "messages" | "summaries" | "context" | "peers";
 
 export function SessionDetail() {
@@ -37,8 +39,15 @@ export function SessionDetail() {
 	const [searchActive, setSearchActive] = useState(false);
 	const [confirmDelete, setConfirmDelete] = useState(false);
 
-	const { data: msgData, isLoading: msgsLoading } = useSessionMessages(workspaceId, sessionId, page);
-	const { data: summaries, isLoading: summariesLoading } = useSessionSummaries(workspaceId, sessionId);
+	const { data: msgData, isLoading: msgsLoading } = useSessionMessages(
+		workspaceId,
+		sessionId,
+		page,
+	);
+	const { data: summaries, isLoading: summariesLoading } = useSessionSummaries(
+		workspaceId,
+		sessionId,
+	);
 	const { data: context, isLoading: contextLoading } = useSessionContext(workspaceId, sessionId);
 	const { data: sessionPeers, isLoading: peersLoading } = useSessionPeers(workspaceId, sessionId);
 	const { data: allPeers } = usePeers(workspaceId, 1, 100);
@@ -52,11 +61,11 @@ export function SessionDetail() {
 	const messages: Message[] = (msgData as { items?: Message[] } | undefined)?.items ?? [];
 	const totalPages = (msgData as { pages?: number } | undefined)?.pages ?? 1;
 
-	const memberPeerIds = new Set(
-		(sessionPeers as Array<{ id?: string; peer_id?: string }> | undefined)?.map(
-			(p) => p.id ?? p.peer_id ?? "",
-		) ?? [],
-	);
+	const sessionPeerItems = (
+		sessionPeers as { items?: Array<{ id?: string; peer_id?: string }> } | undefined
+	)?.items ?? [];
+
+	const memberPeerIds = new Set(sessionPeerItems.map((p) => p.id ?? p.peer_id ?? ""));
 
 	const availablePeers = (
 		(allPeers as { items?: Array<{ id: string }> } | undefined)?.items ?? []
@@ -71,7 +80,10 @@ export function SessionDetail() {
 
 	const handleDelete = async () => {
 		await deleteSession.mutateAsync(sessionId);
-		navigate({ to: "/workspaces/$workspaceId/sessions" as never, params: { workspaceId } as never });
+		navigate({
+			to: "/workspaces/$workspaceId/sessions" as never,
+			params: { workspaceId } as never,
+		});
 	};
 
 	const handleClone = async () => {
@@ -88,19 +100,34 @@ export function SessionDetail() {
 		<div className="page-container">
 			<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
 				<div className="flex items-center gap-2 text-xs mb-4" style={{ color: "var(--text-3)" }}>
-					<Link to="/workspaces/$workspaceId" params={{ workspaceId } as never} className="hover:underline font-mono">
+					<Link
+						to="/workspaces/$workspaceId"
+						params={{ workspaceId } as never}
+						className="hover:underline font-mono"
+					>
 						{workspaceId}
 					</Link>
 					<span>/</span>
-					<Link to="/workspaces/$workspaceId/sessions" params={{ workspaceId } as never} className="hover:underline">
+					<Link
+						to="/workspaces/$workspaceId/sessions"
+						params={{ workspaceId } as never}
+						className="hover:underline"
+					>
 						Sessions
 					</Link>
 				</div>
 
 				<div className="flex items-start justify-between gap-4 mb-1">
 					<div className="flex items-center gap-2 min-w-0">
-						<MessageSquare className="w-5 h-5 flex-shrink-0" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
-						<h1 className="text-xl font-semibold font-mono break-all tracking-tight" style={{ color: "var(--text-1)" }}>
+						<MessageSquare
+							className="w-5 h-5 flex-shrink-0"
+							style={{ color: "var(--accent)" }}
+							strokeWidth={1.5}
+						/>
+						<h1
+							className="text-xl font-semibold font-mono break-all tracking-tight"
+							style={{ color: "var(--text-1)" }}
+						>
 							{sessionId}
 						</h1>
 					</div>
@@ -141,7 +168,9 @@ export function SessionDetail() {
 						</button>
 					</div>
 				</div>
-				<p className="text-sm" style={{ color: "var(--text-2)" }}>Session detail</p>
+				<p className="text-sm" style={{ color: "var(--text-2)" }}>
+					Session detail
+				</p>
 			</motion.div>
 
 			{/* Inline search bar */}
@@ -171,19 +200,32 @@ export function SessionDetail() {
 								type="submit"
 								disabled={searchSession.isPending}
 								className="px-3 py-2 text-sm rounded-lg font-medium"
-								style={{ background: "var(--accent-dim)", border: "1px solid var(--accent-border)", color: "var(--accent-text)" }}
+								style={{
+									background: "var(--accent-dim)",
+									border: "1px solid var(--accent-border)",
+									color: "var(--accent-text)",
+								}}
 							>
 								{searchSession.isPending ? "…" : "Search"}
 							</button>
 						</form>
 						{searchSession.data && (
 							<div className="mt-3 rounded-xl p-4 theme-card space-y-2">
-								{(searchSession.data as Array<{ id: string; content: string; peer_id?: string }>).length === 0 ? (
-									<p className="text-sm" style={{ color: "var(--text-3)" }}>No results.</p>
+								{(searchSession.data as Array<{ id: string; content: string; peer_id?: string }>)
+									.length === 0 ? (
+									<p className="text-sm" style={{ color: "var(--text-3)" }}>
+										No results.
+									</p>
 								) : (
-									(searchSession.data as Array<{ id: string; content: string; peer_id?: string }>).map((r) => (
-										<div key={r.id} className="text-sm py-2" style={{ borderBottom: "1px solid var(--border)", color: "var(--text-2)" }}>
-											{r.peer_id && <Badge variant="blue" >{r.peer_id}</Badge>}
+									(
+										searchSession.data as Array<{ id: string; content: string; peer_id?: string }>
+									).map((r) => (
+										<div
+											key={r.id}
+											className="text-sm py-2"
+											style={{ borderBottom: "1px solid var(--border)", color: "var(--text-2)" }}
+										>
+											{r.peer_id && <Badge variant="blue">{r.peer_id}</Badge>}
 											<p className="mt-1 whitespace-pre-wrap">{r.content}</p>
 										</div>
 									))
@@ -227,15 +269,23 @@ export function SessionDetail() {
 					transition={{ duration: 0.2 }}
 					className="rounded-xl p-5 theme-card"
 				>
-					{tab === "messages" && (
-						msgsLoading ? <PageLoader /> : (
+					{tab === "messages" &&
+						(msgsLoading ? (
+							<PageLoader />
+						) : (
 							<div>
 								{messages.length === 0 ? (
-									<p className="text-sm" style={{ color: "var(--text-3)" }}>No messages.</p>
+									<p className="text-sm" style={{ color: "var(--text-3)" }}>
+										No messages.
+									</p>
 								) : (
 									<div className="space-y-4">
 										{messages.map((msg) => (
-											<div key={msg.id} className="pb-4" style={{ borderBottom: "1px solid var(--border)" }}>
+											<div
+												key={msg.id}
+												className="pb-4"
+												style={{ borderBottom: "1px solid var(--border)" }}
+											>
 												<div className="flex items-center gap-2 mb-2 flex-wrap">
 													<Badge variant={msg.peer_id ? "blue" : "default"}>
 														{msg.peer_id ?? "system"}
@@ -251,7 +301,10 @@ export function SessionDetail() {
 														</span>
 													)}
 												</div>
-												<p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: "var(--text-2)" }}>
+												<p
+													className="text-sm whitespace-pre-wrap leading-relaxed"
+													style={{ color: "var(--text-2)" }}
+												>
 													{msg.content}
 												</p>
 											</div>
@@ -260,45 +313,45 @@ export function SessionDetail() {
 								)}
 								<Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 							</div>
-						)
-					)}
+						))}
 
-					{tab === "summaries" && (
-						summariesLoading ? <PageLoader /> : (
-							<>
-								<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>Session Summaries</h2>
-								<JsonViewer data={summaries} maxHeight="500px" />
-							</>
-						)
-					)}
+					{tab === "summaries" &&
+						(summariesLoading ? <PageLoader /> : <SummariesDisplay summaries={summaries} />)}
 
-					{tab === "context" && (
-						contextLoading ? <PageLoader /> : (
+					{tab === "context" &&
+						(contextLoading ? (
+							<PageLoader />
+						) : (
 							<>
-								<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>Session Context</h2>
+								<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
+									Session Context
+								</h2>
 								{typeof context === "string" ? (
-									<p className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: "var(--text-2)" }}>
+									<p
+										className="text-sm whitespace-pre-wrap leading-relaxed"
+										style={{ color: "var(--text-2)" }}
+									>
 										{context}
 									</p>
 								) : (
 									<JsonViewer data={context} maxHeight="500px" />
 								)}
 							</>
-						)
-					)}
+						))}
 
-					{tab === "peers" && (
-						peersLoading ? <PageLoader /> : (
+					{tab === "peers" &&
+						(peersLoading ? (
+							<PageLoader />
+						) : (
 							<SessionPeersTab
-								members={sessionPeers as Array<{ id?: string; peer_id?: string }> | undefined}
+								members={sessionPeerItems}
 								available={availablePeers}
 								onRemove={(id) => removePeers.mutate([id])}
 								onAdd={(id) => addPeers.mutate({ [id]: {} })}
 								removing={removePeers.isPending}
 								adding={addPeers.isPending}
 							/>
-						)
-					)}
+						))}
 				</motion.div>
 			</div>
 
@@ -340,7 +393,9 @@ function SessionPeersTab({
 					Session members ({list.length})
 				</h2>
 				{list.length === 0 ? (
-					<p className="text-sm" style={{ color: "var(--text-3)" }}>No peers in this session.</p>
+					<p className="text-sm" style={{ color: "var(--text-3)" }}>
+						No peers in this session.
+					</p>
 				) : (
 					<div className="space-y-1">
 						{list.map((p) => {
@@ -351,7 +406,9 @@ function SessionPeersTab({
 									className="flex items-center justify-between py-1.5 px-3 rounded-lg"
 									style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
 								>
-									<span className="text-xs font-mono" style={{ color: "var(--accent-text)" }}>{id}</span>
+									<span className="text-xs font-mono" style={{ color: "var(--accent-text)" }}>
+										{id}
+									</span>
 									<button
 										onClick={() => onRemove(id)}
 										disabled={removing}
@@ -392,5 +449,70 @@ function SessionPeersTab({
 				</div>
 			)}
 		</div>
+	);
+}
+
+function SummaryCard({ label, summary }: { label: string; summary: Summary }) {
+	return (
+		<div
+			className="rounded-xl p-4"
+			style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+		>
+			<div className="flex items-center justify-between mb-3">
+				<div className="flex items-center gap-1.5">
+					<AlignLeft className="w-3.5 h-3.5" style={{ color: "var(--text-4)" }} strokeWidth={1.5} />
+					<span className="text-xs font-medium" style={{ color: "var(--text-2)" }}>
+						{label}
+					</span>
+				</div>
+				<div className="flex items-center gap-3">
+					{summary.token_count != null && (
+						<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
+							{summary.token_count} tok
+						</span>
+					)}
+					{summary.created_at && (
+						<div className="flex items-center gap-1">
+							<Clock className="w-3 h-3" style={{ color: "var(--text-4)" }} strokeWidth={1.5} />
+							<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
+								{new Date(summary.created_at).toLocaleString()}
+							</span>
+						</div>
+					)}
+				</div>
+			</div>
+			<p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text-2)" }}>
+				{summary.content}
+			</p>
+		</div>
+	);
+}
+
+function SummariesDisplay({ summaries }: { summaries: unknown }) {
+	const data = summaries as SessionSummaries | null | undefined;
+
+	if (!data || (!data.short_summary && !data.long_summary)) {
+		return (
+			<>
+				<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
+					Session Summaries
+				</h2>
+				<p className="text-sm" style={{ color: "var(--text-4)" }}>
+					No summaries available yet.
+				</p>
+			</>
+		);
+	}
+
+	return (
+		<>
+			<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
+				Session Summaries
+			</h2>
+			<div className="space-y-3">
+				{data.short_summary && <SummaryCard label="Short summary" summary={data.short_summary} />}
+				{data.long_summary && <SummaryCard label="Long summary" summary={data.long_summary} />}
+			</div>
+		</>
 	);
 }
