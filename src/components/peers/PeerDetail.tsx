@@ -12,6 +12,9 @@ import { JsonViewer } from "@/components/shared/JsonViewer";
 import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
 import { PeerCardViewer } from "@/components/shared/PeerCardViewer";
+import { Button } from "@/components/ui/button";
+import { Input, Textarea } from "@/components/ui/input";
+import { PageTitle, SectionHeading, Body, Muted, Caption } from "@/components/ui/typography";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, Save, Search, User, X } from "lucide-react";
@@ -84,30 +87,25 @@ export function PeerDetail() {
 					<div>
 						<div className="flex items-center gap-2 mb-1">
 							<User className="w-5 h-5" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
-							<h1
-								className="text-xl font-semibold font-mono break-all tracking-tight"
-								style={{ color: "var(--text-1)" }}
-							>
+							<PageTitle className="font-mono break-all">
 								{peerId}
-							</h1>
+							</PageTitle>
 						</div>
-						<p className="text-sm" style={{ color: "var(--text-2)" }}>
-							Peer identity &amp; memory
-						</p>
+						<Body className="leading-none">Peer identity &amp; memory</Body>
 					</div>
-					<button
+					<Button
+						variant="primary"
 						onClick={() =>
 							navigate({
 								to: "/workspaces/$workspaceId/peers/$peerId/chat",
 								params: { workspaceId, peerId } as never,
 							})
 						}
-						className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-						style={{ background: "var(--accent)", color: "#fff" }}
+						className="shrink-0 rounded-xl"
 					>
 						<MessageCircle className="w-4 h-4" strokeWidth={1.5} />
 						Chat
-					</button>
+					</Button>
 				</div>
 			</motion.div>
 
@@ -153,16 +151,9 @@ export function PeerDetail() {
 									<PageLoader />
 								) : (
 									<>
-										<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
-											Peer Context
-										</h2>
+										<SectionHeading>Peer Context</SectionHeading>
 										{typeof context === "string" ? (
-											<p
-												className="text-sm whitespace-pre-wrap leading-relaxed"
-												style={{ color: "var(--text-2)" }}
-											>
-												{context}
-											</p>
+											<Body className="whitespace-pre-wrap">{context}</Body>
 										) : (
 											<JsonViewer data={context} />
 										)}
@@ -175,65 +166,50 @@ export function PeerDetail() {
 								) : (
 									<>
 										<div className="flex items-center justify-between mb-3">
-											<h2 className="text-sm font-medium" style={{ color: "var(--text-1)" }}>
-												Peer Card
-											</h2>
+											<SectionHeading className="mb-0">Peer Card</SectionHeading>
 											{cardDraft === null ? (
-												<button
+												<Button
+													variant="accent"
+													size="sm"
 													onClick={() => setCardDraft(cardLines.join("\n"))}
-													className="text-xs px-2 py-1 rounded-lg transition-colors"
-													style={{
-														background: "var(--accent-dim)",
-														border: "1px solid var(--accent-border)",
-														color: "var(--accent-text)",
-													}}
 												>
 													Edit
-												</button>
+												</Button>
 											) : (
 												<div className="flex gap-1.5">
-													<button
+													<Button
+														variant="accent"
+														size="sm"
 														onClick={() => {
 															setPeerCard.mutate(cardDraft.split("\n").filter(Boolean));
 															setCardDraft(null);
 														}}
 														disabled={setPeerCard.isPending}
-														className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg disabled:opacity-50"
-														style={{
-															background: "var(--accent-dim)",
-															border: "1px solid var(--accent-border)",
-															color: "var(--accent-text)",
-														}}
 													>
 														<Save className="w-3 h-3" strokeWidth={2} />
 														Save
-													</button>
-													<button
+													</Button>
+													<Button
+														variant="surface"
+														size="sm"
 														onClick={() => setCardDraft(null)}
-														className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg"
-														style={{
-															background: "var(--surface)",
-															border: "1px solid var(--border)",
-															color: "var(--text-3)",
-														}}
 													>
 														<X className="w-3 h-3" strokeWidth={2} />
-													</button>
+													</Button>
 												</div>
 											)}
 										</div>
 										<AnimatePresence mode="wait">
 											{cardDraft !== null ? (
-												<motion.textarea
-													key="edit"
-													initial={{ opacity: 0 }}
-													animate={{ opacity: 1 }}
-													value={cardDraft}
-													onChange={(e) => setCardDraft(e.target.value)}
-													rows={8}
-													className="theme-input w-full text-sm px-3 py-2 rounded-lg font-mono resize-y"
-													style={{ minHeight: "8rem" }}
-												/>
+												<motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+													<Textarea
+														value={cardDraft}
+														onChange={(e) => setCardDraft(e.target.value)}
+														rows={8}
+														className="font-mono resize-y"
+														style={{ minHeight: "8rem" }}
+													/>
+												</motion.div>
 											) : (
 												<motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 													<PeerCardViewer lines={cardLines} />
@@ -248,9 +224,7 @@ export function PeerDetail() {
 									<PageLoader />
 								) : (
 									<>
-										<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
-											Memory Representation
-										</h2>
+										<SectionHeading>Memory Representation</SectionHeading>
 										{representation &&
 										typeof (representation as { representation?: unknown }).representation ===
 											"string" ? (
@@ -265,10 +239,10 @@ export function PeerDetail() {
 
 							{tab === "search" && (
 								<>
-									<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
+									<SectionHeading>
 										<Search className="w-3.5 h-3.5 inline mr-1.5" strokeWidth={2} />
 										Search peer messages
-									</h2>
+									</SectionHeading>
 									<form
 										onSubmit={(e) => {
 											e.preventDefault();
@@ -276,25 +250,20 @@ export function PeerDetail() {
 										}}
 										className="flex gap-2 mb-4"
 									>
-										<input
+										<Input
 											autoFocus
 											value={searchQuery}
 											onChange={(e) => setSearchQuery(e.target.value)}
 											placeholder="Semantic search across this peer's messages…"
-											className="theme-input flex-1 text-sm px-3 py-2 rounded-lg"
+											className="flex-1"
 										/>
-										<button
+										<Button
 											type="submit"
+											variant="accent"
 											disabled={searchPeer.isPending}
-											className="px-3 py-2 text-sm rounded-lg font-medium"
-											style={{
-												background: "var(--accent-dim)",
-												border: "1px solid var(--accent-border)",
-												color: "var(--accent-text)",
-											}}
 										>
 											{searchPeer.isPending ? "…" : "Search"}
-										</button>
+										</Button>
 									</form>
 									{searchPeer.data && (
 										<div className="space-y-3">
@@ -306,9 +275,7 @@ export function PeerDetail() {
 													created_at?: string;
 												}>
 											).length === 0 ? (
-												<p className="text-sm" style={{ color: "var(--text-3)" }}>
-													No results.
-												</p>
+												<Muted>No results.</Muted>
 											) : (
 												(
 													searchPeer.data as Array<{
@@ -329,17 +296,10 @@ export function PeerDetail() {
 														<div className="flex items-center gap-2 mb-1.5">
 															<Badge variant="blue">{r.peer_id ?? peerId}</Badge>
 															{r.created_at && (
-																<span className="text-xs" style={{ color: "var(--text-4)" }}>
-																	{new Date(r.created_at).toLocaleString()}
-																</span>
+																<Caption>{new Date(r.created_at).toLocaleString()}</Caption>
 															)}
 														</div>
-														<p
-															className="text-sm whitespace-pre-wrap"
-															style={{ color: "var(--text-2)" }}
-														>
-															{r.content}
-														</p>
+														<Body className="whitespace-pre-wrap">{r.content}</Body>
 													</div>
 												))
 											)}
@@ -350,9 +310,7 @@ export function PeerDetail() {
 
 							{tab === "metadata" && (
 								<>
-									<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
-										Peer Metadata
-									</h2>
+									<SectionHeading>Peer Metadata</SectionHeading>
 									<JsonViewer data={peer.metadata} maxHeight="400px" />
 								</>
 							)}

@@ -7,6 +7,10 @@ import { useWebhooks, useCreateWebhook, useDeleteWebhook, useTestWebhook } from 
 import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { PageTitle, SectionHeading, Body, Muted } from "@/components/ui/typography";
+import { COLOR } from "@/lib/constants";
 
 const urlSchema = z.string().url("Must be a valid URL");
 
@@ -60,27 +64,19 @@ export function WebhookManager({ workspaceId }: Props) {
 				<div className="flex items-center justify-between mb-1">
 					<div className="flex items-center gap-2">
 						<Webhook className="w-5 h-5" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
-						<h1 className="text-xl font-semibold tracking-tight" style={{ color: "var(--text-1)" }}>
-							Webhooks
-						</h1>
+						<PageTitle>Webhooks</PageTitle>
 					</div>
-					<button
+					<Button
+						variant="accent"
+						size="sm"
 						onClick={handleTest}
 						disabled={testWebhook.isPending}
-						className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
-						style={{
-							background: "var(--accent-dim)",
-							border: "1px solid var(--accent-border)",
-							color: "var(--accent-text)",
-						}}
 					>
 						<Zap className="w-3.5 h-3.5" strokeWidth={2} />
 						{testWebhook.isPending ? "Firing..." : "Test emit"}
-					</button>
+					</Button>
 				</div>
-				<p className="text-sm" style={{ color: "var(--text-2)" }}>
-					Event webhook endpoints for this workspace
-				</p>
+				<Body className="leading-none">Event webhook endpoints for this workspace</Body>
 			</motion.div>
 
 			<div className="mt-8 space-y-4">
@@ -93,34 +89,28 @@ export function WebhookManager({ workspaceId }: Props) {
 					animate={{ opacity: 1, y: 0 }}
 					className="rounded-xl p-5 theme-card"
 				>
-					<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
+					<SectionHeading>
 						<Plus className="w-3.5 h-3.5 inline mr-1.5" strokeWidth={2} />
 						Add endpoint
-					</h2>
+					</SectionHeading>
 					<form onSubmit={handleCreate} className="flex gap-2">
 						<div className="flex-1">
-							<input
+							<Input
 								value={url}
 								onChange={(e) => { setUrl(e.target.value); setUrlError(""); }}
 								placeholder="https://your-server.com/webhook"
-								className="theme-input w-full text-sm px-3 py-2 rounded-lg"
 							/>
 							{urlError && (
-								<p className="text-xs mt-1" style={{ color: "#f87171" }}>{urlError}</p>
+								<p className="text-xs mt-1" style={{ color: COLOR.destructive }}>{urlError}</p>
 							)}
 						</div>
-						<button
+						<Button
 							type="submit"
+							variant="accent"
 							disabled={createWebhook.isPending}
-							className="px-3 py-2 text-sm rounded-lg font-medium disabled:opacity-50"
-							style={{
-								background: "var(--accent-dim)",
-								border: "1px solid var(--accent-border)",
-								color: "var(--accent-text)",
-							}}
 						>
 							{createWebhook.isPending ? "Adding..." : "Add"}
-						</button>
+						</Button>
 					</form>
 				</motion.div>
 
@@ -133,9 +123,9 @@ export function WebhookManager({ workspaceId }: Props) {
 							exit={{ opacity: 0 }}
 							className="rounded-xl p-4 text-xs font-mono overflow-auto"
 							style={{
-								background: "rgba(52,211,153,0.06)",
-								border: "1px solid rgba(52,211,153,0.2)",
-								color: "#34d399",
+								background: COLOR.successDim,
+								border: `1px solid ${COLOR.successBorder}`,
+								color: COLOR.success,
 							}}
 						>
 							{testResult}
@@ -158,9 +148,7 @@ export function WebhookManager({ workspaceId }: Props) {
 									style={{ color: "var(--text-3)" }}
 									strokeWidth={1.5}
 								/>
-								<p className="text-sm" style={{ color: "var(--text-3)" }}>
-									No webhook endpoints yet.
-								</p>
+								<Muted>No webhook endpoints yet.</Muted>
 							</div>
 						) : (
 							<div className="divide-y" style={{ borderColor: "var(--border)" }}>
@@ -197,13 +185,14 @@ export function WebhookManager({ workspaceId }: Props) {
 												{(wh as { id: string }).id}
 											</span>
 										</div>
-										<button
+										<Button
+											variant="ghost"
+											size="icon"
 											onClick={() => setDeleteTarget((wh as { id: string }).id)}
-											className="p-1.5 rounded-lg transition-colors flex-shrink-0"
-											style={{ color: "var(--text-4)" }}
+											aria-label="Delete webhook"
 										>
 											<Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-										</button>
+										</Button>
 									</motion.div>
 								))}
 							</div>

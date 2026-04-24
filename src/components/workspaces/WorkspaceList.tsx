@@ -7,6 +7,8 @@ import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { Pagination } from "@/components/shared/Pagination";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { PageTitle, Muted, MonoCaption } from "@/components/ui/typography";
+import { COLOR } from "@/lib/constants";
 import type { components } from "@/api/schema.d.ts";
 
 type Workspace = components["schemas"]["Workspace"];
@@ -40,28 +42,21 @@ export function WorkspaceList() {
 			>
 				<div className="flex items-center gap-2 mb-1">
 					<Boxes className="w-5 h-5" style={{ color: "#6366f1" }} strokeWidth={1.5} />
-					<h1
-						className="text-xl font-semibold tracking-tight"
-						style={{ color: "#e4e4f0" }}
-					>
-						Workspaces
-					</h1>
+					<PageTitle>Workspaces</PageTitle>
 					{total > 0 && (
 						<span
 							className="ml-auto text-xs font-mono px-2 py-0.5 rounded-full"
 							style={{
-								background: "rgba(99,102,241,0.1)",
-								color: "#818cf8",
-								border: "1px solid rgba(99,102,241,0.2)",
+								background: COLOR.accentSubtle,
+								color: COLOR.accentText,
+								border: `1px solid ${COLOR.accentBorder}`,
 							}}
 						>
 							{total}
 						</span>
 					)}
 				</div>
-				<p className="text-sm" style={{ color: "rgba(148,163,184,0.6)" }}>
-					All workspaces in your Honcho instance
-				</p>
+				<Muted>All workspaces in your Honcho instance</Muted>
 			</motion.div>
 
 			<ErrorAlert error={error instanceof Error ? error : null} />
@@ -124,9 +119,7 @@ export function WorkspaceList() {
 											style={{ color: "rgba(148,163,184,0.35)" }}
 											strokeWidth={1.5}
 										/>
-										<p className="text-xs font-mono" style={{ color: "rgba(148,163,184,0.35)" }}>
-											{new Date(ws.created_at).toLocaleString()}
-										</p>
+										<MonoCaption>{new Date(ws.created_at).toLocaleString()}</MonoCaption>
 									</div>
 								)}
 							</motion.button>

@@ -16,6 +16,9 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { JsonViewer } from "@/components/shared/JsonViewer";
 import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { Pagination } from "@/components/shared/Pagination";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { PageTitle, SectionHeading, Body, Muted, Caption, MonoCaption } from "@/components/ui/typography";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlignLeft, Clock, Copy, MessageSquare, Search, Trash2, Users, X } from "lucide-react";
@@ -124,53 +127,39 @@ export function SessionDetail() {
 							style={{ color: "var(--accent)" }}
 							strokeWidth={1.5}
 						/>
-						<h1
-							className="text-xl font-semibold font-mono break-all tracking-tight"
-							style={{ color: "var(--text-1)" }}
-						>
+						<PageTitle className="font-mono break-all">
 							{sessionId}
-						</h1>
+						</PageTitle>
 					</div>
 					<div className="flex items-center gap-2 flex-shrink-0">
-						<button
+						<Button
+							variant={searchActive ? "accent" : "surface"}
+							size="icon"
 							onClick={() => setSearchActive((v) => !v)}
-							className="p-1.5 rounded-lg transition-colors"
-							style={{
-								background: searchActive ? "var(--accent-dim)" : "var(--surface)",
-								border: `1px solid ${searchActive ? "var(--accent-border)" : "var(--border)"}`,
-								color: searchActive ? "var(--accent-text)" : "var(--text-3)",
-							}}
+							aria-label="Search session"
 						>
 							<Search className="w-3.5 h-3.5" strokeWidth={2} />
-						</button>
-						<button
+						</Button>
+						<Button
+							variant="surface"
+							size="icon"
 							onClick={handleClone}
 							disabled={cloneSession.isPending}
-							className="p-1.5 rounded-lg transition-colors disabled:opacity-50"
-							style={{
-								background: "var(--surface)",
-								border: "1px solid var(--border)",
-								color: "var(--text-3)",
-							}}
+							aria-label="Clone session"
 						>
 							<Copy className="w-3.5 h-3.5" strokeWidth={2} />
-						</button>
-						<button
+						</Button>
+						<Button
+							variant="destructive"
+							size="icon"
 							onClick={() => setConfirmDelete(true)}
-							className="p-1.5 rounded-lg transition-colors"
-							style={{
-								background: "rgba(239,68,68,0.08)",
-								border: "1px solid rgba(239,68,68,0.2)",
-								color: "#f87171",
-							}}
+							aria-label="Delete session"
 						>
 							<Trash2 className="w-3.5 h-3.5" strokeWidth={2} />
-						</button>
+						</Button>
 					</div>
 				</div>
-				<p className="text-sm" style={{ color: "var(--text-2)" }}>
-					Session detail
-				</p>
+				<Body className="leading-none">Session detail</Body>
 			</motion.div>
 
 			{/* Inline search bar */}
@@ -189,33 +178,26 @@ export function SessionDetail() {
 							}}
 							className="flex gap-2"
 						>
-							<input
+							<Input
 								autoFocus
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
 								placeholder="Search within this session…"
-								className="theme-input flex-1 text-sm px-3 py-2 rounded-lg"
+								className="flex-1"
 							/>
-							<button
+							<Button
 								type="submit"
+								variant="accent"
 								disabled={searchSession.isPending}
-								className="px-3 py-2 text-sm rounded-lg font-medium"
-								style={{
-									background: "var(--accent-dim)",
-									border: "1px solid var(--accent-border)",
-									color: "var(--accent-text)",
-								}}
 							>
 								{searchSession.isPending ? "…" : "Search"}
-							</button>
+							</Button>
 						</form>
 						{searchSession.data && (
 							<div className="mt-3 rounded-xl p-4 theme-card space-y-2">
 								{(searchSession.data as Array<{ id: string; content: string; peer_id?: string }>)
 									.length === 0 ? (
-									<p className="text-sm" style={{ color: "var(--text-3)" }}>
-										No results.
-									</p>
+									<Muted>No results.</Muted>
 								) : (
 									(
 										searchSession.data as Array<{ id: string; content: string; peer_id?: string }>
@@ -275,9 +257,7 @@ export function SessionDetail() {
 						) : (
 							<div>
 								{messages.length === 0 ? (
-									<p className="text-sm" style={{ color: "var(--text-3)" }}>
-										No messages.
-									</p>
+									<Muted>No messages.</Muted>
 								) : (
 									<div className="space-y-4">
 										{messages.map((msg) => (
@@ -291,22 +271,13 @@ export function SessionDetail() {
 														{msg.peer_id ?? "system"}
 													</Badge>
 													{msg.token_count != null && (
-														<span className="text-xs" style={{ color: "var(--text-4)" }}>
-															{msg.token_count} tokens
-														</span>
+														<Caption>{msg.token_count} tokens</Caption>
 													)}
 													{msg.created_at && (
-														<span className="text-xs" style={{ color: "var(--text-4)" }}>
-															{new Date(msg.created_at).toLocaleString()}
-														</span>
+														<Caption>{new Date(msg.created_at).toLocaleString()}</Caption>
 													)}
 												</div>
-												<p
-													className="text-sm whitespace-pre-wrap leading-relaxed"
-													style={{ color: "var(--text-2)" }}
-												>
-													{msg.content}
-												</p>
+												<Body className="whitespace-pre-wrap">{msg.content}</Body>
 											</div>
 										))}
 									</div>
@@ -323,16 +294,9 @@ export function SessionDetail() {
 							<PageLoader />
 						) : (
 							<>
-								<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
-									Session Context
-								</h2>
+								<SectionHeading>Session Context</SectionHeading>
 								{typeof context === "string" ? (
-									<p
-										className="text-sm whitespace-pre-wrap leading-relaxed"
-										style={{ color: "var(--text-2)" }}
-									>
-										{context}
-									</p>
+									<Body className="whitespace-pre-wrap">{context}</Body>
 								) : (
 									<JsonViewer data={context} maxHeight="500px" />
 								)}
@@ -388,14 +352,12 @@ function SessionPeersTab({
 	return (
 		<div className="space-y-4">
 			<div>
-				<h2 className="text-sm font-medium mb-2" style={{ color: "var(--text-1)" }}>
+				<SectionHeading className="mb-2">
 					<Users className="w-3.5 h-3.5 inline mr-1.5" strokeWidth={2} />
 					Session members ({list.length})
-				</h2>
+				</SectionHeading>
 				{list.length === 0 ? (
-					<p className="text-sm" style={{ color: "var(--text-3)" }}>
-						No peers in this session.
-					</p>
+					<Muted>No peers in this session.</Muted>
 				) : (
 					<div className="space-y-1">
 						{list.map((p) => {
@@ -409,14 +371,15 @@ function SessionPeersTab({
 									<span className="text-xs font-mono" style={{ color: "var(--accent-text)" }}>
 										{id}
 									</span>
-									<button
+									<Button
+										variant="ghost"
+										size="icon"
 										onClick={() => onRemove(id)}
 										disabled={removing}
-										className="p-1 rounded transition-colors disabled:opacity-40"
-										style={{ color: "var(--text-4)" }}
+										aria-label={`Remove ${id}`}
 									>
 										<X className="w-3 h-3" strokeWidth={2} />
-									</button>
+									</Button>
 								</div>
 							);
 						})}
@@ -426,9 +389,7 @@ function SessionPeersTab({
 
 			{available.length > 0 && (
 				<div>
-					<h2 className="text-sm font-medium mb-2" style={{ color: "var(--text-2)" }}>
-						Add peer
-					</h2>
+					<SectionHeading className="mb-2">Add peer</SectionHeading>
 					<div className="space-y-1 max-h-48 overflow-auto">
 						{available.map((p) => (
 							<button
@@ -467,23 +428,17 @@ function SummaryCard({ label, summary }: { label: string; summary: Summary }) {
 				</div>
 				<div className="flex items-center gap-3">
 					{summary.token_count != null && (
-						<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
-							{summary.token_count} tok
-						</span>
+						<MonoCaption>{summary.token_count} tok</MonoCaption>
 					)}
 					{summary.created_at && (
 						<div className="flex items-center gap-1">
 							<Clock className="w-3 h-3" style={{ color: "var(--text-4)" }} strokeWidth={1.5} />
-							<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
-								{new Date(summary.created_at).toLocaleString()}
-							</span>
+							<MonoCaption>{new Date(summary.created_at).toLocaleString()}</MonoCaption>
 						</div>
 					)}
 				</div>
 			</div>
-			<p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text-2)" }}>
-				{summary.content}
-			</p>
+			<Body className="whitespace-pre-wrap">{summary.content}</Body>
 		</div>
 	);
 }
@@ -494,21 +449,15 @@ function SummariesDisplay({ summaries }: { summaries: unknown }) {
 	if (!data || (!data.short_summary && !data.long_summary)) {
 		return (
 			<>
-				<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
-					Session Summaries
-				</h2>
-				<p className="text-sm" style={{ color: "var(--text-4)" }}>
-					No summaries available yet.
-				</p>
+				<SectionHeading>Session Summaries</SectionHeading>
+				<Caption as="p">No summaries available yet.</Caption>
 			</>
 		);
 	}
 
 	return (
 		<>
-			<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
-				Session Summaries
-			</h2>
+			<SectionHeading>Session Summaries</SectionHeading>
 			<div className="space-y-3">
 				{data.short_summary && <SummaryCard label="Short summary" summary={data.short_summary} />}
 				{data.long_summary && <SummaryCard label="Long summary" summary={data.long_summary} />}

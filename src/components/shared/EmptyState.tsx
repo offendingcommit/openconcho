@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
+import { Body, Caption } from "@/components/ui/typography";
+import { COLOR } from "@/lib/constants";
 
 interface EmptyStateProps {
 	icon?: LucideIcon;
@@ -20,16 +22,16 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
 				<div
 					className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
 					style={{
-						background: "rgba(99,102,241,0.08)",
-						border: "1px solid rgba(99,102,241,0.15)",
+						background: COLOR.accentSubtle,
+						border: `1px solid ${COLOR.accentBorderStrong}`,
 					}}
 				>
 					<Icon className="w-5 h-5" style={{ color: "rgba(99,102,241,0.6)" }} strokeWidth={1.5} />
 				</div>
 			)}
-			<p className="text-zinc-300 font-medium text-sm">{title}</p>
+			<Body className="font-medium">{title}</Body>
 			{description && (
-				<p className="text-zinc-600 text-xs mt-1.5 max-w-xs leading-relaxed">{description}</p>
+				<Caption className="mt-1.5 max-w-xs leading-relaxed">{description}</Caption>
 			)}
 			{action && <div className="mt-4">{action}</div>}
 		</motion.div>

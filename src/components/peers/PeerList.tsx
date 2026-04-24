@@ -4,6 +4,8 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { Pagination } from "@/components/shared/Pagination";
+import { PageTitle, MonoCaption } from "@/components/ui/typography";
+import { COLOR } from "@/lib/constants";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { type Variants, motion } from "framer-motion";
 import { ArrowLeft, ChevronRight, Clock, Eye, Users } from "lucide-react";
@@ -44,25 +46,21 @@ export function PeerList() {
 				</Link>
 				<div className="flex items-center gap-2 mb-1">
 					<Users className="w-5 h-5" style={{ color: "#6366f1" }} strokeWidth={1.5} />
-					<h1 className="text-xl font-semibold tracking-tight" style={{ color: "#e4e4f0" }}>
-						Peers
-					</h1>
+					<PageTitle>Peers</PageTitle>
 					{total > 0 && (
 						<span
 							className="ml-auto text-xs font-mono px-2 py-0.5 rounded-full"
 							style={{
-								background: "rgba(99,102,241,0.1)",
-								color: "#818cf8",
-								border: "1px solid rgba(99,102,241,0.2)",
+								background: COLOR.accentSubtle,
+								color: COLOR.accentText,
+								border: `1px solid ${COLOR.accentBorder}`,
 							}}
 						>
 							{total}
 						</span>
 					)}
 				</div>
-				<p className="text-xs font-mono mt-0.5" style={{ color: "rgba(148,163,184,0.4)" }}>
-					{workspaceId}
-				</p>
+				<MonoCaption className="mt-0.5" as="p">{workspaceId}</MonoCaption>
 			</motion.div>
 
 			<ErrorAlert error={error instanceof Error ? error : null} />
@@ -120,8 +118,8 @@ export function PeerList() {
 								<div className="flex items-center gap-2 flex-wrap">
 									{(peer.configuration as { observe_me?: boolean } | null)?.observe_me && (
 										<div className="flex items-center gap-1">
-											<Eye className="w-3 h-3" style={{ color: "#818cf8" }} strokeWidth={1.5} />
-											<span className="text-xs" style={{ color: "#818cf8" }}>
+											<Eye className="w-3 h-3" style={{ color: COLOR.accentText }} strokeWidth={1.5} />
+											<span className="text-xs" style={{ color: COLOR.accentText }}>
 												observed
 											</span>
 										</div>
@@ -133,9 +131,7 @@ export function PeerList() {
 												style={{ color: "rgba(148,163,184,0.3)" }}
 												strokeWidth={1.5}
 											/>
-											<p className="text-xs font-mono" style={{ color: "rgba(148,163,184,0.3)" }}>
-												{new Date(peer.created_at).toLocaleString()}
-											</p>
+											<MonoCaption>{new Date(peer.created_at).toLocaleString()}</MonoCaption>
 										</div>
 									)}
 								</div>

@@ -4,6 +4,9 @@ import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { JsonViewer } from "@/components/shared/JsonViewer";
 import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { ScheduleDreamModal } from "@/components/workspaces/ScheduleDreamModal";
+import { Button } from "@/components/ui/button";
+import { PageTitle, SectionHeading, Body, Caption } from "@/components/ui/typography";
+import { COLOR } from "@/lib/constants";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -84,43 +87,30 @@ export function WorkspaceDetail() {
 							style={{ color: "var(--accent)" }}
 							strokeWidth={1.5}
 						/>
-						<h1
-							className="text-xl font-semibold font-mono break-all tracking-tight"
-							style={{ color: "var(--text-1)" }}
-						>
+						<PageTitle className="font-mono break-all">
 							{workspaceId}
-						</h1>
+						</PageTitle>
 					</div>
 					<div className="flex items-center gap-2 flex-shrink-0">
-						<button
+						<Button
+							variant="accent"
+							size="sm"
 							onClick={() => setDreamOpen(true)}
-							className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-							style={{
-								background: "var(--accent-dim)",
-								border: "1px solid var(--accent-border)",
-								color: "var(--accent-text)",
-							}}
 						>
 							<Zap className="w-3.5 h-3.5" strokeWidth={2} />
 							Schedule Dream
-						</button>
-						<button
+						</Button>
+						<Button
+							variant="destructive"
+							size="sm"
 							onClick={() => setConfirmDelete(true)}
-							className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-							style={{
-								background: "rgba(239,68,68,0.08)",
-								border: "1px solid rgba(239,68,68,0.2)",
-								color: "#f87171",
-							}}
 						>
 							<Trash2 className="w-3.5 h-3.5" strokeWidth={2} />
 							Delete
-						</button>
+						</Button>
 					</div>
 				</div>
-				<p className="text-sm" style={{ color: "var(--text-2)" }}>
-					Workspace overview
-				</p>
+				<Body className="leading-none">Workspace overview</Body>
 			</motion.div>
 
 			<div className="mt-8">
@@ -150,12 +140,8 @@ export function WorkspaceDetail() {
 												style={{ color: "var(--accent)" }}
 												strokeWidth={1.5}
 											/>
-											<h2 className="text-sm font-medium mb-0.5" style={{ color: "var(--text-1)" }}>
-												{s.label}
-											</h2>
-											<p className="text-xs" style={{ color: "var(--text-3)" }}>
-												{s.description}
-											</p>
+											<SectionHeading className="mb-0.5">{s.label}</SectionHeading>
+											<Caption as="p">{s.description}</Caption>
 										</Link>
 									</motion.div>
 								);
@@ -171,9 +157,7 @@ export function WorkspaceDetail() {
 								className="rounded-xl p-5 theme-card"
 							>
 								<div className="flex items-center justify-between mb-4">
-									<h2 className="text-sm font-medium" style={{ color: "var(--text-1)" }}>
-										Queue Status
-									</h2>
+									<SectionHeading className="mb-0">Queue Status</SectionHeading>
 									<div className="flex items-center gap-1.5">
 										{queue.pending_work_units > 0 ? (
 											<motion.div
@@ -182,20 +166,20 @@ export function WorkspaceDetail() {
 											>
 												<CircleDot
 													className="w-3.5 h-3.5"
-													style={{ color: "#f59e0b" }}
+													style={{ color: COLOR.warning }}
 													strokeWidth={2}
 												/>
 											</motion.div>
 										) : (
 											<CircleDot
 												className="w-3.5 h-3.5"
-												style={{ color: "#34d399" }}
+												style={{ color: COLOR.success }}
 												strokeWidth={2}
 											/>
 										)}
 										<span
 											className="text-xs font-medium"
-											style={{ color: queue.pending_work_units > 0 ? "#f59e0b" : "#34d399" }}
+											style={{ color: queue.pending_work_units > 0 ? COLOR.warning : COLOR.success }}
 										>
 											{queue.pending_work_units === 0
 												? "Idle"
@@ -301,13 +285,13 @@ export function WorkspaceDetail() {
 																		</td>
 																		<td
 																			className="py-1.5 px-3 text-right font-mono"
-																			style={{ color: "#34d399" }}
+																			style={{ color: COLOR.success }}
 																		>
 																			{s.completed_work_units}
 																		</td>
 																		<td
 																			className="py-1.5 px-3 text-right font-mono"
-																			style={{ color: "#f59e0b" }}
+																			style={{ color: COLOR.warning }}
 																		>
 																			{s.in_progress_work_units}
 																		</td>
@@ -337,9 +321,7 @@ export function WorkspaceDetail() {
 							transition={{ delay: 0.38 }}
 							className="rounded-xl p-5 theme-card"
 						>
-							<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
-								Metadata
-							</h2>
+							<SectionHeading>Metadata</SectionHeading>
 							<JsonViewer data={workspace.metadata} />
 						</motion.div>
 					</div>

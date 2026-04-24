@@ -2,6 +2,11 @@ import { useState } from "react";
 import { z } from "zod";
 import type { UseMutationResult } from "@tanstack/react-query";
 import { FormModal } from "@/components/shared/FormModal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Caption } from "@/components/ui/typography";
+import { COLOR } from "@/lib/constants";
 
 const schema = z.object({
 	observer: z.string().min(1, "Observer peer ID is required"),
@@ -54,61 +59,58 @@ export function ScheduleDreamModal({ open, onClose, mutation }: Props) {
 		<FormModal open={open} title="Schedule Dream" onClose={() => { reset(); onClose(); }}>
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
-					<label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-2)" }}>
-						Observer peer ID <span style={{ color: "#f87171" }}>*</span>
-					</label>
-					<input
+					<Label className="mb-1.5">
+						Observer peer ID <span style={{ color: COLOR.destructive }}>*</span>
+					</Label>
+					<Input
 						value={observer}
 						onChange={(e) => { setObserver(e.target.value); setValidationError(""); }}
 						placeholder="peer_id"
-						className="theme-input w-full text-sm px-3 py-2 rounded-lg"
 					/>
 				</div>
 				<div>
-					<label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-2)" }}>
-						Observed peer ID <span style={{ color: "var(--text-4)" }}>(optional, defaults to observer)</span>
-					</label>
-					<input
+					<Label className="mb-1.5">
+						Observed peer ID <Caption as="span"> (optional, defaults to observer)</Caption>
+					</Label>
+					<Input
 						value={observed}
 						onChange={(e) => setObserved(e.target.value)}
 						placeholder="peer_id"
-						className="theme-input w-full text-sm px-3 py-2 rounded-lg"
 					/>
 				</div>
 				<div>
-					<label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-2)" }}>
-						Session ID <span style={{ color: "var(--text-4)" }}>(optional)</span>
-					</label>
-					<input
+					<Label className="mb-1.5">
+						Session ID <Caption as="span"> (optional)</Caption>
+					</Label>
+					<Input
 						value={sessionId}
 						onChange={(e) => setSessionId(e.target.value)}
 						placeholder="session_id"
-						className="theme-input w-full text-sm px-3 py-2 rounded-lg"
 					/>
 				</div>
 				{validationError && (
-					<p className="text-xs" style={{ color: "#f87171" }}>{validationError}</p>
+					<Caption as="p" style={{ color: COLOR.destructive }}>{validationError}</Caption>
 				)}
 				{mutation.error && (
-					<p className="text-xs" style={{ color: "#f87171" }}>{mutation.error.message}</p>
+					<Caption as="p" style={{ color: COLOR.destructive }}>{mutation.error.message}</Caption>
 				)}
 				<div className="flex justify-end gap-2 pt-2">
-					<button
+					<Button
 						type="button"
+						variant="surface"
+						size="sm"
 						onClick={() => { reset(); onClose(); }}
-						className="px-3 py-1.5 text-sm rounded-lg"
-						style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text-2)" }}
 					>
 						Cancel
-					</button>
-					<button
+					</Button>
+					<Button
 						type="submit"
+						variant="accent"
+						size="sm"
 						disabled={mutation.isPending}
-						className="px-3 py-1.5 text-sm rounded-lg font-medium disabled:opacity-50"
-						style={{ background: "var(--accent-dim)", border: "1px solid var(--accent-border)", color: "var(--accent-text)" }}
 					>
 						{mutation.isPending ? "Scheduling..." : "Schedule"}
-					</button>
+					</Button>
 				</div>
 			</form>
 		</FormModal>

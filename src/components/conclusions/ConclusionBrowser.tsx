@@ -11,6 +11,11 @@ import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { FormModal } from "@/components/shared/FormModal";
 import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { Pagination } from "@/components/shared/Pagination";
+import { Button } from "@/components/ui/button";
+import { Input, Textarea } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PageTitle, Body, Muted, Caption, MonoCaption } from "@/components/ui/typography";
+import { COLOR } from "@/lib/constants";
 import { Link, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Clock, Eye, Lightbulb, Plus, Search, Trash2, X } from "lucide-react";
@@ -83,9 +88,7 @@ export function ConclusionBrowser() {
 				</Link>
 				<div className="flex items-center gap-2 mb-1">
 					<Lightbulb className="w-5 h-5" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
-					<h1 className="text-xl font-semibold tracking-tight" style={{ color: "var(--text-1)" }}>
-						Conclusions
-					</h1>
+					<PageTitle>Conclusions</PageTitle>
 					{total > 0 && !activeSearch && (
 						<span
 							className="ml-auto text-xs font-mono px-2 py-0.5 rounded-full"
@@ -98,22 +101,17 @@ export function ConclusionBrowser() {
 							{total}
 						</span>
 					)}
-					<button
+					<Button
+						variant="accent"
+						size="sm"
 						onClick={() => setCreateOpen(true)}
-						className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-						style={{
-							background: "var(--accent-dim)",
-							border: "1px solid var(--accent-border)",
-							color: "var(--accent-text)",
-						}}
+						className="ml-auto"
 					>
 						<Plus className="w-3.5 h-3.5" strokeWidth={2} />
 						New
-					</button>
+					</Button>
 				</div>
-				<p className="text-sm mt-0.5" style={{ color: "var(--text-3)" }}>
-					Distilled memory observations about peers
-				</p>
+				<Muted className="mt-0.5">Distilled memory observations about peers</Muted>
 			</motion.div>
 
 			{/* Search */}
@@ -124,41 +122,36 @@ export function ConclusionBrowser() {
 						style={{ color: "var(--text-4)" }}
 						strokeWidth={1.5}
 					/>
-					<input
+					<Input
 						type="text"
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
 						placeholder="Semantic search across conclusions..."
-						className="theme-input w-full rounded-xl pl-9 pr-4 py-2.5 text-sm font-mono"
+						className="rounded-xl pl-9 pr-4 py-2.5 font-mono"
 					/>
 				</div>
-				<button
-					type="submit"
-					className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
-					style={{ background: "var(--accent)", color: "#fff" }}
-				>
+				<Button type="submit" variant="primary" className="rounded-xl">
 					Search
-				</button>
+				</Button>
 				<AnimatePresence>
 					{activeSearch && (
-						<motion.button
-							type="button"
+						<motion.div
 							initial={{ opacity: 0, scale: 0.8 }}
 							animate={{ opacity: 1, scale: 1 }}
 							exit={{ opacity: 0, scale: 0.8 }}
-							onClick={() => {
-								setActiveSearch("");
-								setSearchQuery("");
-							}}
-							className="px-3 py-2.5 rounded-xl text-sm transition-all"
-							style={{
-								background: "var(--surface)",
-								border: "1px solid var(--border)",
-								color: "var(--text-3)",
-							}}
 						>
-							<X className="w-4 h-4" strokeWidth={1.5} />
-						</motion.button>
+							<Button
+								type="button"
+								variant="surface"
+								onClick={() => {
+									setActiveSearch("");
+									setSearchQuery("");
+								}}
+								className="rounded-xl"
+							>
+								<X className="w-4 h-4" strokeWidth={1.5} />
+							</Button>
+						</motion.div>
 					)}
 				</AnimatePresence>
 			</form>
@@ -206,19 +199,16 @@ export function ConclusionBrowser() {
 								}}
 							>
 								<div className="flex items-start justify-between gap-3">
-									<p
-										className="text-sm leading-relaxed whitespace-pre-wrap flex-1"
-										style={{ color: "var(--text-2)" }}
-									>
-										{c.content}
-									</p>
-									<button
+									<Body className="whitespace-pre-wrap flex-1">{c.content}</Body>
+									<Button
+										variant="ghost"
+										size="icon"
 										onClick={() => setDeleteTarget(c.id)}
-										className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg transition-all flex-shrink-0"
-										style={{ color: "var(--text-4)" }}
+										className="opacity-0 group-hover:opacity-100 flex-shrink-0"
+										aria-label="Delete conclusion"
 									>
 										<Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-									</button>
+									</Button>
 								</div>
 								<div
 									className="flex items-center gap-3 mt-4 pt-3"
@@ -226,18 +216,12 @@ export function ConclusionBrowser() {
 								>
 									<div className="flex items-center gap-1.5">
 										<Eye className="w-3 h-3" style={{ color: "var(--text-4)" }} strokeWidth={1.5} />
-										<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
-											{c.observer_id}
-										</span>
+										<MonoCaption>{c.observer_id}</MonoCaption>
 									</div>
 									{c.observed_id && (
 										<div className="flex items-center gap-1">
-											<span className="text-xs" style={{ color: "var(--text-4)" }}>
-												→
-											</span>
-											<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
-												{c.observed_id}
-											</span>
+											<Caption>→</Caption>
+											<MonoCaption>{c.observed_id}</MonoCaption>
 										</div>
 									)}
 									{c.session_id && (
@@ -258,9 +242,7 @@ export function ConclusionBrowser() {
 												style={{ color: "var(--text-4)" }}
 												strokeWidth={1.5}
 											/>
-											<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
-												{new Date(c.created_at).toLocaleString()}
-											</span>
+											<MonoCaption>{new Date(c.created_at).toLocaleString()}</MonoCaption>
 										</div>
 									)}
 								</div>
@@ -352,81 +334,71 @@ function CreateConclusionModal({
 			<form onSubmit={handleSubmit} className="space-y-3">
 				{(["observer_id", "observed_id"] as const).map((field) => (
 					<div key={field}>
-						<label className="block text-xs font-medium mb-1" style={{ color: "var(--text-2)" }}>
+						<Label className="mb-1">
 							{field === "observer_id" ? "Observer peer ID" : "Observed peer ID"}{" "}
-							<span style={{ color: "#f87171" }}>*</span>
-						</label>
-						<input
+							<span style={{ color: COLOR.destructive }}>*</span>
+						</Label>
+						<Input
 							value={fields[field]}
 							onChange={set(field)}
 							placeholder="peer_id"
-							className="theme-input w-full text-sm px-3 py-2 rounded-lg"
 						/>
 						{validationErrors[field] && (
-							<p className="text-xs mt-1" style={{ color: "#f87171" }}>
+							<p className="text-xs mt-1" style={{ color: COLOR.destructive }}>
 								{validationErrors[field]}
 							</p>
 						)}
 					</div>
 				))}
 				<div>
-					<label className="block text-xs font-medium mb-1" style={{ color: "var(--text-2)" }}>
-						Content <span style={{ color: "#f87171" }}>*</span>
-					</label>
-					<textarea
+					<Label className="mb-1">
+						Content <span style={{ color: COLOR.destructive }}>*</span>
+					</Label>
+					<Textarea
 						value={fields.content}
 						onChange={set("content")}
 						rows={4}
 						placeholder="The conclusion content…"
-						className="theme-input w-full text-sm px-3 py-2 rounded-lg resize-y"
+						className="resize-y"
 					/>
 					{validationErrors.content && (
-						<p className="text-xs mt-1" style={{ color: "#f87171" }}>
+						<p className="text-xs mt-1" style={{ color: COLOR.destructive }}>
 							{validationErrors.content}
 						</p>
 					)}
 				</div>
 				<div>
-					<label className="block text-xs font-medium mb-1" style={{ color: "var(--text-2)" }}>
+					<Label className="mb-1">
 						Session ID <span style={{ color: "var(--text-4)" }}>(optional)</span>
-					</label>
-					<input
+					</Label>
+					<Input
 						value={fields.session_id}
 						onChange={set("session_id")}
 						placeholder="session_id"
-						className="theme-input w-full text-sm px-3 py-2 rounded-lg"
 					/>
 				</div>
 				{error && (
-					<p className="text-xs" style={{ color: "#f87171" }}>
+					<p className="text-xs" style={{ color: COLOR.destructive }}>
 						{error}
 					</p>
 				)}
 				<div className="flex justify-end gap-2 pt-2">
-					<button
+					<Button
 						type="button"
+						variant="surface"
+						size="sm"
 						onClick={onClose}
-						className="px-3 py-1.5 text-sm rounded-lg"
-						style={{
-							background: "var(--surface)",
-							border: "1px solid var(--border)",
-							color: "var(--text-2)",
-						}}
 					>
 						Cancel
-					</button>
-					<button
+					</Button>
+					<Button
 						type="submit"
+						variant="accent"
+						size="sm"
 						disabled={loading}
-						className="px-3 py-1.5 text-sm rounded-lg font-medium disabled:opacity-50"
-						style={{
-							background: "var(--accent-dim)",
-							border: "1px solid var(--accent-border)",
-							color: "var(--accent-text)",
-						}}
 					>
 						{loading ? "Creating..." : "Create"}
-					</button>
+					</Button>
 				</div>
 			</form>
 		</FormModal>
