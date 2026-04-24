@@ -39,7 +39,7 @@ export function PeerList() {
 			>
 				<Link
 					to="/workspaces/$workspaceId"
-					params={{ workspaceId }}
+					params={{ workspaceId } as never}
 					className="inline-flex items-center gap-1.5 text-xs mb-4 transition-colors"
 					style={{ color: "rgba(148,163,184,0.5)" }}
 				>

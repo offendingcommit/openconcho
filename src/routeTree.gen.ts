@@ -13,6 +13,7 @@ import { Route as WorkspacesRouteImport } from './routes/workspaces'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkspacesWorkspaceIdRouteImport } from './routes/workspaces_.$workspaceId'
+import { Route as WorkspacesWorkspaceIdWebhooksRouteImport } from './routes/workspaces_.$workspaceId_.webhooks'
 import { Route as WorkspacesWorkspaceIdSessionsRouteImport } from './routes/workspaces_.$workspaceId_.sessions'
 import { Route as WorkspacesWorkspaceIdPeersRouteImport } from './routes/workspaces_.$workspaceId_.peers'
 import { Route as WorkspacesWorkspaceIdConclusionsRouteImport } from './routes/workspaces_.$workspaceId_.conclusions'
@@ -40,6 +41,12 @@ const WorkspacesWorkspaceIdRoute = WorkspacesWorkspaceIdRouteImport.update({
   path: '/workspaces/$workspaceId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkspacesWorkspaceIdWebhooksRoute =
+  WorkspacesWorkspaceIdWebhooksRouteImport.update({
+    id: '/workspaces_/$workspaceId_/webhooks',
+    path: '/workspaces/$workspaceId/webhooks',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const WorkspacesWorkspaceIdSessionsRoute =
   WorkspacesWorkspaceIdSessionsRouteImport.update({
     id: '/workspaces_/$workspaceId_/sessions',
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/workspaces/$workspaceId/conclusions': typeof WorkspacesWorkspaceIdConclusionsRoute
   '/workspaces/$workspaceId/peers': typeof WorkspacesWorkspaceIdPeersRoute
   '/workspaces/$workspaceId/sessions': typeof WorkspacesWorkspaceIdSessionsRoute
+  '/workspaces/$workspaceId/webhooks': typeof WorkspacesWorkspaceIdWebhooksRoute
   '/workspaces/$workspaceId/peers/$peerId': typeof WorkspacesWorkspaceIdPeersPeerIdRoute
   '/workspaces/$workspaceId/sessions/$sessionId': typeof WorkspacesWorkspaceIdSessionsSessionIdRoute
   '/workspaces/$workspaceId/peers/$peerId/chat': typeof WorkspacesWorkspaceIdPeersPeerIdChatRoute
@@ -97,6 +105,7 @@ export interface FileRoutesByTo {
   '/workspaces/$workspaceId/conclusions': typeof WorkspacesWorkspaceIdConclusionsRoute
   '/workspaces/$workspaceId/peers': typeof WorkspacesWorkspaceIdPeersRoute
   '/workspaces/$workspaceId/sessions': typeof WorkspacesWorkspaceIdSessionsRoute
+  '/workspaces/$workspaceId/webhooks': typeof WorkspacesWorkspaceIdWebhooksRoute
   '/workspaces/$workspaceId/peers/$peerId': typeof WorkspacesWorkspaceIdPeersPeerIdRoute
   '/workspaces/$workspaceId/sessions/$sessionId': typeof WorkspacesWorkspaceIdSessionsSessionIdRoute
   '/workspaces/$workspaceId/peers/$peerId/chat': typeof WorkspacesWorkspaceIdPeersPeerIdChatRoute
@@ -110,6 +119,7 @@ export interface FileRoutesById {
   '/workspaces_/$workspaceId_/conclusions': typeof WorkspacesWorkspaceIdConclusionsRoute
   '/workspaces_/$workspaceId_/peers': typeof WorkspacesWorkspaceIdPeersRoute
   '/workspaces_/$workspaceId_/sessions': typeof WorkspacesWorkspaceIdSessionsRoute
+  '/workspaces_/$workspaceId_/webhooks': typeof WorkspacesWorkspaceIdWebhooksRoute
   '/workspaces_/$workspaceId_/peers_/$peerId': typeof WorkspacesWorkspaceIdPeersPeerIdRoute
   '/workspaces_/$workspaceId_/sessions_/$sessionId': typeof WorkspacesWorkspaceIdSessionsSessionIdRoute
   '/workspaces_/$workspaceId_/peers_/$peerId_/chat': typeof WorkspacesWorkspaceIdPeersPeerIdChatRoute
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
     | '/workspaces/$workspaceId/conclusions'
     | '/workspaces/$workspaceId/peers'
     | '/workspaces/$workspaceId/sessions'
+    | '/workspaces/$workspaceId/webhooks'
     | '/workspaces/$workspaceId/peers/$peerId'
     | '/workspaces/$workspaceId/sessions/$sessionId'
     | '/workspaces/$workspaceId/peers/$peerId/chat'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
     | '/workspaces/$workspaceId/conclusions'
     | '/workspaces/$workspaceId/peers'
     | '/workspaces/$workspaceId/sessions'
+    | '/workspaces/$workspaceId/webhooks'
     | '/workspaces/$workspaceId/peers/$peerId'
     | '/workspaces/$workspaceId/sessions/$sessionId'
     | '/workspaces/$workspaceId/peers/$peerId/chat'
@@ -148,6 +160,7 @@ export interface FileRouteTypes {
     | '/workspaces_/$workspaceId_/conclusions'
     | '/workspaces_/$workspaceId_/peers'
     | '/workspaces_/$workspaceId_/sessions'
+    | '/workspaces_/$workspaceId_/webhooks'
     | '/workspaces_/$workspaceId_/peers_/$peerId'
     | '/workspaces_/$workspaceId_/sessions_/$sessionId'
     | '/workspaces_/$workspaceId_/peers_/$peerId_/chat'
@@ -161,6 +174,7 @@ export interface RootRouteChildren {
   WorkspacesWorkspaceIdConclusionsRoute: typeof WorkspacesWorkspaceIdConclusionsRoute
   WorkspacesWorkspaceIdPeersRoute: typeof WorkspacesWorkspaceIdPeersRoute
   WorkspacesWorkspaceIdSessionsRoute: typeof WorkspacesWorkspaceIdSessionsRoute
+  WorkspacesWorkspaceIdWebhooksRoute: typeof WorkspacesWorkspaceIdWebhooksRoute
   WorkspacesWorkspaceIdPeersPeerIdRoute: typeof WorkspacesWorkspaceIdPeersPeerIdRoute
   WorkspacesWorkspaceIdSessionsSessionIdRoute: typeof WorkspacesWorkspaceIdSessionsSessionIdRoute
   WorkspacesWorkspaceIdPeersPeerIdChatRoute: typeof WorkspacesWorkspaceIdPeersPeerIdChatRoute
@@ -194,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/workspaces/$workspaceId'
       fullPath: '/workspaces/$workspaceId'
       preLoaderRoute: typeof WorkspacesWorkspaceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workspaces_/$workspaceId_/webhooks': {
+      id: '/workspaces_/$workspaceId_/webhooks'
+      path: '/workspaces/$workspaceId/webhooks'
+      fullPath: '/workspaces/$workspaceId/webhooks'
+      preLoaderRoute: typeof WorkspacesWorkspaceIdWebhooksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workspaces_/$workspaceId_/sessions': {
@@ -249,6 +270,7 @@ const rootRouteChildren: RootRouteChildren = {
   WorkspacesWorkspaceIdConclusionsRoute: WorkspacesWorkspaceIdConclusionsRoute,
   WorkspacesWorkspaceIdPeersRoute: WorkspacesWorkspaceIdPeersRoute,
   WorkspacesWorkspaceIdSessionsRoute: WorkspacesWorkspaceIdSessionsRoute,
+  WorkspacesWorkspaceIdWebhooksRoute: WorkspacesWorkspaceIdWebhooksRoute,
   WorkspacesWorkspaceIdPeersPeerIdRoute: WorkspacesWorkspaceIdPeersPeerIdRoute,
   WorkspacesWorkspaceIdSessionsSessionIdRoute:
     WorkspacesWorkspaceIdSessionsSessionIdRoute,

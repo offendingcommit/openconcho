@@ -1,13 +1,21 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { User, MessageCircle } from "lucide-react";
-import { usePeer, usePeerCard, usePeerContext, usePeerRepresentation } from "@/api/queries";
+import { motion, AnimatePresence } from "framer-motion";
+import { User, MessageCircle, Search, Save, X } from "lucide-react";
+import {
+	usePeer,
+	usePeerCard,
+	usePeerContext,
+	usePeerRepresentation,
+	useSetPeerCard,
+	useSearchPeer,
+} from "@/api/queries";
 import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { JsonViewer } from "@/components/shared/JsonViewer";
+import { Badge } from "@/components/shared/Badge";
 
-type Tab = "context" | "card" | "representation" | "metadata";
+type Tab = "context" | "card" | "representation" | "metadata" | "search";
 
 export function PeerDetail() {
 	const { workspaceId, peerId } = useParams({ strict: false }) as {
@@ -22,10 +30,24 @@ export function PeerDetail() {
 	const { data: context, isLoading: contextLoading } = usePeerContext(workspaceId, peerId);
 	const { data: representation, isLoading: repLoading } = usePeerRepresentation(workspaceId, peerId);
 
+	const setPeerCard = useSetPeerCard(workspaceId, peerId);
+	const searchPeer = useSearchPeer(workspaceId, peerId);
+
+	const [cardDraft, setCardDraft] = useState<string | null>(null);
+	const [searchQuery, setSearchQuery] = useState("");
+
+	const cardLines: string[] =
+		Array.isArray((card as { peer_card?: unknown })?.peer_card)
+			? ((card as { peer_card: string[] }).peer_card)
+			: typeof card === "string"
+				? [card]
+				: [];
+
 	const tabs: Array<{ id: Tab; label: string }> = [
 		{ id: "context", label: "Context" },
 		{ id: "card", label: "Card" },
 		{ id: "representation", label: "Representation" },
+		{ id: "search", label: "Search" },
 		{ id: "metadata", label: "Metadata" },
 	];
 
@@ -65,10 +87,7 @@ export function PeerDetail() {
 							})
 						}
 						className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-						style={{
-							background: "var(--accent)",
-							color: "#fff",
-						}}
+						style={{ background: "var(--accent)", color: "#fff" }}
 					>
 						<MessageCircle className="w-4 h-4" strokeWidth={1.5} />
 						Chat
@@ -82,7 +101,6 @@ export function PeerDetail() {
 
 				{!isLoading && peer && (
 					<>
-						{/* Tab bar */}
 						<div
 							className="flex gap-0.5 mb-4 p-1 rounded-xl"
 							style={{ background: "var(--bg-3)", border: "1px solid var(--border)" }}
@@ -107,7 +125,6 @@ export function PeerDetail() {
 							))}
 						</div>
 
-						{/* Tab content */}
 						<motion.div
 							key={tab}
 							initial={{ opacity: 0, y: 4 }}
@@ -127,18 +144,72 @@ export function PeerDetail() {
 									</>
 								)
 							)}
+
 							{tab === "card" && (
 								cardLoading ? <PageLoader /> : (
 									<>
-										<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>Peer Card</h2>
-										{typeof card === "string" ? (
-											<p className="text-sm whitespace-pre-wrap" style={{ color: "var(--text-2)" }}>{card}</p>
-										) : (
-											<JsonViewer data={card} maxHeight="400px" />
-										)}
+										<div className="flex items-center justify-between mb-3">
+											<h2 className="text-sm font-medium" style={{ color: "var(--text-1)" }}>Peer Card</h2>
+											{cardDraft === null ? (
+												<button
+													onClick={() => setCardDraft(cardLines.join("\n"))}
+													className="text-xs px-2 py-1 rounded-lg transition-colors"
+													style={{ background: "var(--accent-dim)", border: "1px solid var(--accent-border)", color: "var(--accent-text)" }}
+												>
+													Edit
+												</button>
+											) : (
+												<div className="flex gap-1.5">
+													<button
+														onClick={() => {
+															setPeerCard.mutate(cardDraft.split("\n").filter(Boolean));
+															setCardDraft(null);
+														}}
+														disabled={setPeerCard.isPending}
+														className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg disabled:opacity-50"
+														style={{ background: "var(--accent-dim)", border: "1px solid var(--accent-border)", color: "var(--accent-text)" }}
+													>
+														<Save className="w-3 h-3" strokeWidth={2} />
+														Save
+													</button>
+													<button
+														onClick={() => setCardDraft(null)}
+														className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg"
+														style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--text-3)" }}
+													>
+														<X className="w-3 h-3" strokeWidth={2} />
+													</button>
+												</div>
+											)}
+										</div>
+										<AnimatePresence mode="wait">
+											{cardDraft !== null ? (
+												<motion.textarea
+													key="edit"
+													initial={{ opacity: 0 }}
+													animate={{ opacity: 1 }}
+													value={cardDraft}
+													onChange={(e) => setCardDraft(e.target.value)}
+													rows={8}
+													className="theme-input w-full text-sm px-3 py-2 rounded-lg font-mono resize-y"
+													style={{ minHeight: "8rem" }}
+												/>
+											) : (
+												<motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+													{cardLines.length > 0 ? (
+														<p className="text-sm whitespace-pre-wrap" style={{ color: "var(--text-2)" }}>
+															{cardLines.join("\n")}
+														</p>
+													) : (
+														<p className="text-sm" style={{ color: "var(--text-4)" }}>No card set.</p>
+													)}
+												</motion.div>
+											)}
+										</AnimatePresence>
 									</>
 								)
 							)}
+
 							{tab === "representation" && (
 								repLoading ? <PageLoader /> : (
 									<>
@@ -153,6 +224,64 @@ export function PeerDetail() {
 									</>
 								)
 							)}
+
+							{tab === "search" && (
+								<>
+									<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>
+										<Search className="w-3.5 h-3.5 inline mr-1.5" strokeWidth={2} />
+										Search peer messages
+									</h2>
+									<form
+										onSubmit={(e) => {
+											e.preventDefault();
+											if (searchQuery.trim()) searchPeer.mutate(searchQuery.trim());
+										}}
+										className="flex gap-2 mb-4"
+									>
+										<input
+											autoFocus
+											value={searchQuery}
+											onChange={(e) => setSearchQuery(e.target.value)}
+											placeholder="Semantic search across this peer's messages…"
+											className="theme-input flex-1 text-sm px-3 py-2 rounded-lg"
+										/>
+										<button
+											type="submit"
+											disabled={searchPeer.isPending}
+											className="px-3 py-2 text-sm rounded-lg font-medium"
+											style={{ background: "var(--accent-dim)", border: "1px solid var(--accent-border)", color: "var(--accent-text)" }}
+										>
+											{searchPeer.isPending ? "…" : "Search"}
+										</button>
+									</form>
+									{searchPeer.data && (
+										<div className="space-y-3">
+											{(searchPeer.data as Array<{ id: string; content: string; peer_id?: string; created_at?: string }>).length === 0 ? (
+												<p className="text-sm" style={{ color: "var(--text-3)" }}>No results.</p>
+											) : (
+												(searchPeer.data as Array<{ id: string; content: string; peer_id?: string; created_at?: string }>).map((r) => (
+													<div
+														key={r.id}
+														className="py-3 px-4 rounded-lg"
+														style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+													>
+														<div className="flex items-center gap-2 mb-1.5">
+															<Badge variant="blue">{r.peer_id ?? peerId}</Badge>
+															{r.created_at && (
+																<span className="text-xs" style={{ color: "var(--text-4)" }}>
+																	{new Date(r.created_at).toLocaleString()}
+																</span>
+															)}
+														</div>
+														<p className="text-sm whitespace-pre-wrap" style={{ color: "var(--text-2)" }}>{r.content}</p>
+													</div>
+												))
+											)}
+										</div>
+									)}
+								</>
+							)}
+
 							{tab === "metadata" && (
 								<>
 									<h2 className="text-sm font-medium mb-3" style={{ color: "var(--text-1)" }}>Peer Metadata</h2>

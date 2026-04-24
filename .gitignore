@@ -35,3 +35,4 @@ dist-ssr
 
 # TypeScript build info
 *.tsbuildinfo
+.tanstack/
