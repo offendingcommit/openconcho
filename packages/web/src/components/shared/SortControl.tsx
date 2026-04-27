@@ -1,5 +1,5 @@
-import { COLOR } from "@/lib/constants";
 import { ArrowDown, ArrowUp } from "lucide-react";
+import { COLOR } from "@/lib/constants";
 
 export type SortDir = "asc" | "desc";
 

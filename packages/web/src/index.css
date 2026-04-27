@@ -87,7 +87,9 @@ body {
 	background: var(--bg);
 	color: var(--text-1);
 	-webkit-font-smoothing: antialiased;
-	transition: background 0.2s ease, color 0.2s ease;
+	transition:
+		background 0.2s ease,
+		color 0.2s ease;
 }
 
 #root {
@@ -101,7 +103,8 @@ body::before {
 	content: "";
 	position: fixed;
 	inset: 0;
-	background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+	background-image:
+		linear-gradient(var(--grid-line) 1px, transparent 1px),
 		linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
 	background-size: 32px 32px;
 	pointer-events: none;

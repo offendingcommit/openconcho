@@ -1,3 +1,8 @@
+import { Link, useParams } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, Eye, Lightbulb, Plus, Search, Trash2, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { z } from "zod";
 import {
 	useConclusions,
 	useCreateConclusion,
@@ -18,18 +23,13 @@ import { Input, Textarea } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Body, Caption, MonoCaption, Muted, PageTitle } from "@/components/ui/typography";
 import { COLOR } from "@/lib/constants";
-import { Link, useParams } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Eye, Lightbulb, Plus, Search, Trash2, X } from "lucide-react";
-import { useMemo, useState } from "react";
-import { z } from "zod";
 
 type Conclusion = components["schemas"]["Conclusion"];
 
 const createSchema = z.object({
-	observer_id: z.string().min(1, "Observer peer ID is required"),
-	observed_id: z.string().min(1, "Observed peer ID is required"),
-	content: z.string().min(1, "Content is required"),
+	observer_id: z.string().min(1, { message: "Observer peer ID is required" }),
+	observed_id: z.string().min(1, { message: "Observed peer ID is required" }),
+	content: z.string().min(1, { message: "Content is required" }),
 	session_id: z.string().optional(),
 });
 
@@ -348,7 +348,7 @@ function CreateConclusionModal({
 		const result = createSchema.safeParse(fields);
 		if (!result.success) {
 			const errs: Record<string, string> = {};
-			for (const issue of result.error.errors) errs[issue.path[0] as string] = issue.message;
+			for (const issue of result.error.issues) errs[issue.path[0] as string] = issue.message;
 			setValidationErrors(errs);
 			return;
 		}

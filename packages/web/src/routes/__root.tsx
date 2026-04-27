@@ -1,8 +1,8 @@
+import { createRootRoute, Outlet, useRouter } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { loadConfig } from "@/lib/config";
 import { applyTheme, getStoredTheme } from "@/lib/theme";
-import { Outlet, createRootRoute, useRouter } from "@tanstack/react-router";
-import { useEffect } from "react";
 
 function RootLayout() {
 	const config = loadConfig();

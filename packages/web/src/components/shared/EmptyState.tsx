@@ -1,7 +1,7 @@
-import { Body, Caption } from "@/components/ui/typography";
-import { COLOR } from "@/lib/constants";
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
+import { Body, Caption } from "@/components/ui/typography";
+import { COLOR } from "@/lib/constants";
 
 interface EmptyStateProps {
 	icon?: LucideIcon;

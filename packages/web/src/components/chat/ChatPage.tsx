@@ -1,12 +1,12 @@
+import { Link, useParams } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
+import { Brain, Send } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useChat } from "@/api/queries";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
 import { SectionHeading } from "@/components/ui/typography";
-import { Link, useParams } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
-import { Brain, Send } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 
 interface Message {
 	id: string;

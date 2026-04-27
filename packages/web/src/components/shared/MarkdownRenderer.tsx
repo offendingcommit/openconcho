@@ -1,9 +1,9 @@
-import { TimestampChip } from "@/components/shared/TimestampChip";
-import { COLOR } from "@/lib/constants";
 import { Link } from "@tanstack/react-router";
 import { DateTime } from "luxon";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { TimestampChip } from "@/components/shared/TimestampChip";
+import { COLOR } from "@/lib/constants";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

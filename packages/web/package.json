@@ -33,28 +33,28 @@
     "lucide-react": "^1.11.0",
     "luxon": "^3.7.2",
     "openapi-fetch": "^0.13.5",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.4",
-    "zod": "^3.24.3"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@tanstack/router-plugin": "^1.120.3",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/user-event": "catalog:",
     "@types/luxon": "^3.7.1",
     "@types/node": "^25.6.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "jsdom": "^26.1.0",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "jsdom": "catalog:",
     "openapi-typescript": "^7.8.0",
-    "typescript": "~6.0.2",
-    "vite": "^8.0.10",
-    "vitest": "^3.2.3"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

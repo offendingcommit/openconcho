@@ -1,12 +1,36 @@
 {
-  "fire_tools_version": "0.1.0",
+  "fire_tools_version": "1.13.2",
   "initialized_at": "2026-04-24T00:00:00Z",
   "profile": "other",
-  "features": ["pnpm", "biome", "vitest", "zod"],
+  "features": [
+    "pnpm",
+    "turborepo",
+    "typescript",
+    "biome",
+    "vitest",
+    "zod",
+    "commitlint",
+    "semantic-release",
+    "husky",
+    "actionlint",
+    "github-actions",
+    "makefile"
+  ],
   "deviations": [
-    "No SQL database (Honcho API handles persistence)",
-    "No turborepo (single package)",
-    "No commitlint/husky (small solo project)",
-    "No semantic-release (not publishing to npm)"
+    {
+      "tool": "drizzle",
+      "reason": "No SQL database — Honcho API handles all persistence; Drizzle is not applicable",
+      "suppressed_at": "2026-04-27T00:00:00Z"
+    },
+    {
+      "tool": "playwright",
+      "reason": "Tauri desktop app — E2E testing approach uses Tauri's native test harness, not browser Playwright",
+      "suppressed_at": "2026-04-27T00:00:00Z"
+    },
+    {
+      "tool": "typescript-version",
+      "reason": "Using TypeScript 6.0.3 (ahead of standard 5.9.x) — intentional, team is on leading edge for this solo project",
+      "suppressed_at": "2026-04-27T00:00:00Z"
+    }
   ]
 }

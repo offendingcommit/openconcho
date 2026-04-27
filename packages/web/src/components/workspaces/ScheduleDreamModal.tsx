@@ -1,15 +1,15 @@
+import type { UseMutationResult } from "@tanstack/react-query";
+import { useState } from "react";
+import { z } from "zod";
 import { FormModal } from "@/components/shared/FormModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Caption } from "@/components/ui/typography";
 import { COLOR } from "@/lib/constants";
-import type { UseMutationResult } from "@tanstack/react-query";
-import { useState } from "react";
-import { z } from "zod";
 
 const schema = z.object({
-	observer: z.string().min(1, "Observer peer ID is required"),
+	observer: z.string().min(1, { message: "Observer peer ID is required" }),
 	observed: z.string().optional(),
 	session_id: z.string().optional(),
 });
@@ -46,7 +46,7 @@ export function ScheduleDreamModal({ open, onClose, mutation }: Props) {
 			session_id: sessionId || undefined,
 		});
 		if (!result.success) {
-			setValidationError(result.error.errors[0].message);
+			setValidationError(result.error.issues[0].message);
 			return;
 		}
 		await mutation.mutateAsync({

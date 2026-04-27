@@ -1,5 +1,5 @@
-import { WebhookManager } from "@/components/workspaces/WebhookManager";
 import { createFileRoute, useParams } from "@tanstack/react-router";
+import { WebhookManager } from "@/components/workspaces/WebhookManager";
 
 export const Route = createFileRoute("/workspaces_/$workspaceId_/webhooks")({
 	component: WebhookManagerPage,

@@ -1,6 +1,6 @@
+import createClient from "openapi-fetch";
 import { loadConfig } from "@/lib/config";
 import { httpFetch } from "@/lib/http";
-import createClient from "openapi-fetch";
 import type { paths } from "./schema.d.ts";
 
 export function createHonchoClient() {

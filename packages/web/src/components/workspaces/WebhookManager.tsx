@@ -1,3 +1,9 @@
+import { Link } from "@tanstack/react-router";
+import { open } from "@tauri-apps/plugin-shell";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, ExternalLink, Plus, Trash2, Webhook, Zap } from "lucide-react";
+import { useState } from "react";
+import { z } from "zod";
 import { useCreateWebhook, useDeleteWebhook, useTestWebhook, useWebhooks } from "@/api/queries";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
@@ -6,14 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Body, Muted, PageTitle, SectionHeading } from "@/components/ui/typography";
 import { COLOR } from "@/lib/constants";
-import { Link } from "@tanstack/react-router";
-import { open } from "@tauri-apps/plugin-shell";
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Plus, Trash2, Webhook, Zap } from "lucide-react";
-import { useState } from "react";
-import { z } from "zod";
 
-const urlSchema = z.string().url("Must be a valid URL");
+const urlSchema = z.string().url({ message: "Must be a valid URL" });
 
 interface Props {
 	workspaceId: string;
@@ -34,7 +34,7 @@ export function WebhookManager({ workspaceId }: Props) {
 		e.preventDefault();
 		const result = urlSchema.safeParse(url);
 		if (!result.success) {
-			setUrlError(result.error.errors[0].message);
+			setUrlError(result.error.issues[0].message);
 			return;
 		}
 		await createWebhook.mutateAsync(url);

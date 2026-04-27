@@ -1,9 +1,9 @@
-import { useTheme } from "@/hooks/useTheme";
-import { loadConfig } from "@/lib/config";
-import { COLOR } from "@/lib/constants";
 import { Link, useMatchRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Boxes, Brain, ChevronRight, LayoutDashboard, Moon, Settings, Sun } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
+import { loadConfig } from "@/lib/config";
+import { COLOR } from "@/lib/constants";
 
 const navItems = [
 	{ to: "/" as const, label: "Dashboard", icon: LayoutDashboard, exact: true },

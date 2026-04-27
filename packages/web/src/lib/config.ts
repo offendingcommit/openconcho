@@ -1,10 +1,10 @@
-import { httpFetch } from "@/lib/http";
 import { z } from "zod";
+import { httpFetch } from "@/lib/http";
 
 const CONFIG_KEY = "openconcho:config";
 
 export const configSchema = z.object({
-	baseUrl: z.string().url("Must be a valid URL"),
+	baseUrl: z.string().url({ message: "Must be a valid URL" }),
 	token: z.string().optional().default(""),
 });
 

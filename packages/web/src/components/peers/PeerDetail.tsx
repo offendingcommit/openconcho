@@ -1,3 +1,17 @@
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+	ChevronDown,
+	Eye,
+	EyeOff,
+	MessageCircle,
+	Save,
+	Search,
+	User,
+	Users,
+	X,
+} from "lucide-react";
+import { useState } from "react";
 import {
 	usePeer,
 	usePeerCard,
@@ -23,20 +37,6 @@ import {
 	SectionHeading,
 } from "@/components/ui/typography";
 import { COLOR } from "@/lib/constants";
-import { Link, useNavigate, useParams } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-	ChevronDown,
-	Eye,
-	EyeOff,
-	MessageCircle,
-	Save,
-	Search,
-	User,
-	Users,
-	X,
-} from "lucide-react";
-import { useState } from "react";
 
 export function PeerDetail() {
 	const { workspaceId, peerId } = useParams({ strict: false }) as {

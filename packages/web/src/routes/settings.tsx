@@ -1,7 +1,7 @@
-import { SettingsForm } from "@/components/settings/SettingsForm";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Brain } from "lucide-react";
+import { SettingsForm } from "@/components/settings/SettingsForm";
 
 export const Route = createFileRoute("/settings")({
 	component: SettingsPage,

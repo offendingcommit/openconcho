@@ -1,3 +1,7 @@
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlignLeft, Clock, Copy, MessageSquare, Search, Trash2, Users, X } from "lucide-react";
+import { useState } from "react";
 import {
 	useAddPeersToSession,
 	useCloneSession,
@@ -26,10 +30,6 @@ import {
 	PageTitle,
 	SectionHeading,
 } from "@/components/ui/typography";
-import { Link, useNavigate, useParams } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
-import { AlignLeft, Clock, Copy, MessageSquare, Search, Trash2, Users, X } from "lucide-react";
-import { useState } from "react";
 
 type Message = components["schemas"]["Message"];
 type SessionSummaries = components["schemas"]["SessionSummaries"];

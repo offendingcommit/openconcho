@@ -1,12 +1,3 @@
-import { useDeleteWorkspace, useQueueStatus, useScheduleDream, useWorkspace } from "@/api/queries";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { ErrorAlert } from "@/components/shared/ErrorAlert";
-import { JsonViewer } from "@/components/shared/JsonViewer";
-import { PageLoader } from "@/components/shared/LoadingSpinner";
-import { Button } from "@/components/ui/button";
-import { Body, Caption, PageTitle, SectionHeading } from "@/components/ui/typography";
-import { ScheduleDreamModal } from "@/components/workspaces/ScheduleDreamModal";
-import { COLOR } from "@/lib/constants";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -22,6 +13,15 @@ import {
 	Zap,
 } from "lucide-react";
 import { useState } from "react";
+import { useDeleteWorkspace, useQueueStatus, useScheduleDream, useWorkspace } from "@/api/queries";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { ErrorAlert } from "@/components/shared/ErrorAlert";
+import { JsonViewer } from "@/components/shared/JsonViewer";
+import { PageLoader } from "@/components/shared/LoadingSpinner";
+import { Button } from "@/components/ui/button";
+import { Body, Caption, PageTitle, SectionHeading } from "@/components/ui/typography";
+import { ScheduleDreamModal } from "@/components/workspaces/ScheduleDreamModal";
+import { COLOR } from "@/lib/constants";
 
 const NAV_SECTIONS = [
 	{

@@ -1,5 +1,5 @@
-import { COLOR } from "@/lib/constants";
 import { motion } from "framer-motion";
+import { COLOR } from "@/lib/constants";
 
 interface LoadingSpinnerProps {
 	size?: "sm" | "md" | "lg";

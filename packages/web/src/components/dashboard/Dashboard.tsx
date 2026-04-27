@@ -1,3 +1,7 @@
+import { Link } from "@tanstack/react-router";
+import { motion } from "framer-motion";
+import { Activity, Boxes, ChevronRight, CircleDot, LayoutDashboard } from "lucide-react";
+import { useState } from "react";
 import { useQueueStatus, useWorkspaces } from "@/api/queries";
 import type { components } from "@/api/schema.d.ts";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
@@ -5,10 +9,6 @@ import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { Body, Muted, PageTitle, SectionHeading } from "@/components/ui/typography";
 import { COLOR } from "@/lib/constants";
 import { formatCount } from "@/lib/utils";
-import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { Activity, Boxes, ChevronRight, CircleDot, LayoutDashboard } from "lucide-react";
-import { useState } from "react";
 
 type QueueStatus = components["schemas"]["QueueStatus"];
 

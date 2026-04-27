@@ -1,3 +1,7 @@
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { motion, type Variants } from "framer-motion";
+import { ArrowLeft, ChevronRight, CircleDot, Clock, MessageSquare } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useSessions } from "@/api/queries";
 import type { components } from "@/api/schema.d.ts";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -7,10 +11,6 @@ import { Pagination } from "@/components/shared/Pagination";
 import { SortControl, type SortDir } from "@/components/shared/SortControl";
 import { MonoCaption, PageTitle } from "@/components/ui/typography";
 import { COLOR } from "@/lib/constants";
-import { Link, useNavigate, useParams } from "@tanstack/react-router";
-import { type Variants, motion } from "framer-motion";
-import { ArrowLeft, ChevronRight, CircleDot, Clock, MessageSquare } from "lucide-react";
-import { useMemo, useState } from "react";
 
 type Session = components["schemas"]["Session"];
 

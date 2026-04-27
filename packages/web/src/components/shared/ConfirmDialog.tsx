@@ -1,3 +1,4 @@
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -7,7 +8,6 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { COLOR } from "@/lib/constants";
-import { AlertTriangle } from "lucide-react";
 
 interface ConfirmDialogProps {
 	open: boolean;

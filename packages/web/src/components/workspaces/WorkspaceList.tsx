@@ -1,3 +1,7 @@
+import { useNavigate } from "@tanstack/react-router";
+import { motion, type Variants } from "framer-motion";
+import { Boxes, ChevronRight, Clock } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useWorkspaces } from "@/api/queries";
 import type { components } from "@/api/schema.d.ts";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -7,10 +11,6 @@ import { Pagination } from "@/components/shared/Pagination";
 import { SortControl, type SortDir } from "@/components/shared/SortControl";
 import { MonoCaption, Muted, PageTitle } from "@/components/ui/typography";
 import { COLOR } from "@/lib/constants";
-import { useNavigate } from "@tanstack/react-router";
-import { type Variants, motion } from "framer-motion";
-import { Boxes, ChevronRight, Clock } from "lucide-react";
-import { useMemo, useState } from "react";
 
 type Workspace = components["schemas"]["Workspace"];
 

@@ -1,8 +1,8 @@
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { COLOR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
 
 interface Props {
 	lines: string[];

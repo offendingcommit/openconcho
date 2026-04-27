@@ -1,19 +1,19 @@
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, CheckCircle, Loader, Lock, LockOpen, Wifi, WifiOff } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Muted } from "@/components/ui/typography";
 import {
 	type Config,
-	type HealthStatus,
 	checkConnection,
 	configSchema,
+	type HealthStatus,
 	loadConfig,
 	saveConfig,
 } from "@/lib/config";
 import { COLOR } from "@/lib/constants";
-import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, CheckCircle, Loader, Lock, LockOpen, Wifi, WifiOff } from "lucide-react";
-import { useState } from "react";
 
 interface SettingsFormProps {
 	onSaved?: () => void;
