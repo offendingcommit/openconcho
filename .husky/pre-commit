@@ -2,3 +2,4 @@
 STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E "\.(ts|tsx|js|jsx|css|json)$" || true)
 [ -z "$STAGED" ] && exit 0
 pnpm exec biome check --write --staged
+git add -u
