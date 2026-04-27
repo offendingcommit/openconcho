@@ -1,3 +1,16 @@
+# [0.4.0](https://github.com/offendingcommit/openconcho/compare/v0.3.0...v0.4.0) (2026-04-27)
+
+
+### Bug Fixes
+
+* **demo:** replace redacted font with CSS blur on main content ([7c022d0](https://github.com/offendingcommit/openconcho/commit/7c022d0929d536e113da82cdd164edc6c1b61b1c))
+
+
+### Features
+
+* add demo mode feature flag using Redacted Script font ([c2e2c83](https://github.com/offendingcommit/openconcho/commit/c2e2c835de7e6faa64e480f57ba1df08addb2577))
+* rename Honcho UI to OpenConcho, use SVG logo in sidebar and settings ([d0aba02](https://github.com/offendingcommit/openconcho/commit/d0aba0250d727ac0c696b7af17436504024c760d))
+
 # [0.3.0](https://github.com/offendingcommit/openconcho/compare/v0.2.1...v0.3.0) (2026-04-27)
 
 
