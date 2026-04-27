@@ -2,7 +2,6 @@ import { Link, useMatchRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
 	Boxes,
-	Brain,
 	ChevronRight,
 	Eye,
 	EyeOff,
@@ -44,21 +43,18 @@ export function Sidebar() {
 			{/* Logo */}
 			<div className="px-3 sm:px-5 py-5" style={{ borderBottom: "1px solid var(--border)" }}>
 				<div className="flex items-center gap-2.5 justify-center sm:justify-start">
-					<div
-						className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-						style={{
-							background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
-							boxShadow: `0 0 16px ${COLOR.accentGlow}`,
-						}}
-					>
-						<Brain className="w-4 h-4 text-white" strokeWidth={2} />
-					</div>
+					<img
+						src="/favicon.svg"
+						alt="OpenConcho"
+						className="w-7 h-7 rounded-lg shrink-0"
+						style={{ boxShadow: `0 0 16px ${COLOR.accentGlow}` }}
+					/>
 					<div className="hidden sm:block">
 						<span
 							className="font-semibold text-sm tracking-tight"
 							style={{ color: "var(--text-1)" }}
 						>
-							Honcho UI
+							OpenConcho
 						</span>
 					</div>
 				</div>
