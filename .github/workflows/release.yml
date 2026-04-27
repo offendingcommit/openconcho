@@ -15,12 +15,16 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      - name: Get release ID
+        id: get-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_ID=$(gh release view "${{ github.ref_name }}" --json databaseId --jq '.databaseId')
+          echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'OpenConcho ${{ github.ref_name }}'
-          releaseBody: 'See assets below to download and install.'
-          releaseDraft: false
-          prerelease: false
+          releaseId: ${{ steps.get-release.outputs.release_id }}
