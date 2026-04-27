@@ -80,7 +80,7 @@ export function ChatPage() {
 						params={{ workspaceId, peerId } as never}
 						className="hover:underline font-mono"
 					>
-						{peerId}
+						{mask(peerId)}
 					</Link>
 					<span>/</span>
 					<span>Chat</span>
@@ -92,7 +92,8 @@ export function ChatPage() {
 					</SectionHeading>
 				</div>
 				<p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>
-					Honcho responds using accumulated context for <span className="font-mono">{peerId}</span>
+					Honcho responds using accumulated context for{" "}
+					<span className="font-mono">{mask(peerId)}</span>
 				</p>
 			</div>
 

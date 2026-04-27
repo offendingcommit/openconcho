@@ -88,7 +88,7 @@ export function PeerDetail() {
 						params={{ workspaceId } as never}
 						className="hover:underline font-mono"
 					>
-						{workspaceId}
+						{mask(workspaceId)}
 					</Link>
 					<span>/</span>
 					<Link
@@ -104,7 +104,7 @@ export function PeerDetail() {
 					<div>
 						<div className="flex items-center gap-2 mb-1">
 							<User className="w-5 h-5" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
-							<PageTitle className="font-mono break-all">{peerId}</PageTitle>
+							<PageTitle className="font-mono break-all">{mask(peerId)}</PageTitle>
 							{observeMe !== undefined && (
 								<span
 									className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-mono"
@@ -304,9 +304,9 @@ export function PeerDetail() {
 										<Users className="w-3.5 h-3.5" strokeWidth={2} />
 										{repTarget ? (
 											<>
-												<MonoCaption as="span">{peerId}</MonoCaption>
+												<MonoCaption as="span">{mask(peerId)}</MonoCaption>
 												<span className="opacity-50">→</span>
-												<MonoCaption as="span">{repTarget}</MonoCaption>
+												<MonoCaption as="span">{mask(repTarget)}</MonoCaption>
 											</>
 										) : (
 											"Memory Representation"

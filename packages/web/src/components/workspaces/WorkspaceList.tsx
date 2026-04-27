@@ -10,6 +10,7 @@ import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { Pagination } from "@/components/shared/Pagination";
 import { SortControl, type SortDir } from "@/components/shared/SortControl";
 import { MonoCaption, Muted, PageTitle } from "@/components/ui/typography";
+import { useDemo } from "@/hooks/useDemo";
 import { COLOR } from "@/lib/constants";
 
 type Workspace = components["schemas"]["Workspace"];
@@ -29,6 +30,7 @@ const item: Variants = {
 };
 
 export function WorkspaceList() {
+	const { mask } = useDemo();
 	const [page, setPage] = useState(1);
 	const [sortField, setSortField] = useState("created_at");
 	const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -131,7 +133,7 @@ export function WorkspaceList() {
 										className="font-mono text-sm font-medium"
 										style={{ color: COLOR.accentSoft }}
 									>
-										{ws.id}
+										{mask(ws.id)}
 									</span>
 									<ChevronRight
 										className="w-4 h-4 opacity-30 group-hover:opacity-70 transition-opacity"

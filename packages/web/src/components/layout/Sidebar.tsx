@@ -25,7 +25,7 @@ export function Sidebar() {
 	const matchRoute = useMatchRoute();
 	const config = loadConfig();
 	const { theme, toggle } = useTheme();
-	const { demo, toggle: toggleDemo } = useDemo();
+	const { demo, toggle: toggleDemo, mask } = useDemo();
 
 	return (
 		<motion.aside
@@ -62,9 +62,9 @@ export function Sidebar() {
 					<p
 						className="text-xs mt-2 truncate font-mono hidden sm:block"
 						style={{ color: "var(--text-4)" }}
-						title={config.baseUrl}
+						title={mask(config.baseUrl)}
 					>
-						{config.baseUrl.replace(/^https?:\/\//, "")}
+						{mask(config.baseUrl.replace(/^https?:\/\//, ""))}
 					</p>
 				)}
 			</div>

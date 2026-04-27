@@ -11,6 +11,7 @@ import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Body, Muted, PageTitle, SectionHeading } from "@/components/ui/typography";
+import { useDemo } from "@/hooks/useDemo";
 import { COLOR } from "@/lib/constants";
 
 const urlSchema = z.string().url({ message: "Must be a valid URL" });
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function WebhookManager({ workspaceId }: Props) {
+	const { mask } = useDemo();
 	const { data: webhooks, isLoading, error } = useWebhooks(workspaceId);
 	const createWebhook = useCreateWebhook(workspaceId);
 	const deleteWebhook = useDeleteWebhook(workspaceId);
@@ -60,7 +62,7 @@ export function WebhookManager({ workspaceId }: Props) {
 					style={{ color: "var(--text-3)" }}
 				>
 					<ArrowLeft className="w-3 h-3" strokeWidth={1.5} />
-					{workspaceId}
+					{mask(workspaceId)}
 				</Link>
 				<div className="flex items-center justify-between mb-1">
 					<div className="flex items-center gap-2">
@@ -163,7 +165,7 @@ export function WebhookManager({ workspaceId }: Props) {
 													className="text-xs font-mono truncate"
 													style={{ color: "var(--accent-text)" }}
 												>
-													{(wh as { url: string }).url}
+													{mask((wh as { url: string }).url)}
 												</span>
 												<button
 													type="button"
@@ -181,7 +183,7 @@ export function WebhookManager({ workspaceId }: Props) {
 												</button>
 											</div>
 											<span className="text-xs font-mono" style={{ color: "var(--text-4)" }}>
-												{(wh as { id: string }).id}
+												{mask((wh as { id: string }).id)}
 											</span>
 										</div>
 										<Button

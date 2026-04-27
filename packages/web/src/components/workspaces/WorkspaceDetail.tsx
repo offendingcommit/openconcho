@@ -21,6 +21,7 @@ import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Body, Caption, PageTitle, SectionHeading } from "@/components/ui/typography";
 import { ScheduleDreamModal } from "@/components/workspaces/ScheduleDreamModal";
+import { useDemo } from "@/hooks/useDemo";
 import { COLOR } from "@/lib/constants";
 
 const NAV_SECTIONS = [
@@ -51,6 +52,7 @@ const NAV_SECTIONS = [
 ] as const;
 
 export function WorkspaceDetail() {
+	const { mask } = useDemo();
 	const { workspaceId } = useParams({ strict: false }) as { workspaceId: string };
 	const navigate = useNavigate();
 
@@ -87,7 +89,7 @@ export function WorkspaceDetail() {
 							style={{ color: "var(--accent)" }}
 							strokeWidth={1.5}
 						/>
-						<PageTitle className="font-mono break-all">{workspaceId}</PageTitle>
+						<PageTitle className="font-mono break-all">{mask(workspaceId)}</PageTitle>
 					</div>
 					<div className="flex items-center gap-2 flex-shrink-0">
 						<Button variant="accent" size="sm" onClick={() => setDreamOpen(true)}>
@@ -267,7 +269,7 @@ export function WorkspaceDetail() {
 																				className="font-mono truncate block max-w-[180px] hover:underline"
 																				style={{ color: "var(--accent-text)" }}
 																			>
-																				{sid}
+																				{mask(sid)}
 																			</Link>
 																		</td>
 																		<td
@@ -324,7 +326,7 @@ export function WorkspaceDetail() {
 			<ConfirmDialog
 				open={confirmDelete}
 				title="Delete workspace"
-				description={`This will permanently delete workspace "${workspaceId}" and all its data. This cannot be undone.`}
+				description={`This will permanently delete workspace "${mask(workspaceId)}" and all its data. This cannot be undone.`}
 				confirmLabel="Delete workspace"
 				onConfirm={handleDelete}
 				onCancel={() => setConfirmDelete(false)}

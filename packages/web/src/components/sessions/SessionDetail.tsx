@@ -116,7 +116,7 @@ export function SessionDetail() {
 						params={{ workspaceId } as never}
 						className="hover:underline font-mono"
 					>
-						{workspaceId}
+						{mask(workspaceId)}
 					</Link>
 					<span>/</span>
 					<Link
@@ -135,7 +135,7 @@ export function SessionDetail() {
 							style={{ color: "var(--accent)" }}
 							strokeWidth={1.5}
 						/>
-						<PageTitle className="font-mono break-all">{sessionId}</PageTitle>
+						<PageTitle className="font-mono break-all">{mask(sessionId)}</PageTitle>
 					</div>
 					<div className="flex items-center gap-2 flex-shrink-0">
 						<Button
@@ -323,7 +323,7 @@ export function SessionDetail() {
 			<ConfirmDialog
 				open={confirmDelete}
 				title="Delete session"
-				description={`Permanently delete session "${sessionId}"? This cannot be undone.`}
+				description={`Permanently delete session "${mask(sessionId)}"? This cannot be undone.`}
 				confirmLabel="Delete session"
 				onConfirm={handleDelete}
 				onCancel={() => setConfirmDelete(false)}

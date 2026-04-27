@@ -112,7 +112,7 @@ export function PeerList() {
 					style={{ color: COLOR.dimText }}
 				>
 					<ArrowLeft className="w-3 h-3" strokeWidth={1.5} />
-					{workspaceId}
+					{mask(workspaceId)}
 				</Link>
 				<div className="flex items-center gap-2 mb-1">
 					<Users className="w-5 h-5" style={{ color: COLOR.accent }} strokeWidth={1.5} />
@@ -139,7 +139,7 @@ export function PeerList() {
 					</div>
 				</div>
 				<MonoCaption className="mt-0.5" as="p">
-					{workspaceId}
+					{mask(workspaceId)}
 				</MonoCaption>
 			</motion.div>
 

@@ -10,6 +10,7 @@ import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { Pagination } from "@/components/shared/Pagination";
 import { SortControl, type SortDir } from "@/components/shared/SortControl";
 import { MonoCaption, PageTitle } from "@/components/ui/typography";
+import { useDemo } from "@/hooks/useDemo";
 import { COLOR } from "@/lib/constants";
 
 type Session = components["schemas"]["Session"];
@@ -30,6 +31,7 @@ const item: Variants = {
 };
 
 export function SessionList() {
+	const { mask } = useDemo();
 	const { workspaceId } = useParams({ strict: false }) as { workspaceId: string };
 	const [page, setPage] = useState(1);
 	const [sortField, setSortField] = useState("created_at");
@@ -71,7 +73,7 @@ export function SessionList() {
 					style={{ color: COLOR.dimText }}
 				>
 					<ArrowLeft className="w-3 h-3" strokeWidth={1.5} />
-					{workspaceId}
+					{mask(workspaceId)}
 				</Link>
 				<div className="flex items-center gap-2 mb-1">
 					<MessageSquare className="w-5 h-5" style={{ color: COLOR.accent }} strokeWidth={1.5} />
@@ -98,7 +100,7 @@ export function SessionList() {
 					</div>
 				</div>
 				<MonoCaption className="mt-0.5" as="p">
-					{workspaceId}
+					{mask(workspaceId)}
 				</MonoCaption>
 			</motion.div>
 
@@ -142,7 +144,7 @@ export function SessionList() {
 										className="font-mono text-sm font-medium truncate"
 										style={{ color: COLOR.accentSoft }}
 									>
-										{session.id}
+										{mask(session.id)}
 									</span>
 									<div className="flex items-center gap-2 shrink-0 ml-2">
 										{session.is_active && (
@@ -189,7 +191,7 @@ export function SessionList() {
 												color: COLOR.dimText,
 											}}
 										>
-											{(session.metadata as Record<string, string>).source}
+											{mask((session.metadata as Record<string, string>).source)}
 										</span>
 									)}
 								</div>

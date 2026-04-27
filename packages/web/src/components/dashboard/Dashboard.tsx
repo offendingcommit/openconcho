@@ -7,6 +7,7 @@ import type { components } from "@/api/schema.d.ts";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { PageLoader } from "@/components/shared/LoadingSpinner";
 import { Body, Muted, PageTitle, SectionHeading } from "@/components/ui/typography";
+import { useDemo } from "@/hooks/useDemo";
 import { COLOR } from "@/lib/constants";
 import { formatCount } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ type QueueStatus = components["schemas"]["QueueStatus"];
 // ─── Per-workspace queue row ─────────────────────────────────────────────────
 
 function WorkspaceQueueRow({ workspaceId }: { workspaceId: string }) {
+	const { mask } = useDemo();
 	const { data, isLoading } = useQueueStatus(workspaceId);
 
 	const pending = data?.pending_work_units ?? 0;
@@ -40,7 +42,7 @@ function WorkspaceQueueRow({ workspaceId }: { workspaceId: string }) {
 						className="font-mono text-xs truncate max-w-[200px] group-hover:underline"
 						style={{ color: "var(--accent-text)" }}
 					>
-						{workspaceId}
+						{mask(workspaceId)}
 					</span>
 					<ChevronRight
 						className="w-3 h-3 opacity-0 group-hover:opacity-60 transition-opacity flex-shrink-0"
@@ -79,15 +81,14 @@ function WorkspaceQueueRow({ workspaceId }: { workspaceId: string }) {
 
 			{(
 				[
-					{ val: total, color: "var(--text-2)" },
-					{ val: done, color: COLOR.success },
-					{ val: active, color: COLOR.warning },
-					{ val: pending, color: "var(--text-3)" },
-				] as Array<{ val: number; color: string }>
-			).map(({ val, color }, i) => (
+					{ key: "total", val: total, color: "var(--text-2)" },
+					{ key: "done", val: done, color: COLOR.success },
+					{ key: "active", val: active, color: COLOR.warning },
+					{ key: "pending", val: pending, color: "var(--text-3)" },
+				] satisfies Array<{ key: string; val: number; color: string }>
+			).map(({ key, val, color }) => (
 				<td
-					// biome-ignore lint/suspicious/noArrayIndexKey: static positional columns
-					key={i}
+					key={key}
 					className="py-2 px-4 text-right font-mono text-xs"
 					style={{ color: isLoading ? "var(--text-4)" : color }}
 				>
