@@ -1,23 +1,27 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", "src-tauri/target/release/bundle/**"]
-    },
-    "typecheck": {
-      "dependsOn": ["^typecheck"],
-      "inputs": ["src/**", "tsconfig*.json"]
-    },
-    "lint": {
-      "inputs": ["src/**"]
-    },
-    "test": {
-      "inputs": ["src/**", "vitest.config.*", "package.json"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    }
-  }
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"outputs": ["dist/**", "src-tauri/target/release/bundle/**"]
+		},
+		"typecheck": {
+			"dependsOn": ["^typecheck"],
+			"inputs": ["src/**", "tsconfig*.json"]
+		},
+		"lint": {
+			"inputs": ["src/**"]
+		},
+		"test": {
+			"inputs": ["src/**", "vitest.config.*", "package.json"]
+		},
+		"cargo-check": {
+			"inputs": ["src-tauri/src/**", "src-tauri/Cargo.toml", "src-tauri/Cargo.lock"],
+			"outputs": []
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		}
+	}
 }

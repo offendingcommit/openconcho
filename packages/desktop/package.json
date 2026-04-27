@@ -1,15 +1,16 @@
 {
-  "name": "@openconcho/desktop",
-  "private": true,
-  "scripts": {
-    "dev": "tauri dev",
-    "build": "tauri build",
-    "tauri": "tauri"
-  },
-  "dependencies": {
-    "@openconcho/web": "workspace:*"
-  },
-  "devDependencies": {
-    "@tauri-apps/cli": "^2"
-  }
+	"name": "@openconcho/desktop",
+	"private": true,
+	"scripts": {
+		"dev": "tauri dev",
+		"build": "tauri build",
+		"tauri": "tauri",
+		"cargo-check": "cargo check --manifest-path src-tauri/Cargo.toml"
+	},
+	"dependencies": {
+		"@openconcho/web": "workspace:*"
+	},
+	"devDependencies": {
+		"@tauri-apps/cli": "^2"
+	}
 }

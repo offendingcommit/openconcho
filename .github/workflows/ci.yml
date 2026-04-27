@@ -17,9 +17,30 @@ jobs:
 
       - run: pnpm turbo lint typecheck test build --filter=@openconcho/web
 
+  cargo-check:
+    name: Rust compile check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/desktop/src-tauri -> target
+
+      - uses: ./.github/actions/setup
+
+      - run: pnpm turbo cargo-check --filter=@openconcho/desktop
+
   release:
     name: Release
-    needs: check
+    needs: [check, cargo-check]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
