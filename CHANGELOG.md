@@ -1,3 +1,18 @@
+# [0.5.0](https://github.com/offendingcommit/openconcho/compare/v0.4.0...v0.5.0) (2026-04-27)
+
+
+### Bug Fixes
+
+* **release:** sync versions to v0.4.0 and wire up semantic-release npm plugin ([18feaeb](https://github.com/offendingcommit/openconcho/commit/18feaeb3d4f9749b7ca33b26c1912ac99a6e2fb9))
+* **release:** use tauri-action beforeBuildCommand for web build ([c66d0f3](https://github.com/offendingcommit/openconcho/commit/c66d0f326ce4209f7298402c20bfcb226616012c))
+
+
+### Features
+
+* **demo:** extend mask() to all breadcrumbs, page titles, and identifiers ([123828c](https://github.com/offendingcommit/openconcho/commit/123828ccb6e6b14300e73229f70127ac0b1d69bb))
+* **demo:** replace blur with asterisk masking of user data via React context ([8f9d806](https://github.com/offendingcommit/openconcho/commit/8f9d806eef3a6d77c3c7b017f8ff23c1177a649b))
+* **web:** show app version in sidebar footer via Vite define ([7848d69](https://github.com/offendingcommit/openconcho/commit/7848d69524f739c3139d0c1fdb99c686fc6fdfb5))
+
 # [0.4.0](https://github.com/offendingcommit/openconcho/compare/v0.3.0...v0.4.0) (2026-04-27)
 
 
