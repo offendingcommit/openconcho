@@ -5,21 +5,10 @@
 @import "@fontsource/dm-sans/500.css";
 @import "@fontsource/dm-sans/600.css";
 
-/* Redacted font — loaded on demand for demo mode */
-@font-face {
-	font-family: "Redacted Script";
-	font-style: normal;
-	font-weight: 400;
-	font-display: swap;
-	src:
-		url("https://cdn.jsdelivr.net/gh/christiannaths/redacted-font@0.0.2/fonts/web/redacted-script-regular.woff2")
-		format("woff2"),
-		url("https://cdn.jsdelivr.net/gh/christiannaths/redacted-font@0.0.2/fonts/web/redacted-script-regular.woff")
-		format("woff");
-}
-
-[data-demo="true"] *:not(svg):not(path):not(circle):not(line):not(polyline):not(rect):not(polygon) {
-	font-family: "Redacted Script", cursive !important;
+/* Demo mode — blur main content, sidebar remains interactive */
+[data-demo="true"] main {
+	filter: blur(6px);
+	user-select: none;
 }
 
 /* ─── Tailwind v4 theme bridge ─── */
