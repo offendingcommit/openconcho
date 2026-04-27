@@ -1,3 +1,10 @@
+## [0.2.1](https://github.com/offendingcommit/openconcho/compare/v0.2.0...v0.2.1) (2026-04-27)
+
+
+### Bug Fixes
+
+* **ci:** use RELEASE_TOKEN PAT so tag push triggers release workflow ([20bec5c](https://github.com/offendingcommit/openconcho/commit/20bec5c89976416e3bf766f50f6f1a852973e76f))
+
 # [0.2.0](https://github.com/offendingcommit/openconcho/compare/v0.1.0...v0.2.0) (2026-04-27)
 
 
