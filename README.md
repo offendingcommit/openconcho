@@ -8,14 +8,14 @@
       <img src="https://github.com/offendingcommit/openconcho/actions/workflows/ci.yml/badge.svg?branch=main&event=push" alt="CI" />
     </a>
     <a href="https://github.com/offendingcommit/openconcho/releases/latest">
-      <img src="https://img.shields.io/github/v/release/offendingcommit/openconcho" alt="Latest release" />
+      <img src="https://img.shields.io/github/v/release/offendingcommit/openconcho?display_name=tag&sort=semver" alt="Latest release" />
     </a>
-    <a href="https://github.com/offendingcommit/openconcho/releases/latest">
-      <img src="https://img.shields.io/github/downloads/offendingcommit/openconcho/total" alt="Downloads" />
+    <a href="https://github.com/offendingcommit/openconcho/releases">
+      <img src="https://img.shields.io/github/downloads/offendingcommit/openconcho/total?color=blue" alt="Downloads" />
     </a>
     <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-blue" alt="Platforms" />
     <a href="LICENSE">
-      <img src="https://img.shields.io/github/license/offendingcommit/openconcho" alt="License" />
+      <img src="https://img.shields.io/github/license/offendingcommit/openconcho?color=green" alt="License" />
     </a>
   </p>
 </div>
