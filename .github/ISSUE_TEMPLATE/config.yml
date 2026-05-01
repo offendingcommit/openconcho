@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Honcho upstream issues
+    url: https://github.com/plastic-labs/honcho/issues
+    about: Bugs in the Honcho server itself, not the OpenConcho UI.
+  - name: Question or discussion
+    url: https://github.com/offendingcommit/openconcho/discussions
+    about: General questions, ideas, or design discussion.
