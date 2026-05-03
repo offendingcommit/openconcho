@@ -1,3 +1,12 @@
+## [0.5.3](https://github.com/offendingcommit/openconcho/compare/v0.5.2...v0.5.3) (2026-05-03)
+
+
+### Bug Fixes
+
+* **release:** regenerate and commit Cargo.lock on release ([6f9abf8](https://github.com/offendingcommit/openconcho/commit/6f9abf84ff32069c917b8613068b982bc9d28cf1))
+* **web:** render sidebar on settings route ([557fecf](https://github.com/offendingcommit/openconcho/commit/557fecf03807b207539e6b50f32b3eec0cfe7191))
+* **web:** show settings on first load and hoist DemoProvider globally ([8f5a6aa](https://github.com/offendingcommit/openconcho/commit/8f5a6aa7e9118e182d5959f902f07dafe2026f30))
+
 ## [0.5.2](https://github.com/offendingcommit/openconcho/compare/v0.5.1...v0.5.2) (2026-04-28)
 
 
