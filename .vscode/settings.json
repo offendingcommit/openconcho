@@ -1,0 +1,26 @@
+{
+	"editor.defaultFormatter": "biomejs.biome",
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "explicit"
+	},
+	"[rust]": {
+		"editor.defaultFormatter": "rust-lang.rust-analyzer"
+	},
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true,
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/dist": true,
+		"**/.turbo": true,
+		"**/playwright-report": true,
+		"**/test-results": true,
+		"**/src-tauri/target": true,
+		"**/pnpm-lock.yaml": true,
+		"packages/web/src/api/schema.d.ts": true,
+		"packages/web/src/routeTree.gen.ts": true
+	},
+	"files.associations": {
+		".releaserc.json": "jsonc"
+	}
+}

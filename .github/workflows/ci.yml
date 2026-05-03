@@ -15,7 +15,7 @@ jobs:
 
       - uses: ./.github/actions/setup
 
-      - run: pnpm turbo lint typecheck test build --filter=@openconcho/web
+      - run: make ci-web
 
   cargo-check:
     name: Rust compile check
@@ -36,7 +36,7 @@ jobs:
 
       - uses: ./.github/actions/setup
 
-      - run: pnpm turbo cargo-check --filter=@openconcho/desktop
+      - run: make ci-desktop
 
   release:
     name: Release
