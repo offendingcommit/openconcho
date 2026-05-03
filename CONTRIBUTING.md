@@ -13,26 +13,37 @@ Thanks for your interest in helping out. This is a small, focused project — pl
 ```bash
 git clone https://github.com/offendingcommit/openconcho.git
 cd openconcho
-pnpm install
-pnpm dev   # web dev server at http://localhost:5173
+make bootstrap   # installs deps + Playwright Chromium
+make dev-web     # web dev server at http://localhost:5173
 ```
+
+Run `make help` to see every target. Make is the canonical interface — CI calls
+the same targets, so anything that passes locally will pass in CI.
+
+Node 24 is what CI runs (`.nvmrc`); pnpm version is pinned via the
+`packageManager` field — `corepack enable` and it just works.
+
+VS Code users: workspace recommends Biome, Tauri, rust-analyzer, Tailwind,
+EditorConfig, and Playwright extensions on first open.
 
 For desktop work:
 
 ```bash
-pnpm --filter @openconcho/desktop dev
+make dev-desktop   # alias: make dev
 ```
+
+Tauri needs system dependencies (WebKit, etc.) — see the
+[Tauri prerequisites guide](https://tauri.app/start/prerequisites/) for your OS.
 
 ## Before opening a PR
 
 ```bash
-pnpm lint           # Biome lint
-pnpm typecheck      # tsc --noEmit
-pnpm test           # Vitest
-pnpm build          # full build
+make check        # lint + typecheck + unit/integration tests
+make test-e2e     # Playwright (requires `make bootstrap` first)
+make build        # full build
 ```
 
-All four must pass. CI will block the merge otherwise.
+CI will block the merge otherwise.
 
 ## Coding standards
 
@@ -49,7 +60,7 @@ The full standards live in [`.claude/rules/coding-standards.md`](.claude/rules/c
 `src/api/schema.d.ts` is generated. Don't edit it by hand — run:
 
 ```bash
-pnpm generate:api
+pnpm --filter @openconcho/web generate:api
 ```
 
 …after updating `openapi.json`.

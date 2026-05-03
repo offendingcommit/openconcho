@@ -3,13 +3,25 @@
 	"private": true,
 	"version": "0.5.2",
 	"packageManager": "pnpm@10.33.2",
+	"engines": {
+		"node": ">=22",
+		"pnpm": ">=10"
+	},
 	"scripts": {
+		"bootstrap": "pnpm install && pnpm exec playwright install --with-deps chromium",
 		"dev": "pnpm --filter @openconcho/desktop dev",
+		"dev:web": "pnpm --filter @openconcho/web dev",
+		"dev:desktop": "pnpm --filter @openconcho/desktop dev",
 		"build": "turbo run build",
 		"lint": "turbo run lint",
+		"lint:fix": "biome check --write .",
+		"format": "biome format --write .",
 		"test": "turbo run test",
 		"test:e2e": "turbo run test:e2e",
 		"typecheck": "turbo run typecheck",
+		"check": "turbo run lint typecheck test",
+		"ci:web": "turbo run lint typecheck test build --filter=@openconcho/web",
+		"ci:desktop": "turbo run cargo-check --filter=@openconcho/desktop",
 		"prepare": "husky"
 	},
 	"devDependencies": {

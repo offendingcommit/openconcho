@@ -4,15 +4,19 @@ Frontend UI for self-hosted Honcho instances — browse memories, peers, session
 
 ## Commands
 
+`make` is the canonical interface; it shells out to pnpm scripts which shell out to turborepo. CI calls the same targets — `make help` lists everything.
+
 | Command | Purpose |
 |---------|---------|
-| `pnpm dev` | Launch Tauri desktop app (also starts the web dev server) |
-| `pnpm --filter @openconcho/web dev` | Web-only dev server on http://localhost:5173 |
-| `pnpm build` | Turbo: build web + desktop |
-| `pnpm lint` | Turbo: Biome check across packages |
-| `pnpm typecheck` | Turbo: tsc --noEmit across packages |
-| `pnpm test` | Turbo: Vitest (unit + integration), excludes `e2e/` |
-| `pnpm test:e2e` | Turbo: Playwright e2e (uncached) |
+| `make bootstrap` | Install deps + Playwright Chromium (run once after clone) |
+| `make dev-web` | Vite dev server on http://localhost:5173 |
+| `make dev-desktop` (or `make dev`) | Tauri desktop app |
+| `make build` | Turbo: build web + desktop |
+| `make lint` | Biome check |
+| `make typecheck` | tsc --noEmit |
+| `make test` | Vitest (unit + integration), excludes `e2e/` |
+| `make test-e2e` | Playwright e2e (uncached) |
+| `make check` | lint + typecheck + test |
 | `pnpm --filter @openconcho/web generate:api` | Regen `src/api/schema.d.ts` from `openapi.json` |
 
 ## Structure
