@@ -10,12 +10,10 @@
 		"lint": "biome check src/",
 		"lint:fix": "biome check --write src/",
 		"test": "vitest run --passWithNoTests",
+		"test:e2e": "playwright test",
 		"generate:api": "openapi-typescript openapi.json -o src/api/schema.d.ts"
 	},
 	"dependencies": {
-		"@tauri-apps/api": "^2",
-		"@tauri-apps/plugin-http": "^2",
-		"@tauri-apps/plugin-shell": "^2",
 		"@fontsource/dm-mono": "^5.2.7",
 		"@fontsource/dm-sans": "^5.2.8",
 		"@radix-ui/react-collapsible": "^1.1.12",
@@ -27,6 +25,9 @@
 		"@tailwindcss/vite": "^4.2.4",
 		"@tanstack/react-query": "^5.74.4",
 		"@tanstack/react-router": "^1.120.3",
+		"@tauri-apps/api": "^2",
+		"@tauri-apps/plugin-http": "^2",
+		"@tauri-apps/plugin-shell": "^2",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"framer-motion": "^12.38.0",
@@ -42,6 +43,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.59.1",
 		"@tanstack/router-plugin": "^1.120.3",
 		"@testing-library/jest-dom": "catalog:",
 		"@testing-library/react": "catalog:",

@@ -1,4 +1,4 @@
-import { createRootRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
+import { createRootRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { loadConfig } from "@/lib/config";
@@ -7,16 +7,9 @@ import { applyTheme, getStoredTheme } from "@/lib/theme";
 const SETTINGS_PATH = "/settings";
 
 function RootLayout() {
-	const router = useRouter();
-	const isSettings = router.state.location.pathname === SETTINGS_PATH;
-
 	useEffect(() => {
 		applyTheme(getStoredTheme());
 	}, []);
-
-	if (isSettings) {
-		return <Outlet />;
-	}
 
 	return (
 		<div
