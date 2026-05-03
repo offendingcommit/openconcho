@@ -19,14 +19,19 @@
 		[
 			"@semantic-release/exec",
 			{
-				"prepareCmd": "sed -i 's/^version = \"[^\"]*\"/version = \"${nextRelease.version}\"/' packages/desktop/src-tauri/Cargo.toml",
+				"prepareCmd": "sed -i 's/^version = \"[^\"]*\"/version = \"${nextRelease.version}\"/' packages/desktop/src-tauri/Cargo.toml && cargo update -p openconcho --manifest-path packages/desktop/src-tauri/Cargo.toml",
 				"publishCmd": "echo new_release_published=true >> $GITHUB_OUTPUT && echo new_release_version=${nextRelease.version} >> $GITHUB_OUTPUT"
 			}
 		],
 		[
 			"@semantic-release/git",
 			{
-				"assets": ["CHANGELOG.md", "package.json", "packages/desktop/src-tauri/Cargo.toml"],
+				"assets": [
+					"CHANGELOG.md",
+					"package.json",
+					"packages/desktop/src-tauri/Cargo.toml",
+					"packages/desktop/src-tauri/Cargo.lock"
+				],
 				"message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
 			}
 		],
