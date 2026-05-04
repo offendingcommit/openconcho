@@ -32,5 +32,13 @@
 		"security": {
 			"csp": null
 		}
+	},
+	"plugins": {
+		"deep-link": {
+			"mobile": [],
+			"desktop": {
+				"schemes": ["openconcho"]
+			}
+		}
 	}
 }

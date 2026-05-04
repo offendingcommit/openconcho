@@ -3,6 +3,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { DemoProvider } from "./context/DemoContext";
+import { initDeepLinks } from "./lib/deep-link";
 import { routeTree } from "./routeTree.gen";
 import "./index.css";
 
@@ -26,6 +27,8 @@ declare module "@tanstack/react-router" {
 		router: typeof router;
 	}
 }
+
+void initDeepLinks(router as never);
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Missing #root element");

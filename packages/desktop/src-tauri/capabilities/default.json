@@ -1,19 +1,20 @@
 {
-  "$schema": "../gen/schemas/desktop-schema.json",
-  "identifier": "default",
-  "description": "Default capabilities for the OpenConcho desktop window",
-  "windows": ["main"],
-  "permissions": [
-    "core:default",
-    {
-      "identifier": "http:default",
-      "allow": [
-        { "url": "http://*" },
-        { "url": "http://*:*" },
-        { "url": "https://*" },
-        { "url": "https://*:*" }
-      ]
-    },
-    "shell:allow-open"
-  ]
+	"$schema": "../gen/schemas/desktop-schema.json",
+	"identifier": "default",
+	"description": "Default capabilities for the OpenConcho desktop window",
+	"windows": ["main"],
+	"permissions": [
+		"core:default",
+		{
+			"identifier": "http:default",
+			"allow": [
+				{ "url": "http://*" },
+				{ "url": "http://*:*" },
+				{ "url": "https://*" },
+				{ "url": "https://*:*" }
+			]
+		},
+		"shell:allow-open",
+		"deep-link:default"
+	]
 }
