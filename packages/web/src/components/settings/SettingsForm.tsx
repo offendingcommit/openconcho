@@ -5,18 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Muted } from "@/components/ui/typography";
-import {
-	type Config,
-	checkConnection,
-	configSchema,
-	type HealthStatus,
-	loadConfig,
-	saveConfig,
-} from "@/lib/config";
+import { useInstances } from "@/hooks/useInstances";
+import { checkConnection, type HealthStatus, type Instance, instanceSchema } from "@/lib/config";
 import { COLOR } from "@/lib/constants";
 
 interface SettingsFormProps {
-	onSaved?: () => void;
+	/** Instance to edit; pass `null` to create a new one. */
+	instance: Instance | null;
+	/** Called after a successful save. Receives the saved instance id. */
+	onSaved?: (id: string) => void;
+	/** Called when the user cancels (only meaningful when there's something to cancel back to). */
+	onCancel?: () => void;
+	/** Hide the cancel button. */
+	hideCancel?: boolean;
+	/** Override the submit button label. */
+	submitLabel?: string;
 }
 
 const statusConfig = {
@@ -26,14 +29,24 @@ const statusConfig = {
 	checking: { icon: Loader, color: COLOR.accentText, label: "Checking..." },
 };
 
-export function SettingsForm({ onSaved }: SettingsFormProps) {
-	const existing = loadConfig();
-	const [baseUrl, setBaseUrl] = useState(existing?.baseUrl ?? "http://localhost:8000");
-	const [token, setToken] = useState(existing?.token ?? "");
-	const [errors, setErrors] = useState<Partial<Record<keyof Config, string>>>({});
+export function SettingsForm({
+	instance,
+	onSaved,
+	onCancel,
+	hideCancel,
+	submitLabel,
+}: SettingsFormProps) {
+	const { add, update, activate } = useInstances();
+
+	const [name, setName] = useState(instance?.name ?? "");
+	const [baseUrl, setBaseUrl] = useState(instance?.baseUrl ?? "http://localhost:8000");
+	const [token, setToken] = useState(instance?.token ?? "");
+	const [errors, setErrors] = useState<Partial<Record<keyof Instance, string>>>({});
 	const [saved, setSaved] = useState(false);
 	const [health, setHealth] = useState<{ status: HealthStatus; message: string } | null>(null);
 	const [checking, setChecking] = useState(false);
+
+	const isCreate = instance === null;
 
 	async function handleTest() {
 		setChecking(true);
@@ -49,22 +62,46 @@ export function SettingsForm({ onSaved }: SettingsFormProps) {
 
 	function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
 		e.preventDefault();
-		const result = configSchema.safeParse({ baseUrl, token });
+		const candidate = {
+			id: instance?.id ?? "placeholder",
+			name: name.trim() || "Default",
+			baseUrl,
+			token,
+		};
+		const result = instanceSchema.safeParse(candidate);
 		if (!result.success) {
 			const fieldErrors: typeof errors = {};
 			for (const issue of result.error.issues) {
-				const key = issue.path[0] as keyof Config;
+				const key = issue.path[0] as keyof Instance;
 				fieldErrors[key] = issue.message;
 			}
 			setErrors(fieldErrors);
 			return;
 		}
 		setErrors({});
-		saveConfig(result.data);
+
+		let id: string;
+		if (isCreate) {
+			const created = add({
+				name: result.data.name,
+				baseUrl: result.data.baseUrl,
+				token: result.data.token,
+			});
+			activate(created.id);
+			id = created.id;
+		} else {
+			update(instance.id, {
+				name: result.data.name,
+				baseUrl: result.data.baseUrl,
+				token: result.data.token,
+			});
+			id = instance.id;
+		}
+
 		setSaved(true);
 		setTimeout(() => {
 			setSaved(false);
-			onSaved?.();
+			onSaved?.(id);
 		}, 600);
 	}
 
@@ -79,6 +116,24 @@ export function SettingsForm({ onSaved }: SettingsFormProps) {
 				border: "1px solid var(--border)",
 			}}
 		>
+			{/* Name */}
+			<div>
+				<Label className="mb-1.5 text-sm">Instance Name</Label>
+				<Input
+					type="text"
+					value={name}
+					onChange={(e) => setName(e.target.value)}
+					placeholder="e.g. Local, Staging, Production"
+					className="rounded-xl"
+				/>
+				{errors.name && (
+					<p className="text-xs mt-1" style={{ color: COLOR.destructive }}>
+						{errors.name}
+					</p>
+				)}
+				<Muted className="text-xs mt-1.5">A short label to identify this connection</Muted>
+			</div>
+
 			{/* Base URL */}
 			<div>
 				<Label className="mb-1.5 text-sm">Honcho Base URL</Label>
@@ -202,14 +257,26 @@ export function SettingsForm({ onSaved }: SettingsFormProps) {
 				)}
 			</div>
 
-			<Button
-				type="submit"
-				variant="primary"
-				className="w-full py-2.5 px-4 rounded-xl"
-				style={saved ? { background: "#059669" } : undefined}
-			>
-				{saved ? "✓ Saved" : "Save Connection"}
-			</Button>
+			<div className="flex gap-2">
+				{!hideCancel && onCancel && (
+					<Button
+						type="button"
+						variant="ghost"
+						onClick={onCancel}
+						className="py-2.5 px-4 rounded-xl"
+					>
+						Cancel
+					</Button>
+				)}
+				<Button
+					type="submit"
+					variant="primary"
+					className="flex-1 py-2.5 px-4 rounded-xl"
+					style={saved ? { background: "#059669" } : undefined}
+				>
+					{saved ? "✓ Saved" : (submitLabel ?? (isCreate ? "Add Instance" : "Save Changes"))}
+				</Button>
+			</div>
 		</form>
 	);
 }

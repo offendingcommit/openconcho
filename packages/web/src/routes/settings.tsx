@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { SettingsForm } from "@/components/settings/SettingsForm";
+import { InstancesManager } from "@/components/settings/InstancesManager";
+import { useInstances } from "@/hooks/useInstances";
 
 export const Route = createFileRoute("/settings")({
 	component: SettingsPage,
@@ -8,6 +9,8 @@ export const Route = createFileRoute("/settings")({
 
 function SettingsPage() {
 	const navigate = useNavigate();
+	const { instances } = useInstances();
+	const isFirstRun = instances.length === 0;
 
 	return (
 		<div
@@ -31,10 +34,12 @@ function SettingsPage() {
 						OpenConcho
 					</h1>
 					<p className="text-sm mt-1" style={{ color: "var(--text-3)" }}>
-						Connect to your self-hosted Honcho instance
+						{isFirstRun
+							? "Connect to your self-hosted Honcho instance"
+							: "Manage your Honcho connections"}
 					</p>
 				</div>
-				<SettingsForm onSaved={() => navigate({ to: "/" as never })} />
+				<InstancesManager onActivated={() => navigate({ to: "/" as never })} />
 				<p className="text-xs text-center mt-4" style={{ color: "var(--text-4)" }}>
 					Connection details are stored locally on this device only
 				</p>

@@ -2,7 +2,9 @@ import { Link, useMatchRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
 	Boxes,
+	Check,
 	ChevronRight,
+	ChevronsUpDown,
 	Eye,
 	EyeOff,
 	LayoutDashboard,
@@ -10,9 +12,10 @@ import {
 	Settings,
 	Sun,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useDemo } from "@/hooks/useDemo";
+import { useInstances } from "@/hooks/useInstances";
 import { useTheme } from "@/hooks/useTheme";
-import { loadConfig } from "@/lib/config";
 import { COLOR } from "@/lib/constants";
 
 const navItems = [
@@ -23,9 +26,22 @@ const navItems = [
 
 export function Sidebar() {
 	const matchRoute = useMatchRoute();
-	const config = loadConfig();
+	const { instances, active, activate } = useInstances();
 	const { theme, toggle } = useTheme();
 	const { demo, toggle: toggleDemo, mask } = useDemo();
+	const [switcherOpen, setSwitcherOpen] = useState(false);
+	const switcherRef = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		if (!switcherOpen) return;
+		function onClick(e: MouseEvent) {
+			if (!switcherRef.current?.contains(e.target as Node)) {
+				setSwitcherOpen(false);
+			}
+		}
+		window.addEventListener("mousedown", onClick);
+		return () => window.removeEventListener("mousedown", onClick);
+	}, [switcherOpen]);
 
 	return (
 		<motion.aside
@@ -58,14 +74,81 @@ export function Sidebar() {
 						</span>
 					</div>
 				</div>
-				{config && (
-					<p
-						className="text-xs mt-2 truncate font-mono hidden sm:block"
-						style={{ color: "var(--text-4)" }}
-						title={mask(config.baseUrl)}
-					>
-						{mask(config.baseUrl.replace(/^https?:\/\//, ""))}
-					</p>
+				{active && (
+					<div ref={switcherRef} className="relative mt-2 hidden sm:block">
+						<button
+							type="button"
+							onClick={() => setSwitcherOpen((v) => !v)}
+							className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-md text-left transition-colors"
+							style={{
+								background: switcherOpen ? "var(--surface)" : "transparent",
+								border: `1px solid ${switcherOpen ? "var(--border)" : "transparent"}`,
+							}}
+							title={mask(active.baseUrl)}
+						>
+							<div className="min-w-0 flex-1">
+								<p className="text-xs font-medium truncate" style={{ color: "var(--text-2)" }}>
+									{active.name}
+								</p>
+								<p className="text-xs font-mono truncate" style={{ color: "var(--text-4)" }}>
+									{mask(active.baseUrl.replace(/^https?:\/\//, ""))}
+								</p>
+							</div>
+							{instances.length > 1 && (
+								<ChevronsUpDown
+									className="w-3.5 h-3.5 shrink-0"
+									style={{ color: "var(--text-4)" }}
+									strokeWidth={1.5}
+								/>
+							)}
+						</button>
+						{switcherOpen && instances.length > 1 && (
+							<div
+								className="absolute left-0 right-0 top-full mt-1 rounded-lg overflow-hidden z-20"
+								style={{
+									background: "var(--bg-2)",
+									border: "1px solid var(--border)",
+									boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+								}}
+							>
+								{instances.map((inst) => (
+									<button
+										key={inst.id}
+										type="button"
+										onClick={() => {
+											activate(inst.id);
+											setSwitcherOpen(false);
+										}}
+										className="w-full flex items-center gap-2 px-2.5 py-2 text-left transition-colors"
+										style={{
+											background: inst.id === active.id ? "var(--accent-dim)" : "transparent",
+										}}
+									>
+										<div className="min-w-0 flex-1">
+											<p
+												className="text-xs font-medium truncate"
+												style={{
+													color: inst.id === active.id ? "var(--accent-text)" : "var(--text-2)",
+												}}
+											>
+												{inst.name}
+											</p>
+											<p className="text-xs font-mono truncate" style={{ color: "var(--text-4)" }}>
+												{mask(inst.baseUrl.replace(/^https?:\/\//, ""))}
+											</p>
+										</div>
+										{inst.id === active.id && (
+											<Check
+												className="w-3.5 h-3.5 shrink-0"
+												style={{ color: "var(--accent-text)" }}
+												strokeWidth={2}
+											/>
+										)}
+									</button>
+								))}
+							</div>
+						)}
+					</div>
 				)}
 			</div>
 
