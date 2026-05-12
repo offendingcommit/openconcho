@@ -17,27 +17,27 @@ export const COLOR = {
 	destructiveBorder: "rgba(239,68,68,0.2)",
 
 	// Accent (indigo — matches --accent CSS var)
-	accent: "#6366f1",
-	accentText: "#818cf8",
-	accentSoft: "#c7d2fe",
-	accentDim: "rgba(99,102,241,0.08)",
-	accentDimHover: "rgba(99,102,241,0.06)",
-	accentSubtle: "rgba(99,102,241,0.1)",
-	accentMuted: "rgba(99,102,241,0.6)",
-	accentGlow: "rgba(99,102,241,0.4)",
-	accentBorder: "rgba(99,102,241,0.2)",
-	accentBorderStrong: "rgba(99,102,241,0.15)",
-	accentSpinnerTrack: "rgba(99,102,241,0.15)",
+	accent: "var(--accent)",
+	accentText: "var(--accent-text)",
+	accentSoft: "var(--accent-soft)",
+	accentDim: "var(--accent-dim)",
+	accentDimHover: "var(--accent-dim-hover)",
+	accentSubtle: "var(--accent-subtle)",
+	accentMuted: "var(--accent-muted)",
+	accentGlow: "var(--accent-glow)",
+	accentBorder: "var(--accent-border)",
+	accentBorderStrong: "var(--accent-border-strong)",
+	accentSpinnerTrack: "var(--accent-spinner-track)",
 
 	// Neutral dim (slate-300 at opacity)
-	dimText: "rgba(148,163,184,0.5)",
-	dimIcon: "rgba(148,163,184,0.3)",
+	dimText: "var(--dim-text)",
+	dimIcon: "var(--dim-icon)",
 
 	// Error detail text
 	destructiveMuted: "rgba(248,113,113,0.6)",
 	destructiveBorderStrong: "rgba(239,68,68,0.25)",
 
 	// Framer-motion hover card base state (inline only — CSS vars can't be animated)
-	cardBaseBg: "rgba(255,255,255,0.02)",
-	cardBaseBorder: "rgba(255,255,255,0.06)",
+	cardBaseBg: "var(--card-base-bg)",
+	cardBaseBorder: "var(--card-base-border)",
 } as const;

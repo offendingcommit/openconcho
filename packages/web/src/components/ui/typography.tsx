@@ -85,7 +85,7 @@ export function Caption<T extends React.ElementType = "span">({
 }: Props<T>) {
 	const Tag = (as ?? "span") as React.ElementType;
 	return (
-		<Tag className={cn("text-xs", className)} style={{ color: "var(--text-4)" }} {...rest}>
+		<Tag className={cn("text-xs", className)} style={{ color: "var(--text-3)" }} {...rest}>
 			{children}
 		</Tag>
 	);
@@ -101,7 +101,7 @@ export function MonoCaption<T extends React.ElementType = "span">({
 	return (
 		<Tag
 			className={cn("text-xs font-mono", className)}
-			style={{ color: "var(--text-4)" }}
+			style={{ color: "var(--text-3)" }}
 			{...rest}
 		>
 			{children}

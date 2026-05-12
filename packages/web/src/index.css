@@ -28,28 +28,41 @@
 /* ─── Theme tokens ─── */
 :root,
 [data-theme="dark"] {
-	--bg: #0c0c10;
-	--bg-2: #111118;
-	--bg-3: #1a1a24;
-	--surface: rgba(255, 255, 255, 0.03);
-	--border: rgba(255, 255, 255, 0.08);
-	--border-2: rgba(255, 255, 255, 0.13);
-	--text-1: #e8e8f4;
-	--text-2: #94a3b8;
-	--text-3: #64748b;
-	--text-4: #475569;
+	color-scheme: dark;
+	--bg: #0b0d12;
+	--bg-2: #121722;
+	--bg-3: #1b2331;
+	--surface: rgba(148, 163, 184, 0.08);
+	--border: rgba(148, 163, 184, 0.18);
+	--border-2: rgba(148, 163, 184, 0.28);
+	--text-1: #f3f6ff;
+	--text-2: #c3cddd;
+	--text-3: #95a4bb;
+	--text-4: #7787a0;
 	--accent: #6366f1;
-	--accent-dim: rgba(99, 102, 241, 0.15);
-	--accent-border: rgba(99, 102, 241, 0.35);
-	--accent-text: #a5b4fc;
-	--sidebar-bg: linear-gradient(180deg, #111118 0%, #0e0e15 100%);
-	--grid-line: rgba(99, 102, 241, 0.03);
-	--glow: rgba(79, 70, 229, 0.08);
+	--accent-text: #d6ddff;
+	--accent-soft: #c7d2fe;
+	--accent-dim: rgba(129, 140, 248, 0.18);
+	--accent-dim-hover: rgba(129, 140, 248, 0.24);
+	--accent-subtle: rgba(129, 140, 248, 0.14);
+	--accent-muted: #a5b4fc;
+	--accent-glow: rgba(129, 140, 248, 0.4);
+	--accent-border: rgba(129, 140, 248, 0.4);
+	--accent-border-strong: rgba(165, 180, 252, 0.56);
+	--accent-spinner-track: rgba(129, 140, 248, 0.26);
+	--dim-text: #a7b4c8;
+	--dim-icon: rgba(167, 180, 200, 0.75);
+	--card-base-bg: rgba(148, 163, 184, 0.08);
+	--card-base-border: rgba(148, 163, 184, 0.18);
+	--sidebar-bg: linear-gradient(180deg, #121722 0%, #0d1017 100%);
+	--grid-line: rgba(129, 140, 248, 0.05);
+	--glow: rgba(99, 102, 241, 0.1);
 	--scrollbar: rgba(99, 102, 241, 0.2);
-	--card-hover: rgba(99, 102, 241, 0.06);
+	--card-hover: rgba(129, 140, 248, 0.12);
 }
 
 [data-theme="light"] {
+	color-scheme: light;
 	--bg: #f8f8fc;
 	--bg-2: #ffffff;
 	--bg-3: #f0f0f8;
@@ -61,9 +74,20 @@
 	--text-3: #6b7280;
 	--text-4: #9ca3af;
 	--accent: #4f46e5;
-	--accent-dim: rgba(79, 70, 229, 0.08);
-	--accent-border: rgba(79, 70, 229, 0.25);
 	--accent-text: #4f46e5;
+	--accent-soft: #6366f1;
+	--accent-dim: rgba(79, 70, 229, 0.08);
+	--accent-dim-hover: rgba(79, 70, 229, 0.12);
+	--accent-subtle: rgba(79, 70, 229, 0.1);
+	--accent-muted: #6366f1;
+	--accent-glow: rgba(79, 70, 229, 0.28);
+	--accent-border: rgba(79, 70, 229, 0.25);
+	--accent-border-strong: rgba(79, 70, 229, 0.35);
+	--accent-spinner-track: rgba(79, 70, 229, 0.18);
+	--dim-text: #4b5563;
+	--dim-icon: rgba(75, 85, 99, 0.6);
+	--card-base-bg: rgba(15, 23, 42, 0.03);
+	--card-base-border: rgba(15, 23, 42, 0.08);
 	--sidebar-bg: linear-gradient(180deg, #ffffff 0%, #f4f4fc 100%);
 	--grid-line: rgba(79, 70, 229, 0.04);
 	--glow: rgba(79, 70, 229, 0.06);

@@ -25,7 +25,7 @@ const variantStyles: Record<string, React.CSSProperties> = {
 		border: "1px solid rgba(239,68,68,0.2)",
 	},
 	blue: {
-		background: "rgba(99,102,241,0.08)",
+		background: "var(--accent-subtle)",
 		color: "var(--accent-text)",
 		border: "1px solid var(--accent-border)",
 	},
