@@ -13,7 +13,9 @@ import {
 	Sun,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { HealthDot } from "@/components/shared/HealthDot";
 import { useDemo } from "@/hooks/useDemo";
+import { useHealthStatus } from "@/hooks/useHealthStatus";
 import { useInstances } from "@/hooks/useInstances";
 import { useTheme } from "@/hooks/useTheme";
 import { COLOR } from "@/lib/constants";
@@ -29,6 +31,7 @@ export function Sidebar() {
 	const { instances, active, activate } = useInstances();
 	const { theme, toggle } = useTheme();
 	const { demo, toggle: toggleDemo, mask } = useDemo();
+	const { data: health } = useHealthStatus();
 	const [switcherOpen, setSwitcherOpen] = useState(false);
 	const switcherRef = useRef<HTMLDivElement | null>(null);
 
@@ -87,8 +90,12 @@ export function Sidebar() {
 							title={mask(active.baseUrl)}
 						>
 							<div className="min-w-0 flex-1">
-								<p className="text-xs font-medium truncate" style={{ color: "var(--text-2)" }}>
-									{active.name}
+								<p
+									className="text-xs font-medium truncate flex items-center gap-1.5"
+									style={{ color: "var(--text-2)" }}
+								>
+									<HealthDot status={health?.status} message={health?.message} />
+									<span className="truncate">{active.name}</span>
 								</p>
 								<p className="text-xs font-mono truncate" style={{ color: "var(--text-4)" }}>
 									{mask(active.baseUrl.replace(/^https?:\/\//, ""))}

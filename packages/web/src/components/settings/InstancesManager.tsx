@@ -1,12 +1,14 @@
-import { motion } from "framer-motion";
-import { Check, ChevronRight, Cloud, Pencil, Plus, Server, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Check, ChevronRight, Cloud, Pencil, Plus, Server, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { type ConnectionPreset, SettingsForm } from "@/components/settings/SettingsForm";
 import { Button } from "@/components/ui/button";
 import { Muted } from "@/components/ui/typography";
 import { useInstances } from "@/hooks/useInstances";
-import { HONCHO_CLOUD_URL, type Instance, isCloudInstance } from "@/lib/config";
+import { checkConnection, HONCHO_CLOUD_URL, type Instance, isCloudInstance } from "@/lib/config";
 import { COLOR } from "@/lib/constants";
+
+const LOCALHOST_PROBE_URL = "http://localhost:8000";
 
 type Mode =
 	| { kind: "list" }
@@ -99,6 +101,21 @@ interface ConnectionTypeChooserProps {
 }
 
 function ConnectionTypeChooser({ onPick, onCancel }: ConnectionTypeChooserProps) {
+	const [localhostDetected, setLocalhostDetected] = useState(false);
+
+	useEffect(() => {
+		let cancelled = false;
+		void checkConnection(LOCALHOST_PROBE_URL).then((result) => {
+			if (cancelled) return;
+			if (result.status === "ok" || result.status === "auth-required") {
+				setLocalhostDetected(true);
+			}
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
 	return (
 		<div
 			className="rounded-2xl p-6 space-y-3"
@@ -115,6 +132,35 @@ function ConnectionTypeChooser({ onPick, onCancel }: ConnectionTypeChooserProps)
 					You can add more connections later — Cloud, self-hosted, or both.
 				</Muted>
 			</div>
+
+			<AnimatePresence>
+				{localhostDetected && (
+					<motion.button
+						type="button"
+						initial={{ opacity: 0, height: 0 }}
+						animate={{ opacity: 1, height: "auto" }}
+						exit={{ opacity: 0, height: 0 }}
+						onClick={() => onPick("self-hosted")}
+						className="w-full overflow-hidden rounded-xl p-3 flex items-center gap-2.5 text-left"
+						style={{
+							background: COLOR.successDim,
+							border: `1px solid ${COLOR.successBorder}`,
+						}}
+					>
+						<Sparkles
+							className="w-4 h-4 shrink-0"
+							style={{ color: COLOR.success }}
+							strokeWidth={1.5}
+						/>
+						<div className="min-w-0 flex-1">
+							<p className="text-xs font-medium" style={{ color: COLOR.success }}>
+								Detected Honcho at {LOCALHOST_PROBE_URL.replace(/^https?:\/\//, "")}
+							</p>
+							<Muted className="text-xs mt-0.5">Tap to connect to it</Muted>
+						</div>
+					</motion.button>
+				)}
+			</AnimatePresence>
 
 			<ConnectionTypeButton
 				icon={Cloud}
