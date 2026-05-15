@@ -1,17 +1,37 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, CheckCircle, Loader, Lock, LockOpen, Wifi, WifiOff } from "lucide-react";
+import {
+	AlertCircle,
+	CheckCircle,
+	Cloud,
+	Loader,
+	Lock,
+	LockOpen,
+	Wifi,
+	WifiOff,
+} from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Muted } from "@/components/ui/typography";
 import { useInstances } from "@/hooks/useInstances";
-import { checkConnection, type HealthStatus, type Instance, instanceSchema } from "@/lib/config";
+import {
+	checkConnection,
+	type HealthStatus,
+	HONCHO_CLOUD_URL,
+	type Instance,
+	instanceSchema,
+	isCloudInstance,
+} from "@/lib/config";
 import { COLOR } from "@/lib/constants";
+
+export type ConnectionPreset = "cloud" | "self-hosted";
 
 interface SettingsFormProps {
 	/** Instance to edit; pass `null` to create a new one. */
 	instance: Instance | null;
+	/** Whether this form is for a Cloud or Self-Hosted connection. Inferred from `instance` in edit mode. */
+	preset?: ConnectionPreset;
 	/** Called after a successful save. Receives the saved instance id. */
 	onSaved?: (id: string) => void;
 	/** Called when the user cancels (only meaningful when there's something to cancel back to). */
@@ -31,6 +51,7 @@ const statusConfig = {
 
 export function SettingsForm({
 	instance,
+	preset,
 	onSaved,
 	onCancel,
 	hideCancel,
@@ -38,8 +59,17 @@ export function SettingsForm({
 }: SettingsFormProps) {
 	const { add, update, activate } = useInstances();
 
-	const [name, setName] = useState(instance?.name ?? "");
-	const [baseUrl, setBaseUrl] = useState(instance?.baseUrl ?? "http://localhost:8000");
+	const resolvedPreset: ConnectionPreset =
+		preset ?? (instance && isCloudInstance(instance) ? "cloud" : "self-hosted");
+	const isCloud = resolvedPreset === "cloud";
+
+	const initialName = instance?.name ?? (isCloud ? "Honcho Cloud" : "");
+	const initialBaseUrl = isCloud
+		? HONCHO_CLOUD_URL
+		: (instance?.baseUrl ?? "http://localhost:8000");
+
+	const [name, setName] = useState(initialName);
+	const [baseUrl, setBaseUrl] = useState(initialBaseUrl);
 	const [token, setToken] = useState(instance?.token ?? "");
 	const [errors, setErrors] = useState<Partial<Record<keyof Instance, string>>>({});
 	const [saved, setSaved] = useState(false);
@@ -64,8 +94,8 @@ export function SettingsForm({
 		e.preventDefault();
 		const candidate = {
 			id: instance?.id ?? "placeholder",
-			name: name.trim() || "Default",
-			baseUrl,
+			name: name.trim() || (isCloud ? "Honcho Cloud" : "Default"),
+			baseUrl: isCloud ? HONCHO_CLOUD_URL : baseUrl,
 			token,
 		};
 		const result = instanceSchema.safeParse(candidate);
@@ -76,6 +106,10 @@ export function SettingsForm({
 				fieldErrors[key] = issue.message;
 			}
 			setErrors(fieldErrors);
+			return;
+		}
+		if (isCloud && !token.trim()) {
+			setErrors({ token: "API key is required for Honcho Cloud" });
 			return;
 		}
 		setErrors({});
@@ -136,18 +170,36 @@ export function SettingsForm({
 
 			{/* Base URL */}
 			<div>
-				<Label className="mb-1.5 text-sm">Honcho Base URL</Label>
+				<Label className="mb-1.5 text-sm">{isCloud ? "Endpoint" : "Honcho Base URL"}</Label>
 				<div className="flex gap-2">
-					<Input
-						type="url"
-						value={baseUrl}
-						onChange={(e) => {
-							setBaseUrl(e.target.value);
-							setHealth(null);
-						}}
-						placeholder="http://localhost:8000"
-						className="flex-1 font-mono rounded-xl"
-					/>
+					{isCloud ? (
+						<div
+							className="flex-1 font-mono rounded-xl px-3 py-2 text-sm flex items-center gap-2"
+							style={{
+								background: "var(--surface)",
+								border: "1px solid var(--border)",
+								color: "var(--text-2)",
+							}}
+						>
+							<Cloud
+								className="w-4 h-4 shrink-0"
+								style={{ color: "var(--accent)" }}
+								strokeWidth={1.5}
+							/>
+							<span className="truncate">{HONCHO_CLOUD_URL}</span>
+						</div>
+					) : (
+						<Input
+							type="url"
+							value={baseUrl}
+							onChange={(e) => {
+								setBaseUrl(e.target.value);
+								setHealth(null);
+							}}
+							placeholder="http://localhost:8000"
+							className="flex-1 font-mono rounded-xl"
+						/>
+					)}
 					<Button
 						type="button"
 						variant="accent"
@@ -168,12 +220,16 @@ export function SettingsForm({
 						<span className="hidden sm:block">Test</span>
 					</Button>
 				</div>
-				{errors.baseUrl && (
+				{errors.baseUrl && !isCloud && (
 					<p className="text-xs mt-1" style={{ color: COLOR.destructive }}>
 						{errors.baseUrl}
 					</p>
 				)}
-				<Muted className="text-xs mt-1.5">URL of your self-hosted Honcho instance</Muted>
+				<Muted className="text-xs mt-1.5">
+					{isCloud
+						? "Hosted Honcho service — endpoint is fixed"
+						: "URL of your self-hosted Honcho instance"}
+				</Muted>
 			</div>
 
 			{/* Health status */}
@@ -225,27 +281,39 @@ export function SettingsForm({
 							strokeWidth={1.5}
 						/>
 					)}
-					API Token
+					{isCloud ? "API key" : "API Token"}
 					<span
 						className="ml-1 text-xs font-normal px-1.5 py-0.5 rounded-full"
 						style={{
 							background: "var(--surface)",
-							border: "1px solid var(--border)",
-							color: "var(--text-3)",
+							border: `1px solid ${isCloud ? COLOR.accentText : "var(--border)"}`,
+							color: isCloud ? COLOR.accentText : "var(--text-3)",
 						}}
 					>
-						optional
+						{isCloud ? "required" : "optional"}
 					</span>
 				</Label>
 				<Textarea
 					id="honcho-token"
 					value={token}
-					onChange={(e) => setToken(e.target.value)}
+					onChange={(e) => {
+						setToken(e.target.value);
+						if (errors.token) setErrors({ ...errors, token: undefined });
+					}}
 					rows={2}
-					placeholder="eyJ... (required only if your instance has auth enabled)"
+					placeholder={
+						isCloud
+							? "Paste your Honcho Cloud API key"
+							: "eyJ... (required only if your instance has auth enabled)"
+					}
 					className="font-mono rounded-xl"
 				/>
-				{health?.status === "auth-required" && !token && (
+				{errors.token && (
+					<p className="text-xs mt-1" style={{ color: COLOR.destructive }}>
+						{errors.token}
+					</p>
+				)}
+				{!errors.token && health?.status === "auth-required" && !token && (
 					<motion.p
 						initial={{ opacity: 0, y: -4 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -274,7 +342,10 @@ export function SettingsForm({
 					className="flex-1 py-2.5 px-4 rounded-xl"
 					style={saved ? { background: "#059669" } : undefined}
 				>
-					{saved ? "✓ Saved" : (submitLabel ?? (isCreate ? "Add Instance" : "Save Changes"))}
+					{saved
+						? "✓ Saved"
+						: (submitLabel ??
+							(isCreate ? (isCloud ? "Connect to Honcho Cloud" : "Add Instance") : "Save Changes"))}
 				</Button>
 			</div>
 		</form>

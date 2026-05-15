@@ -35,7 +35,7 @@ function SettingsPage() {
 					</h1>
 					<p className="text-sm mt-1" style={{ color: "var(--text-3)" }}>
 						{isFirstRun
-							? "Connect to your self-hosted Honcho instance"
+							? "Connect to Honcho Cloud or your self-hosted instance"
 							: "Manage your Honcho connections"}
 					</p>
 				</div>

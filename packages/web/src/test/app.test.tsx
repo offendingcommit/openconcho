@@ -29,7 +29,7 @@ describe("first load with no config", () => {
 		// Should be visible immediately — bug 1: RootLayout returns null while
 		// a useEffect-driven navigate fires, leaving a blank screen.
 		expect(
-			await screen.findByText(/Connect to your self-hosted Honcho instance/i),
+			await screen.findByText(/Connect to Honcho Cloud or your self-hosted instance/i),
 		).toBeInTheDocument();
 	});
 });

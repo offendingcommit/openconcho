@@ -4,6 +4,16 @@ import { httpFetch } from "@/lib/http";
 const LEGACY_KEY = "openconcho:config";
 const STORE_KEY = "openconcho:instances";
 
+export const HONCHO_CLOUD_URL = "https://api.honcho.dev";
+
+function normalizeBaseUrl(url: string): string {
+	return url.trim().replace(/\/+$/, "").toLowerCase();
+}
+
+export function isCloudInstance(instance: Pick<Instance, "baseUrl">): boolean {
+	return normalizeBaseUrl(instance.baseUrl) === HONCHO_CLOUD_URL;
+}
+
 export const configSchema = z.object({
 	baseUrl: z.string().url({ message: "Must be a valid URL" }),
 	token: z.string().optional().default(""),
