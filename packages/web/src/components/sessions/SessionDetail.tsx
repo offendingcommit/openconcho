@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlignLeft, Clock, Copy, MessageSquare, Search, Trash2, Users, X } from "lucide-react";
 import { useState } from "react";
@@ -15,6 +15,7 @@ import {
 	useSessionSummaries,
 } from "@/api/queries";
 import type { components } from "@/api/schema.d.ts";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Badge } from "@/components/shared/Badge";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { JsonViewer } from "@/components/shared/JsonViewer";
@@ -110,23 +111,7 @@ export function SessionDetail() {
 	return (
 		<div className="page-container page-container--wide">
 			<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-				<div className="flex items-center gap-2 text-xs mb-4" style={{ color: "var(--text-3)" }}>
-					<Link
-						to="/workspaces/$workspaceId"
-						params={{ workspaceId } as never}
-						className="hover:underline font-mono"
-					>
-						{mask(workspaceId)}
-					</Link>
-					<span>/</span>
-					<Link
-						to="/workspaces/$workspaceId/sessions"
-						params={{ workspaceId } as never}
-						className="hover:underline"
-					>
-						Sessions
-					</Link>
-				</div>
+				<Breadcrumb />
 
 				<div className="flex items-start justify-between gap-4 mb-1">
 					<div className="flex items-center gap-2 min-w-0">

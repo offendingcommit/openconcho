@@ -1,6 +1,6 @@
 import { Link, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Eye, Lightbulb, Plus, Search, Trash2, X } from "lucide-react";
+import { Eye, Lightbulb, Plus, Search, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import {
@@ -10,6 +10,7 @@ import {
 	useQueryConclusions,
 } from "@/api/queries";
 import type { components } from "@/api/schema.d.ts";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
@@ -108,15 +109,7 @@ export function ConclusionBrowser() {
 	return (
 		<div className="page-container">
 			<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-				<Link
-					to="/workspaces/$workspaceId"
-					params={{ workspaceId } as never}
-					className="inline-flex items-center gap-1.5 text-xs mb-4 transition-colors"
-					style={{ color: "var(--text-3)" }}
-				>
-					<ArrowLeft className="w-3 h-3" strokeWidth={1.5} />
-					{mask(workspaceId)}
-				</Link>
+				<Breadcrumb />
 				<div className="flex items-center gap-2 mb-1">
 					<Lightbulb className="w-5 h-5" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
 					<PageTitle>Conclusions</PageTitle>

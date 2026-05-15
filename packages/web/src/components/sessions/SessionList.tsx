@@ -1,9 +1,10 @@
-import { Link, useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { motion, type Variants } from "framer-motion";
-import { ArrowLeft, ChevronRight, CircleDot, Clock, MessageSquare } from "lucide-react";
+import { ChevronRight, CircleDot, Clock, MessageSquare } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useSessions } from "@/api/queries";
 import type { components } from "@/api/schema.d.ts";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { Pagination } from "@/components/shared/Pagination";
@@ -66,15 +67,7 @@ export function SessionList() {
 	return (
 		<div className="page-container">
 			<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-				<Link
-					to="/workspaces/$workspaceId"
-					params={{ workspaceId } as never}
-					className="inline-flex items-center gap-1.5 text-xs mb-4 transition-colors"
-					style={{ color: COLOR.dimText }}
-				>
-					<ArrowLeft className="w-3 h-3" strokeWidth={1.5} />
-					{mask(workspaceId)}
-				</Link>
+				<Breadcrumb />
 				<div className="flex items-center gap-2 mb-1">
 					<MessageSquare className="w-5 h-5" style={{ color: COLOR.accent }} strokeWidth={1.5} />
 					<PageTitle>Sessions</PageTitle>

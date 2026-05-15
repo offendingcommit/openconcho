@@ -1,10 +1,10 @@
-import { Link } from "@tanstack/react-router";
 import { open } from "@tauri-apps/plugin-shell";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Plus, Trash2, Webhook, Zap } from "lucide-react";
+import { ExternalLink, Plus, Trash2, Webhook, Zap } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 import { useCreateWebhook, useDeleteWebhook, useTestWebhook, useWebhooks } from "@/api/queries";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { Skeleton } from "@/components/shared/Skeleton";
@@ -55,15 +55,7 @@ export function WebhookManager({ workspaceId }: Props) {
 	return (
 		<div className="page-container">
 			<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-				<Link
-					to="/workspaces/$workspaceId"
-					params={{ workspaceId } as never}
-					className="inline-flex items-center gap-1.5 text-xs mb-4 transition-colors"
-					style={{ color: "var(--text-3)" }}
-				>
-					<ArrowLeft className="w-3 h-3" strokeWidth={1.5} />
-					{mask(workspaceId)}
-				</Link>
+				<Breadcrumb />
 				<div className="flex items-center justify-between mb-1">
 					<div className="flex items-center gap-2">
 						<Webhook className="w-5 h-5" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
