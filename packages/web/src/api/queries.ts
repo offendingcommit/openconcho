@@ -690,6 +690,50 @@ export function useDeleteConclusion(workspaceId: string) {
 	});
 }
 
+// ─── Dreams ───────────────────────────────────────────────────────────────────
+//
+// Dreams are synthetic groupings of conclusions: bursts produced by a single
+// dream run for one (observer, observed) pair. We fetch a generous batch of
+// conclusions and let the UI cluster them via `clusterConclusionsIntoDreams`.
+
+const DREAM_FETCH_PAGE_SIZE = 100;
+const DREAM_MAX_PAGES = 4;
+
+export function useDreams(
+	workspaceId: string,
+	filters: Record<string, unknown> = {},
+	limit = DREAM_FETCH_PAGE_SIZE * DREAM_MAX_PAGES,
+) {
+	return useQuery({
+		queryKey: QK.dreams(workspaceId, filters, limit),
+		queryFn: async () => {
+			const collected: unknown[] = [];
+			const pageSize = Math.min(DREAM_FETCH_PAGE_SIZE, limit);
+			let page = 1;
+			while (collected.length < limit) {
+				const { data, error } = await client.current.POST(
+					"/v3/workspaces/{workspace_id}/conclusions/list",
+					{
+						params: {
+							path: { workspace_id: workspaceId },
+							query: { page, page_size: pageSize, reverse: false },
+						},
+						body: filters,
+					},
+				);
+				if (error) err(error);
+				const items = (data as { items?: unknown[] } | undefined)?.items ?? [];
+				const totalPages = (data as { pages?: number } | undefined)?.pages ?? 1;
+				collected.push(...items);
+				if (items.length === 0 || page >= totalPages || page >= DREAM_MAX_PAGES) break;
+				page++;
+			}
+			return collected.slice(0, limit);
+		},
+		enabled: Boolean(workspaceId),
+	});
+}
+
 // ─── Webhooks ─────────────────────────────────────────────────────────────────
 
 export function useWebhooks(workspaceId: string) {
