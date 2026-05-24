@@ -14,11 +14,13 @@ import {
 	MessageSquare,
 	Moon,
 	Settings,
+	Sparkles,
 	Sun,
 	Users,
 	Webhook,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { FleetDreamDialog } from "@/components/fleet/FleetDreamDialog";
 import { HealthDot } from "@/components/shared/HealthDot";
 import { useDemo } from "@/hooks/useDemo";
 import { useHealthStatus } from "@/hooks/useHealthStatus";
@@ -49,6 +51,7 @@ export function Sidebar() {
 	const { showMetadata, toggle: toggleMeta } = useMetadata();
 	const { data: health } = useHealthStatus();
 	const [switcherOpen, setSwitcherOpen] = useState(false);
+	const [fleetDreamOpen, setFleetDreamOpen] = useState(false);
 	const switcherRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
@@ -290,11 +293,31 @@ export function Sidebar() {
 				</AnimatePresence>
 			</nav>
 
-			{/* Footer — version, demo, metadata, theme */}
-			<div
-				className="px-3 sm:px-5 py-3 flex items-center justify-between"
-				style={{ borderTop: "1px solid var(--border)" }}
-			>
+			{/* Footer — fleet action, version, demo, metadata, theme */}
+			<div className="px-3 sm:px-5 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
+				<button
+					type="button"
+					onClick={() => setFleetDreamOpen(true)}
+					disabled={instances.length === 0}
+					title={
+						instances.length === 0
+							? "Configure an instance first"
+							: "Trigger dreams across every configured instance"
+					}
+					className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-colors justify-center sm:justify-start"
+					style={{
+						background: "var(--accent-dim)",
+						color: "var(--accent-text)",
+						border: "1px solid var(--accent-border)",
+						opacity: instances.length === 0 ? 0.4 : 1,
+						cursor: instances.length === 0 ? "not-allowed" : "pointer",
+					}}
+				>
+					<Sparkles className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
+					<span className="hidden sm:block">Dream fleet</span>
+				</button>
+			</div>
+			<div className="px-3 sm:px-5 py-3 flex items-center justify-between">
 				<p className="text-xs font-mono hidden sm:block" style={{ color: "var(--text-4)" }}>
 					v{__APP_VERSION__}
 				</p>
@@ -348,6 +371,8 @@ export function Sidebar() {
 					</button>
 				</div>
 			</div>
+
+			<FleetDreamDialog open={fleetDreamOpen} onClose={() => setFleetDreamOpen(false)} />
 		</motion.aside>
 	);
 }

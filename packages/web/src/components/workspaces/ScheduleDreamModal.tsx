@@ -1,12 +1,16 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
+import { usePeers } from "@/api/queries";
 import { FormModal } from "@/components/shared/FormModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Caption } from "@/components/ui/typography";
 import { COLOR } from "@/lib/constants";
+import { toast } from "@/lib/toast";
+
+const PEER_PAGE_SIZE = 100;
 
 const schema = z.object({
 	observer: z.string().min(1, { message: "Observer peer ID is required" }),
@@ -25,7 +29,10 @@ interface Props {
 	>;
 }
 
-export function ScheduleDreamModal({ open, onClose, mutation }: Props) {
+export function ScheduleDreamModal({ open, workspaceId, onClose, mutation }: Props) {
+	const { data: peerPage } = usePeers(workspaceId, 1, PEER_PAGE_SIZE);
+	const peers = (peerPage as { items?: Array<{ id: string }> } | undefined)?.items ?? [];
+
 	const [observer, setObserver] = useState("");
 	const [observed, setObserved] = useState("");
 	const [sessionId, setSessionId] = useState("");
@@ -49,12 +56,15 @@ export function ScheduleDreamModal({ open, onClose, mutation }: Props) {
 			setValidationError(result.error.issues[0].message);
 			return;
 		}
+		// Default observed → observer for self-representation dreams.
+		const observedId = result.data.observed ?? result.data.observer;
 		await mutation.mutateAsync({
 			observer: result.data.observer,
-			observed: result.data.observed ?? null,
+			observed: observedId,
 			dream_type: "omni",
 			session_id: result.data.session_id ?? null,
 		});
+		toast(`Dream queued for ${result.data.observer}`, { kind: "success" });
 		reset();
 		onClose();
 	};
@@ -62,7 +72,7 @@ export function ScheduleDreamModal({ open, onClose, mutation }: Props) {
 	return (
 		<FormModal
 			open={open}
-			title="Schedule Dream"
+			title="Dream now"
 			onClose={() => {
 				reset();
 				onClose();
@@ -71,25 +81,27 @@ export function ScheduleDreamModal({ open, onClose, mutation }: Props) {
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
 					<Label className="mb-1.5">
-						Observer peer ID <span style={{ color: COLOR.destructive }}>*</span>
+						Observer peer <span style={{ color: COLOR.destructive }}>*</span>
 					</Label>
-					<Input
+					<PeerPicker
 						value={observer}
-						onChange={(e) => {
-							setObserver(e.target.value);
+						onChange={(v) => {
+							setObserver(v);
 							setValidationError("");
 						}}
+						peers={peers}
 						placeholder="peer_id"
 					/>
 				</div>
 				<div>
 					<Label className="mb-1.5">
-						Observed peer ID <Caption as="span"> (optional, defaults to observer)</Caption>
+						Observed peer <Caption as="span"> (optional, defaults to observer)</Caption>
 					</Label>
-					<Input
+					<PeerPicker
 						value={observed}
-						onChange={(e) => setObserved(e.target.value)}
-						placeholder="peer_id"
+						onChange={setObserved}
+						peers={peers}
+						placeholder={observer ? observer : "peer_id"}
 					/>
 				</div>
 				<div>
@@ -125,10 +137,46 @@ export function ScheduleDreamModal({ open, onClose, mutation }: Props) {
 						Cancel
 					</Button>
 					<Button type="submit" variant="accent" size="sm" disabled={mutation.isPending}>
-						{mutation.isPending ? "Scheduling..." : "Schedule"}
+						{mutation.isPending ? "Scheduling..." : "Dream now"}
 					</Button>
 				</div>
 			</form>
 		</FormModal>
 	);
+}
+
+interface PeerPickerProps {
+	value: string;
+	onChange: (value: string) => void;
+	peers: Array<{ id: string }>;
+	placeholder?: string;
+}
+
+function PeerPicker({ value, onChange, peers, placeholder }: PeerPickerProps) {
+	const hasPeers = peers.length > 0;
+	const listId = useRandomId("peer-list");
+	return (
+		<>
+			<Input
+				value={value}
+				onChange={(e) => onChange(e.target.value)}
+				placeholder={placeholder}
+				list={hasPeers ? listId : undefined}
+				className="font-mono"
+				autoComplete="off"
+			/>
+			{hasPeers && (
+				<datalist id={listId}>
+					{peers.map((p) => (
+						<option key={p.id} value={p.id} />
+					))}
+				</datalist>
+			)}
+		</>
+	);
+}
+
+function useRandomId(prefix: string): string {
+	const [id] = useState(() => `${prefix}-${Math.random().toString(36).slice(2, 10)}`);
+	return id;
 }

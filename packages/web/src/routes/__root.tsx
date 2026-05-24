@@ -1,6 +1,7 @@
 import { createRootRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { Toaster } from "@/components/shared/Toaster";
 import { loadConfig } from "@/lib/config";
 import { applyTheme, getStoredTheme } from "@/lib/theme";
 
@@ -20,6 +21,7 @@ function RootLayout() {
 			<main className="flex-1 overflow-auto" style={{ position: "relative", zIndex: 1 }}>
 				<Outlet />
 			</main>
+			<Toaster />
 		</div>
 	);
 }
