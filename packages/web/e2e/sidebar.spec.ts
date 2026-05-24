@@ -17,6 +17,7 @@ test.describe("Sidebar", () => {
 		await page.goto("/");
 		await expect(page.getByRole("complementary")).toBeVisible();
 		await expect(page.getByRole("link", { name: /dashboard/i })).toBeVisible();
+		await expect(page.getByRole("link", { name: /fleet/i })).toBeVisible();
 		await expect(page.getByRole("link", { name: /workspaces/i })).toBeVisible();
 		await expect(page.getByRole("link", { name: /settings/i })).toBeVisible();
 	});
