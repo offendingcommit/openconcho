@@ -86,12 +86,7 @@ function DreamProgressShowcase() {
 				>
 					Idle
 				</h3>
-				<DreamProgressPanel
-					workspaceId={WORKSPACE_ID}
-					data={IDLE}
-					isLoading={false}
-					error={null}
-				/>
+				<DreamProgressPanel workspaceId={WORKSPACE_ID} data={IDLE} isLoading={false} error={null} />
 			</section>
 
 			<section>

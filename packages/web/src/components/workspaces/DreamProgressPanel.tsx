@@ -144,9 +144,9 @@ export function DreamProgressPanel({
 								Stalled for {formatElapsed(stale.elapsedMs)} without forward progress
 							</Body>
 							<Caption as="p" className="mt-0.5">
-								Work has been in-flight since{" "}
-								{new Date(stale.stalledSince).toLocaleTimeString()} with no advance in the
-								completed count. A specialist may be hung — check Honcho logs.
+								Work has been in-flight since {new Date(stale.stalledSince).toLocaleTimeString()}{" "}
+								with no advance in the completed count. A specialist may be hung — check Honcho
+								logs.
 							</Caption>
 						</div>
 					</div>
@@ -197,9 +197,9 @@ export function DreamProgressPanel({
 						strokeWidth={2}
 					/>
 					<Caption as="p">
-						Honcho's <code className="font-mono">/queue/status</code> exposes aggregate counts
-						only. Per-dream observer/observed pair, specialist phase (deduction vs. induction),
-						and token telemetry are tracked upstream —{" "}
+						Honcho's <code className="font-mono">/queue/status</code> exposes aggregate counts only.
+						Per-dream observer/observed pair, specialist phase (deduction vs. induction), and token
+						telemetry are tracked upstream —{" "}
 						<a
 							href="https://github.com/plastic-labs/honcho/issues/new?title=Surface+per-work-unit+detail+in+queue/status&labels=enhancement"
 							target="_blank"
@@ -246,11 +246,7 @@ function SessionsTable({
 	return (
 		<div className="px-5 pb-5">
 			<div className="flex items-center gap-1.5 mb-2">
-				<TimerReset
-					className="w-3.5 h-3.5"
-					style={{ color: "var(--text-3)" }}
-					strokeWidth={1.5}
-				/>
+				<TimerReset className="w-3.5 h-3.5" style={{ color: "var(--text-3)" }} strokeWidth={1.5} />
 				<Caption>
 					{entries.length} session{entries.length !== 1 ? "s" : ""} with active work
 				</Caption>
@@ -281,10 +277,7 @@ function SessionsTable({
 					</thead>
 					<tbody>
 						{entries.map(([sid, s], i) => (
-							<tr
-								key={sid}
-								style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}
-							>
+							<tr key={sid} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}>
 								<td className="py-1.5 px-3">
 									<Link
 										to={"/workspaces/$workspaceId/sessions/$sessionId" as never}
@@ -295,28 +288,16 @@ function SessionsTable({
 										{mask(sid)}
 									</Link>
 								</td>
-								<td
-									className="py-1.5 px-3 text-right font-mono"
-									style={{ color: "var(--text-2)" }}
-								>
+								<td className="py-1.5 px-3 text-right font-mono" style={{ color: "var(--text-2)" }}>
 									{s.total_work_units}
 								</td>
-								<td
-									className="py-1.5 px-3 text-right font-mono"
-									style={{ color: COLOR.success }}
-								>
+								<td className="py-1.5 px-3 text-right font-mono" style={{ color: COLOR.success }}>
 									{s.completed_work_units}
 								</td>
-								<td
-									className="py-1.5 px-3 text-right font-mono"
-									style={{ color: COLOR.warning }}
-								>
+								<td className="py-1.5 px-3 text-right font-mono" style={{ color: COLOR.warning }}>
 									{s.in_progress_work_units}
 								</td>
-								<td
-									className="py-1.5 px-3 text-right font-mono"
-									style={{ color: "var(--text-3)" }}
-								>
+								<td className="py-1.5 px-3 text-right font-mono" style={{ color: "var(--text-3)" }}>
 									{s.pending_work_units}
 								</td>
 							</tr>
