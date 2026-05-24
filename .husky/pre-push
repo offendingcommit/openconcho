@@ -1,0 +1,8 @@
+#!/bin/sh
+# Pre-push gate — runs the full quality check before the branch leaves the
+# laptop. Mirrors the `check` job in .github/workflows/ci.yml.
+#
+# Bypass for genuine emergencies with:  git push --no-verify
+
+echo "→ Running pre-push checks (lint + typecheck + test)…"
+pnpm check

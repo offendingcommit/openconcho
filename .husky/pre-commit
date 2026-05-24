@@ -1,4 +1,14 @@
 #!/bin/sh
+# Pre-commit gates — must be fast (<2s typical). Anything slow goes in pre-push.
+#
+# Order:
+#   1. Secret scan (must run first; blocks commit if a secret leaks in)
+#   2. Biome format/lint on staged TS/JS/JSON/CSS files
+
+# 1. Secret scan over staged additions
+./scripts/secret-scan.sh
+
+# 2. Biome on staged files (auto-fixes, re-stages)
 STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E "\.(ts|tsx|js|jsx|css|json)$" || true)
 [ -z "$STAGED" ] && exit 0
 pnpm exec biome check --write --staged

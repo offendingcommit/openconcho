@@ -22,6 +22,7 @@
 		"check": "turbo run lint typecheck test",
 		"ci:web": "turbo run lint typecheck test build --filter=@openconcho/web",
 		"ci:desktop": "turbo run cargo-check --filter=@openconcho/desktop",
+		"pr:evidence": "./scripts/pr-evidence.sh",
 		"prepare": "husky"
 	},
 	"devDependencies": {
