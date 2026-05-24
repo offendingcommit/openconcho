@@ -263,7 +263,21 @@ export function useSearchPeer(workspaceId: string, peerId: string) {
 	});
 }
 
-export function useChat(workspaceId: string, peerId: string) {
+export type ReasoningLevel = "minimal" | "low" | "medium" | "high" | "max";
+
+export const REASONING_LEVELS: readonly ReasoningLevel[] = [
+	"minimal",
+	"low",
+	"medium",
+	"high",
+	"max",
+] as const;
+
+export function useChat(
+	workspaceId: string,
+	peerId: string,
+	reasoningLevel: ReasoningLevel = "low",
+) {
 	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: async (message: string) => {
@@ -271,7 +285,7 @@ export function useChat(workspaceId: string, peerId: string) {
 				"/v3/workspaces/{workspace_id}/peers/{peer_id}/chat",
 				{
 					params: { path: { workspace_id: workspaceId, peer_id: peerId } },
-					body: { query: message, stream: false, reasoning_level: "low" },
+					body: { query: message, stream: false, reasoning_level: reasoningLevel },
 				},
 			);
 			return data ?? err(error);
