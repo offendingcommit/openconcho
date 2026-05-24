@@ -85,6 +85,22 @@ export function useScheduleDream(workspaceId: string) {
 	});
 }
 
+import type { components } from "./schema.d.ts";
+
+type QueueStatusBody = components["schemas"]["QueueStatus"];
+
+// Poll faster while work is in flight so users can watch dreams/representations
+// progress; back off to a slow heartbeat when idle. The TanStack Query callback
+// form re-reads the cached value each cycle, so the interval adapts on its own.
+export const QUEUE_REFETCH_ACTIVE_MS = 2500;
+export const QUEUE_REFETCH_IDLE_MS = 10_000;
+
+export function pickQueueRefetchInterval(data: QueueStatusBody | undefined): number {
+	if (!data) return QUEUE_REFETCH_IDLE_MS;
+	const active = (data.in_progress_work_units ?? 0) + (data.pending_work_units ?? 0);
+	return active > 0 ? QUEUE_REFETCH_ACTIVE_MS : QUEUE_REFETCH_IDLE_MS;
+}
+
 export function useQueueStatus(workspaceId: string) {
 	return useQuery({
 		queryKey: QK.queueStatus(workspaceId),
@@ -96,7 +112,7 @@ export function useQueueStatus(workspaceId: string) {
 			return data ?? err(error);
 		},
 		enabled: Boolean(workspaceId),
-		refetchInterval: 10_000,
+		refetchInterval: (query) => pickQueueRefetchInterval(query.state.data),
 	});
 }
 

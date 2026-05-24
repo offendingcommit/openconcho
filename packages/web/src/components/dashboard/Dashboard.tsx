@@ -209,7 +209,7 @@ export function Dashboard() {
 							<Activity className="w-4 h-4" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
 							<SectionHeading className="mb-0">Queue Status</SectionHeading>
 							<span className="text-xs ml-1" style={{ color: "var(--text-4)" }}>
-								all workspaces · updates every 10s
+								all workspaces · live polling
 							</span>
 						</div>
 
