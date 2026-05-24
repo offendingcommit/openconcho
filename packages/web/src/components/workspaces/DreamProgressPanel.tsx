@@ -199,17 +199,17 @@ export function DreamProgressPanel({
 					<Caption as="p">
 						Honcho's <code className="font-mono">/queue/status</code> exposes aggregate counts only.
 						Per-dream observer/observed pair, specialist phase (deduction vs. induction), and token
-						telemetry are tracked upstream —{" "}
+						telemetry are tracked in{" "}
 						<a
-							href="https://github.com/plastic-labs/honcho/issues/new?title=Surface+per-work-unit+detail+in+queue/status&labels=enhancement"
+							href="https://github.com/plastic-labs/honcho/issues/724"
 							target="_blank"
 							rel="noreferrer"
 							style={{ color: COLOR.accentText }}
 							className="underline"
 						>
-							file an upstream issue
+							plastic-labs/honcho#724
 						</a>{" "}
-						to surface them here.
+						— once the API exposes them, this panel will surface them.
 					</Caption>
 				</div>
 			</div>
