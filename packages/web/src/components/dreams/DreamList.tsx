@@ -203,7 +203,7 @@ function CountChip({ label, value, kind }: { label: string; value: number; kind:
 			}}
 		>
 			<span>{value}</span>
-			<span className="hidden sm:inline">{label}</span>
+			<span className="hidden sm:inline"> {label}</span>
 		</span>
 	);
 }
