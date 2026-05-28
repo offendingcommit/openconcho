@@ -1,0 +1,105 @@
+# Dependabot configuration
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # ─── JavaScript / pnpm workspace ──────────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "javascript"
+    groups:
+      # Keep TanStack libs in lockstep — they release as a family
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+      # Tauri JS bindings
+      tauri:
+        patterns:
+          - "@tauri-apps/*"
+      # Test stack
+      testing:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+          - "@testing-library/*"
+          - "jsdom"
+          - "@playwright/*"
+      # Build/lint tooling
+      tooling:
+        patterns:
+          - "@biomejs/*"
+          - "turbo"
+          - "vite"
+          - "@vitejs/*"
+          - "typescript"
+      # React core
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      # Semantic-release ecosystem
+      semantic-release:
+        patterns:
+          - "semantic-release"
+          - "@semantic-release/*"
+      # Commitlint + husky
+      commit-tooling:
+        patterns:
+          - "@commitlint/*"
+          - "husky"
+
+  # ─── Rust / Cargo (Tauri desktop shell) ───────────────────────────────────
+  - package-ecosystem: "cargo"
+    directory: "/packages/desktop/src-tauri"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "rust"
+    groups:
+      tauri-core:
+        patterns:
+          - "tauri"
+          - "tauri-*"
+      tokio:
+        patterns:
+          - "tokio"
+          - "tokio-*"
+          - "futures"
+          - "futures-*"
+
+  # ─── GitHub Actions workflow pins ─────────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(ci)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
