@@ -1,6 +1,16 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Eye, EyeOff, MessageCircle, Save, Search, User, Users, X } from "lucide-react";
+import {
+	Eye,
+	EyeOff,
+	FlaskConical,
+	MessageCircle,
+	Save,
+	Search,
+	User,
+	Users,
+	X,
+} from "lucide-react";
 import { useState } from "react";
 import {
 	usePeer,
@@ -98,19 +108,35 @@ export function PeerDetail() {
 						</div>
 						<Body className="leading-none">Peer identity &amp; memory</Body>
 					</div>
-					<Button
-						variant="primary"
-						onClick={() =>
-							navigate({
-								to: "/workspaces/$workspaceId/peers/$peerId/chat",
-								params: { workspaceId, peerId } as never,
-							})
-						}
-						className="shrink-0 rounded-xl"
-					>
-						<MessageCircle className="w-4 h-4" strokeWidth={1.5} />
-						Chat
-					</Button>
+					<div className="flex items-center gap-2 shrink-0">
+						<Button
+							variant="surface"
+							onClick={() =>
+								navigate({
+									to: "/workspaces/$workspaceId/peers/$peerId/playground",
+									params: { workspaceId, peerId } as never,
+								})
+							}
+							className="rounded-xl"
+							title="Compare reasoning levels side-by-side"
+						>
+							<FlaskConical className="w-4 h-4" strokeWidth={1.5} />
+							Playground
+						</Button>
+						<Button
+							variant="primary"
+							onClick={() =>
+								navigate({
+									to: "/workspaces/$workspaceId/peers/$peerId/chat",
+									params: { workspaceId, peerId } as never,
+								})
+							}
+							className="rounded-xl"
+						>
+							<MessageCircle className="w-4 h-4" strokeWidth={1.5} />
+							Chat
+						</Button>
+					</div>
 				</div>
 			</motion.div>
 
