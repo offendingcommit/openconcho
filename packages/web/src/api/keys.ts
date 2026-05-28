@@ -32,5 +32,8 @@ export const QK = {
 	conclusionsQuery: (wsId: string, q: string, filters: Record<string, unknown>) =>
 		["conclusions-query", wsId, q, filters] as const,
 
+	dreams: (wsId: string, filters: Record<string, unknown>, limit: number) =>
+		["dreams", wsId, filters, limit] as const,
+
 	webhooks: (wsId: string) => ["webhooks", wsId] as const,
 };
