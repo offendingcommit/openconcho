@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/target
+**/.turbo
+**/.vite
+.git
+.github
+packages/desktop/src-tauri/target
+e2e
+playwright-report
+test-results
+*.log
