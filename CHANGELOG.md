@@ -1,3 +1,12 @@
+# [0.9.0](https://github.com/offendingcommit/openconcho/compare/v0.8.0...v0.9.0) (2026-05-28)
+
+
+### Features
+
+* **web:** add global metadata visibility toggle ([e490d91](https://github.com/offendingcommit/openconcho/commit/e490d911fcb27ee193558fd9a28856cde2057665))
+* **web:** add shared Breadcrumb component for workspace pages ([c6afc80](https://github.com/offendingcommit/openconcho/commit/c6afc80fda4ec76b84382f959ecdf9f5a4cf6556))
+* **web:** add workspace contextual sub-nav to sidebar ([62cae68](https://github.com/offendingcommit/openconcho/commit/62cae68d05cb0e61594f22611f7d73f13ecd2704))
+
 # [0.8.0](https://github.com/offendingcommit/openconcho/compare/v0.7.1...v0.8.0) (2026-05-15)
 
 
