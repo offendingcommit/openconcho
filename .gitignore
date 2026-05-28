@@ -44,3 +44,6 @@ packages/desktop/src-tauri/gen/
 
 # Drafts from scripts/pr-evidence.sh
 PR_BODY.md
+
+# Test coverage
+coverage

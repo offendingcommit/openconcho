@@ -15,6 +15,10 @@
 		"test": {
 			"inputs": ["src/**", "vitest.config.*", "package.json"]
 		},
+		"test:coverage": {
+			"inputs": ["src/**", "vitest.config.*", "package.json"],
+			"outputs": ["coverage/**"]
+		},
 		"test:e2e": {
 			"cache": false,
 			"inputs": ["e2e/**", "src/**", "playwright.config.*", "package.json"]
