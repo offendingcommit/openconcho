@@ -1,12 +1,24 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronRight, Cloud, Pencil, Plus, Server, Sparkles, Trash2 } from "lucide-react";
+import {
+	Check,
+	ChevronRight,
+	Cloud,
+	Pencil,
+	Plus,
+	Radar,
+	Server,
+	Sparkles,
+	Trash2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
+import { DiscoveredInstances } from "@/components/settings/DiscoveredInstances";
 import { type ConnectionPreset, SettingsForm } from "@/components/settings/SettingsForm";
 import { Button } from "@/components/ui/button";
 import { Muted } from "@/components/ui/typography";
 import { useInstances } from "@/hooks/useInstances";
 import { checkConnection, HONCHO_CLOUD_URL, type Instance, isCloudInstance } from "@/lib/config";
 import { COLOR } from "@/lib/constants";
+import { isTauri } from "@/lib/discovery";
 
 const LOCALHOST_PROBE_URL = "http://localhost:8000";
 
@@ -14,7 +26,8 @@ type Mode =
 	| { kind: "list" }
 	| { kind: "choose-type" }
 	| { kind: "create"; preset: ConnectionPreset }
-	| { kind: "edit"; id: string };
+	| { kind: "edit"; id: string }
+	| { kind: "discover" };
 
 interface InstancesManagerProps {
 	onActivated?: () => void;
@@ -23,16 +36,44 @@ interface InstancesManagerProps {
 export function InstancesManager({ onActivated }: InstancesManagerProps) {
 	const { instances, activeId, activate, remove } = useInstances();
 	const isFirstRun = instances.length === 0;
+	const inTauri = isTauri();
 	const [mode, setMode] = useState<Mode>(isFirstRun ? { kind: "choose-type" } : { kind: "list" });
 
 	const backFromCreate = () => setMode(isFirstRun ? { kind: "choose-type" } : { kind: "list" });
 
+	if (mode.kind === "discover") {
+		return (
+			<div className="space-y-3">
+				<DiscoveredInstances autoRun onAdded={() => setMode({ kind: "list" })} />
+				<Button
+					type="button"
+					variant="ghost"
+					onClick={() => setMode({ kind: "list" })}
+					className="w-full py-2.5 px-4 rounded-xl"
+				>
+					Back
+				</Button>
+			</div>
+		);
+	}
+
 	if (mode.kind === "choose-type") {
 		return (
-			<ConnectionTypeChooser
-				onPick={(preset) => setMode({ kind: "create", preset })}
-				onCancel={isFirstRun ? undefined : () => setMode({ kind: "list" })}
-			/>
+			<div className="space-y-3">
+				{inTauri && (
+					<DiscoveredInstances
+						autoRun
+						onAdded={() => {
+							setMode({ kind: "list" });
+							onActivated?.();
+						}}
+					/>
+				)}
+				<ConnectionTypeChooser
+					onPick={(preset) => setMode({ kind: "create", preset })}
+					onCancel={isFirstRun ? undefined : () => setMode({ kind: "list" })}
+				/>
+			</div>
 		);
 	}
 
@@ -81,6 +122,18 @@ export function InstancesManager({ onActivated }: InstancesManagerProps) {
 					/>
 				))}
 			</div>
+
+			{inTauri && (
+				<Button
+					type="button"
+					variant="ghost"
+					onClick={() => setMode({ kind: "discover" })}
+					className="w-full py-2.5 px-4 rounded-xl flex items-center justify-center gap-2"
+				>
+					<Radar className="w-4 h-4" strokeWidth={1.5} />
+					Discover instances
+				</Button>
+			)}
 
 			<Button
 				type="button"
