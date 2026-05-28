@@ -1,3 +1,15 @@
+# [0.12.0](https://github.com/offendingcommit/openconcho/compare/v0.11.0...v0.12.0) (2026-05-28)
+
+
+### Features
+
+* **desktop:** auto-discover Honcho instances on localhost ([#1](https://github.com/offendingcommit/openconcho/issues/1)) ([7355884](https://github.com/offendingcommit/openconcho/commit/735588405106af59eb76bfd60a681253c76f9c1e))
+* **web:** add dialectic reasoning playground ([2340e65](https://github.com/offendingcommit/openconcho/commit/2340e65028b8e1c47ee081de16210b85408cc380))
+* **web:** add Dream Output Viewer ([f318555](https://github.com/offendingcommit/openconcho/commit/f318555c82b37a66fcd2c8c744f19350f06acee9))
+* **web:** add live dream progress panel with adaptive polling ([17f8a5a](https://github.com/offendingcommit/openconcho/commit/17f8a5a7bfa965c4643616fa9b39ce7b6b36e007))
+* **web:** add Peer Card Seed Kits ([650bfd7](https://github.com/offendingcommit/openconcho/commit/650bfd7b280edb8c5e85d1cccb5171fdf40ecb8e))
+* **web:** show sidebar last updated status ([7cf94aa](https://github.com/offendingcommit/openconcho/commit/7cf94aa03f31fc1738ba9e9a19e965f279bc4e7c))
+
 # [0.11.0](https://github.com/offendingcommit/openconcho/compare/v0.10.0...v0.11.0) (2026-05-28)
 
 
