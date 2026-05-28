@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useMatchRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -39,6 +40,42 @@ const WORKSPACE_SECTIONS = [
 	{ label: "Webhooks", icon: Webhook, section: "webhooks" },
 ] as const;
 
+function formatLastUpdated(value: number | null, now = Date.now()): string {
+	if (!value) return "Not updated yet";
+	const elapsed = Math.max(0, now - value);
+	if (elapsed < 10_000) return "Updated just now";
+	if (elapsed < 60_000) return `Updated ${Math.floor(elapsed / 1000)}s ago`;
+	if (elapsed < 3_600_000) return `Updated ${Math.floor(elapsed / 60_000)}m ago`;
+	return `Updated ${Math.floor(elapsed / 3_600_000)}h ago`;
+}
+
+function useLastDataUpdate(): string {
+	const queryClient = useQueryClient();
+	const [updatedAt, setUpdatedAt] = useState<number | null>(null);
+	const [now, setNow] = useState(() => Date.now());
+
+	useEffect(() => {
+		function refresh() {
+			setNow(Date.now());
+			const latest = queryClient
+				.getQueryCache()
+				.getAll()
+				.reduce((max, query) => Math.max(max, query.state.dataUpdatedAt || 0), 0);
+			setUpdatedAt(latest || null);
+		}
+
+		refresh();
+		const unsubscribe = queryClient.getQueryCache().subscribe(refresh);
+		const interval = window.setInterval(refresh, 30_000);
+		return () => {
+			unsubscribe();
+			window.clearInterval(interval);
+		};
+	}, [queryClient]);
+
+	return formatLastUpdated(updatedAt, now);
+}
+
 export function Sidebar() {
 	const matchRoute = useMatchRoute();
 	const { instances, active, activate } = useInstances();
@@ -46,6 +83,7 @@ export function Sidebar() {
 	const { demo, toggle: toggleDemo, mask } = useDemo();
 	const { showMetadata, toggle: toggleMeta } = useMetadata();
 	const { data: health } = useHealthStatus();
+	const lastUpdated = useLastDataUpdate();
 	const [switcherOpen, setSwitcherOpen] = useState(false);
 	const switcherRef = useRef<HTMLDivElement | null>(null);
 
@@ -120,6 +158,9 @@ export function Sidebar() {
 								</p>
 								<p className="text-xs font-mono truncate" style={{ color: "var(--text-4)" }}>
 									{mask(active.baseUrl.replace(/^https?:\/\//, ""))}
+								</p>
+								<p className="text-[10px] font-mono truncate" style={{ color: "var(--text-4)" }}>
+									{lastUpdated}
 								</p>
 							</div>
 							{instances.length > 1 && (
