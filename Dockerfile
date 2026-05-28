@@ -31,8 +31,16 @@ RUN pnpm --filter @openconcho/web build
 FROM nginxinc/nginx-unprivileged:alpine
 
 COPY --chown=101:101 --from=builder /app/packages/web/dist /usr/share/nginx/html
-COPY --chown=101:101 docker/nginx.conf /etc/nginx/conf.d/default.conf
+# Rendered to /etc/nginx/conf.d/default.conf by the image's envsubst entrypoint.
+COPY --chown=101:101 docker/nginx.conf.template /etc/nginx/templates/default.conf.template
+# Writes /usr/share/nginx/html/config.js from OPENCONCHO_DEFAULT_HONCHO_URL.
+# --chmod=0755 so nginx's docker-entrypoint.d actually executes it.
+COPY --chown=101:101 --chmod=0755 docker/40-openconcho-config.sh /docker-entrypoint.d/40-openconcho-config.sh
+
+# Defaults target the Honcho service in a typical Compose stack; override per deploy.
+ENV HONCHO_UPSTREAM=http://api:8000 \
+    OPENCONCHO_DEFAULT_HONCHO_URL=same-origin
 
 EXPOSE 8080
 
-# Base image CMD runs nginx in the foreground as UID 101.
+# Base image entrypoint renders the template + runs config script, then nginx (UID 101).

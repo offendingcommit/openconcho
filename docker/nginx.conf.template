@@ -1,0 +1,64 @@
+# OpenConcho — nginx site config (envsubst template).
+# The nginx image renders ${HONCHO_UPSTREAM} from the environment at start.
+# Serves the React SPA and reverse-proxies the Honcho API under the same origin.
+
+server {
+    listen       8080;
+    listen       [::]:8080;
+    server_name  _;
+    root         /usr/share/nginx/html;
+    index        index.html;
+
+    # Don't leak the nginx version.
+    server_tokens off;
+
+    # Same-origin reverse proxy to Honcho so the browser never sees a
+    # cross-origin request (no CORS). The variable + Docker resolver let nginx
+    # start even when the upstream isn't resolvable yet, re-resolving per request.
+    resolver 127.0.0.11 ipv6=off valid=10s;
+    set $honcho_upstream "${HONCHO_UPSTREAM}";
+
+    # `^~` so these win over the static-asset regex below.
+    location ^~ /v3/ {
+        proxy_pass         $honcho_upstream$request_uri;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+    location = /health {
+        proxy_pass         $honcho_upstream/health;
+        proxy_set_header   Host $host;
+    }
+
+    # Runtime config — regenerated per container start, must never be cached.
+    location = /config.js {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        try_files $uri =404;
+    }
+
+    # Long-cache static assets — Vite hashes filenames so they're immutable.
+    location ~* \.(?:js|mjs|css|woff2?|ttf|otf|eot|svg|png|jpg|jpeg|gif|ico|webp|avif|wasm)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+        try_files $uri =404;
+    }
+
+    # Container healthcheck (local; distinct from Honcho's /health).
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # SPA fallback: unknown paths return index.html so the router resolves them.
+    location / {
+        try_files $uri $uri/ /index.html;
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+    }
+
+    gzip on;
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 1024;
+}
