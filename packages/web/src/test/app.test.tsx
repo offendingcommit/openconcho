@@ -43,10 +43,10 @@ describe("Sidebar/useDemo availability across routes", () => {
 			const { demo } = useDemo();
 			return <span data-testid="demo-flag">{String(demo)}</span>;
 		}
-		// After the fix, DemoProvider wraps the app at the root (main.tsx /
-		// __root.tsx) so consumers anywhere in the tree resolve. This test
-		// renders a consumer as a sibling of the router under the same provider
-		// the production wiring uses.
+		// After the fix, DemoProvider and MetadataProvider wrap the app at
+		// the root (main.tsx) so consumers anywhere in the tree resolve.
+		// This test renders a consumer as a sibling of the router under the
+		// same providers the production wiring uses.
 		localStorage.clear();
 		expect(() => {
 			const router = createRouter({

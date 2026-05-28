@@ -52,6 +52,24 @@ describe("SettingsForm — self-hosted preset", () => {
 		const store = loadStore();
 		expect(store.instances).toHaveLength(1);
 	});
+
+	it("blocks saving a token for a non-localhost HTTP endpoint", async () => {
+		const user = userEvent.setup();
+		renderForm(<SettingsForm instance={null} preset="self-hosted" />);
+		const baseUrl = screen.getByPlaceholderText("http://localhost:8000");
+		await user.clear(baseUrl);
+		await user.type(baseUrl, "http://100.67.206.76:8000");
+		await user.type(
+			screen.getByPlaceholderText(/required only if your instance has auth enabled/i),
+			"secret-token",
+		);
+		await user.click(screen.getByRole("button", { name: /Add Instance/i }));
+
+		expect(
+			screen.getByText(/API tokens require HTTPS unless connecting to localhost/i),
+		).toBeInTheDocument();
+		expect(loadStore().instances).toHaveLength(0);
+	});
 });
 
 describe("SettingsForm — edit mode auto-detects cloud", () => {

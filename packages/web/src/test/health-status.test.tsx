@@ -39,4 +39,23 @@ describe("useHealthStatus", () => {
 		const { result } = renderHook(() => useHealthStatus(), { wrapper: wrap(qc) });
 		await waitFor(() => expect(result.current.data?.status).toBe("ok"));
 	});
+
+	it("does not include raw tokens in query cache keys", async () => {
+		saveStore({
+			instances: [
+				{ id: "i1", name: "Local", baseUrl: "http://localhost:8000", token: "super-secret-token" },
+			],
+			activeId: "i1",
+		});
+		httpFetch.mockResolvedValue(new Response("{}", { status: 200 }));
+		const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		renderHook(() => useHealthStatus(), { wrapper: wrap(qc) });
+		await waitFor(() => expect(httpFetch).toHaveBeenCalled());
+
+		const cacheKeys = qc
+			.getQueryCache()
+			.getAll()
+			.map((query) => JSON.stringify(query.queryKey));
+		expect(cacheKeys.join("\n")).not.toContain("super-secret-token");
+	});
 });
