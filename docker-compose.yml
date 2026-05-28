@@ -1,0 +1,23 @@
+# Example: add OpenConcho's web UI to a self-hosted Honcho Docker Compose stack.
+#
+# Drop this `openconcho` service into the Compose project that already runs your
+# Honcho `api` service. nginx proxies /v3 and /health to the API, so the browser
+# makes same-origin requests and never hits CORS.
+services:
+  openconcho:
+    image: ghcr.io/offendingcommit/openconcho-web:latest
+    # Or build from this repo instead of pulling the published image:
+    # build: .
+    environment:
+      # nginx reverse-proxies /v3 and /health to this upstream (the Honcho API).
+      HONCHO_UPSTREAM: http://api:8000
+      # The SPA defaults its Honcho base URL to its own origin, so requests flow
+      # through the proxy above — no browser CORS, token never leaves the origin.
+      # Set to an absolute URL instead to point the UI at a different backend.
+      OPENCONCHO_DEFAULT_HONCHO_URL: same-origin
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped

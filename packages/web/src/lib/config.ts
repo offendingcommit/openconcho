@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { httpFetch } from "@/lib/http";
+import { runtimeDefaultBaseUrl } from "@/lib/runtimeConfig";
 
 const LEGACY_KEY = "openconcho:config";
 const STORE_KEY = "openconcho:instances";
@@ -73,6 +74,18 @@ export function loadStore(): InstanceStore {
 	}
 	const migrated = migrateLegacy();
 	if (migrated) return migrated;
+
+	// First-run default from a container's runtime config (no-op outside Docker).
+	const runtimeUrl = runtimeDefaultBaseUrl();
+	if (runtimeUrl) {
+		const inst: Instance = {
+			id: "runtime-default",
+			name: "Honcho",
+			baseUrl: runtimeUrl,
+			token: "",
+		};
+		return { instances: [inst], activeId: inst.id };
+	}
 	return { instances: [], activeId: null };
 }
 

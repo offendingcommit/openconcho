@@ -1,65 +1,67 @@
 # Running OpenConcho in Docker
 
-The `@openconcho/web` SPA can be served from a container. The image is a
-two-stage build: Node + pnpm builds the static bundle, then
-`nginx-unprivileged` serves it on port `8080` as a non-root user.
+The `@openconcho/web` SPA ships as a container: a two-stage build (Node + pnpm
+builds the static bundle, then `nginx-unprivileged` serves it on port `8080` as
+a non-root user) that also **reverse-proxies the Honcho API under its own
+origin**, so the browser never makes a cross-origin request.
 
-## Build and run
+## Add it to a Honcho Compose stack (recommended)
+
+Honcho's self-hosting path is Docker Compose. Drop the `openconcho` service from
+[`docker-compose.yml`](../docker-compose.yml) into the project that runs your
+Honcho `api`:
+
+```yaml
+services:
+  openconcho:
+    image: ghcr.io/offendingcommit/openconcho-web:latest
+    environment:
+      HONCHO_UPSTREAM: http://api:8000        # nginx proxies /v3 + /health here
+      OPENCONCHO_DEFAULT_HONCHO_URL: same-origin
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+```
+
+`OPENCONCHO_DEFAULT_HONCHO_URL: same-origin` makes the UI default its Honcho
+base URL to its own origin, so API calls go through the proxy → **no browser
+CORS, and the API token never leaves the origin.** The published image is
+multi-arch (amd64 + arm64); the first publish creates a private GHCR package —
+make it public if you want unauthenticated pulls.
+
+## Standalone
 
 ```bash
 docker build -t openconcho-web .
-docker run --rm -p 8080:8080 openconcho-web
-# → http://localhost:8080
+docker run --rm -p 8080:8080 -e HONCHO_UPSTREAM=http://host.docker.internal:8000 openconcho-web
+# → http://localhost:8080  ·  GET /healthz returns "ok"
 ```
 
-Hardened run (read-only filesystem, no added capabilities):
+Runtime knobs (no rebuild needed):
 
-```bash
-docker run --rm -p 8080:8080 \
-  --read-only \
-  --tmpfs /tmp \
-  --tmpfs /var/cache/nginx \
-  --cap-drop ALL \
-  --security-opt no-new-privileges \
-  openconcho-web
-```
+| Env | Default | Meaning |
+|-----|---------|---------|
+| `HONCHO_UPSTREAM` | `http://api:8000` | Where nginx proxies `/v3` and `/health` |
+| `OPENCONCHO_DEFAULT_HONCHO_URL` | `same-origin` | SPA's default base URL — `same-origin`, an absolute URL, or empty (configure in Settings) |
 
-`GET /healthz` returns `200 ok` for container health checks.
+Hardened run adds `--read-only --cap-drop ALL --security-opt no-new-privileges`
+with `--tmpfs /tmp --tmpfs /var/cache/nginx`. Note: the runtime config writes
+`config.js` into the web root at start, which a read-only root blocks — under
+`--read-only` either bind-mount `config.js` or leave
+`OPENCONCHO_DEFAULT_HONCHO_URL` empty and set the URL in Settings.
 
-## CORS
+## CORS, the short version
 
-The desktop app routes HTTP through Rust (`reqwest`), so it is **not** subject
-to browser CORS. The **web build is**: it uses the browser's `fetch`, so every
-request to your Honcho API is cross-origin. Honcho calls are `POST` +
-`application/json` + `Authorization: Bearer`, which the browser always
-**preflights** (`OPTIONS`). You must handle this one of two ways.
-
-### Option 1 — configure Honcho's CORS (recommended)
-
-Honcho is a FastAPI service. Allow the UI's origin via its
-`CORSMiddleware` so preflight and actual requests succeed:
+The desktop app routes HTTP through Rust and bypasses browser CORS; the web
+build doesn't. The Compose setup above **solves CORS via the same-origin proxy**
+— nothing to configure on Honcho. If instead you point the UI at a *different*
+origin (absolute `OPENCONCHO_DEFAULT_HONCHO_URL` or a URL typed in Settings),
+allow that origin in Honcho's FastAPI `CORSMiddleware`:
 
 ```python
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:8080"],  # the OpenConcho origin
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.add_middleware(CORSMiddleware, allow_origins=["https://your-ui-origin"],
+                   allow_methods=["*"], allow_headers=["*"])
 ```
-
-This fits OpenConcho's model directly — the UI keeps using the absolute Honcho
-URL you enter in Settings (stored in `localStorage`). Since you self-host
-Honcho, you control this.
-
-### Option 2 — same-origin reverse proxy (advanced)
-
-Proxy the Honcho API under the same origin that serves the SPA, so the browser
-sees same-origin requests and CORS never applies (the token also never crosses
-origins). Uncomment the `location /honcho/` block in
-[`docker/nginx.conf`](../docker/nginx.conf) and set `proxy_pass` to your Honcho
-host.
-
-Caveat: the Settings form currently validates the base URL as an **absolute**
-URL (`z.string().url()`), so pointing the UI at a relative same-origin path
-(`/honcho`) isn't wired yet. Until that lands, Option 1 is the supported path.
