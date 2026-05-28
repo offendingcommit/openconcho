@@ -41,3 +41,6 @@ dist-ssr
 # Tauri
 packages/desktop/src-tauri/target/
 packages/desktop/src-tauri/gen/
+
+# Drafts from scripts/pr-evidence.sh
+PR_BODY.md
