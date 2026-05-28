@@ -3,6 +3,7 @@ import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/rea
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { DemoProvider } from "@/context/DemoContext";
+import { MetadataProvider } from "@/context/MetadataContext";
 import { useDemo } from "@/hooks/useDemo";
 import { routeTree } from "@/routeTree.gen";
 
@@ -15,8 +16,10 @@ function renderAt(initialPath: string) {
 	return render(
 		<QueryClientProvider client={qc}>
 			<DemoProvider>
-				{/* biome-ignore lint/suspicious/noExplicitAny: test router type */}
-				<RouterProvider router={router as any} />
+				<MetadataProvider>
+					{/* biome-ignore lint/suspicious/noExplicitAny: test router type */}
+					<RouterProvider router={router as any} />
+				</MetadataProvider>
 			</DemoProvider>
 		</QueryClientProvider>,
 	);
@@ -56,9 +59,11 @@ describe("Sidebar/useDemo availability across routes", () => {
 			render(
 				<QueryClientProvider client={qc}>
 					<DemoProvider>
-						{/* biome-ignore lint/suspicious/noExplicitAny: test router type */}
-						<RouterProvider router={router as any} />
-						<DemoConsumer />
+						<MetadataProvider>
+							{/* biome-ignore lint/suspicious/noExplicitAny: test router type */}
+							<RouterProvider router={router as any} />
+							<DemoConsumer />
+						</MetadataProvider>
 					</DemoProvider>
 				</QueryClientProvider>,
 			);
