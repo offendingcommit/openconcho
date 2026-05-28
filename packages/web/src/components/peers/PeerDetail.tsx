@@ -1,10 +1,12 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+	Check,
 	Eye,
 	EyeOff,
 	FlaskConical,
 	MessageCircle,
+	Pencil,
 	Save,
 	Search,
 	User,
@@ -19,6 +21,7 @@ import {
 	usePeerRepresentation,
 	useSearchPeer,
 	useSetPeerCard,
+	useUpdatePeer,
 } from "@/api/queries";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Badge } from "@/components/shared/Badge";
@@ -41,6 +44,7 @@ import {
 import { useDemo } from "@/hooks/useDemo";
 import { useMetadata } from "@/hooks/useMetadata";
 import { COLOR } from "@/lib/constants";
+import { DISPLAY_NAME_KEY, hasDisplayName, peerDisplayName } from "@/lib/peerDisplay";
 
 export function PeerDetail() {
 	const { mask } = useDemo();
@@ -69,6 +73,20 @@ export function PeerDetail() {
 	const [cardDraft, setCardDraft] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState("");
 
+	const peerMeta = (peer as { metadata?: Record<string, unknown> } | undefined)?.metadata;
+	const displayName = peerDisplayName(peerMeta, peerId);
+	const showsDisplayName = hasDisplayName(peerMeta, peerId);
+	const updatePeer = useUpdatePeer(workspaceId, peerId);
+	const [nameDraft, setNameDraft] = useState<string | null>(null);
+
+	function saveDisplayName() {
+		const next = (nameDraft ?? "").trim();
+		const merged: Record<string, unknown> = { ...(peerMeta ?? {}) };
+		if (next) merged[DISPLAY_NAME_KEY] = next;
+		else delete merged[DISPLAY_NAME_KEY];
+		updatePeer.mutate({ metadata: merged }, { onSuccess: () => setNameDraft(null) });
+	}
+
 	const observeMe = (peer as { configuration?: { observe_me?: boolean } } | undefined)
 		?.configuration?.observe_me;
 
@@ -81,14 +99,54 @@ export function PeerDetail() {
 	return (
 		<div className="page-container page-container--xl">
 			<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-				<Breadcrumb />
+				<Breadcrumb labels={{ [peerId]: displayName }} />
 
 				<div className="flex items-start justify-between gap-4">
 					<div>
 						<div className="flex items-center gap-2 mb-1">
 							<User className="w-5 h-5" style={{ color: "var(--accent)" }} strokeWidth={1.5} />
-							<PageTitle className="font-mono break-all">{mask(peerId)}</PageTitle>
-							{observeMe !== undefined && (
+							{nameDraft === null ? (
+								<>
+									<PageTitle className={showsDisplayName ? "break-all" : "font-mono break-all"}>
+										{mask(displayName)}
+									</PageTitle>
+									<button
+										type="button"
+										onClick={() => setNameDraft(showsDisplayName ? displayName : "")}
+										className="shrink-0 p-1 rounded-md transition-colors hover:bg-[color:var(--surface)]"
+										style={{ color: "var(--text-4)" }}
+										title="Edit display name"
+									>
+										<Pencil className="w-3.5 h-3.5" strokeWidth={1.5} />
+									</button>
+								</>
+							) : (
+								<div className="flex items-center gap-1.5">
+									<Input
+										value={nameDraft}
+										onChange={(e) => setNameDraft(e.currentTarget.value)}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") saveDisplayName();
+											if (e.key === "Escape") setNameDraft(null);
+										}}
+										placeholder="Display name"
+										autoFocus
+										className="w-56"
+									/>
+									<Button
+										variant="surface"
+										onClick={saveDisplayName}
+										disabled={updatePeer.isPending}
+										title="Save display name"
+									>
+										<Check className="w-3.5 h-3.5" strokeWidth={2} />
+									</Button>
+									<Button variant="surface" onClick={() => setNameDraft(null)} title="Cancel">
+										<X className="w-3.5 h-3.5" strokeWidth={2} />
+									</Button>
+								</div>
+							)}
+							{nameDraft === null && observeMe !== undefined && (
 								<span
 									className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-mono"
 									style={{
@@ -106,6 +164,9 @@ export function PeerDetail() {
 								</span>
 							)}
 						</div>
+						{showsDisplayName && nameDraft === null && (
+							<MonoCaption className="break-all">{mask(peerId)}</MonoCaption>
+						)}
 						<Body className="leading-none">Peer identity &amp; memory</Body>
 					</div>
 					<div className="flex items-center gap-2 shrink-0">

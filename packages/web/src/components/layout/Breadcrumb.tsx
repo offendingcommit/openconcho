@@ -15,7 +15,11 @@ const KNOWN_SECTIONS = new Set(Object.keys(SECTION_LABELS));
 
 type Segment = { label: string; href: string | null; mono?: boolean };
 
-function buildSegments(pathname: string, mask: (v: string) => string): Segment[] {
+function buildSegments(
+	pathname: string,
+	mask: (v: string) => string,
+	labels: Record<string, string>,
+): Segment[] {
 	if (!pathname.startsWith("/workspaces")) return [];
 
 	const rest = pathname.slice("/workspaces".length); // "" | "/wid" | "/wid/peers" | ...
@@ -46,14 +50,20 @@ function buildSegments(pathname: string, mask: (v: string) => string): Segment[]
 	const subId = parts[2];
 	if (!subId) return segments;
 
+	// A friendly label override (e.g. a peer's display_name) renders in place of
+	// the raw id and drops the mono styling reserved for ids.
+	const override = labels[subId];
+	const subLabel = mask(override ?? subId);
+	const subMono = override === undefined;
+
 	if (parts.length === 3) {
-		segments.push({ label: mask(subId), href: null, mono: true });
+		segments.push({ label: subLabel, href: null, mono: subMono });
 		return segments;
 	}
 	segments.push({
-		label: mask(subId),
+		label: subLabel,
 		href: `/workspaces/${wid}/${section}/${subId}`,
-		mono: true,
+		mono: subMono,
 	});
 
 	const subSection = parts[3];
@@ -64,10 +74,10 @@ function buildSegments(pathname: string, mask: (v: string) => string): Segment[]
 	return segments;
 }
 
-export function Breadcrumb() {
+export function Breadcrumb({ labels = {} }: { labels?: Record<string, string> } = {}) {
 	const { state } = useRouter();
 	const { mask } = useDemo();
-	const segments = buildSegments(state.location.pathname, mask);
+	const segments = buildSegments(state.location.pathname, mask, labels);
 
 	if (segments.length <= 1) return null;
 
