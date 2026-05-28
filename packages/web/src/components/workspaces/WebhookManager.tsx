@@ -13,8 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Body, Muted, PageTitle, SectionHeading } from "@/components/ui/typography";
 import { useDemo } from "@/hooks/useDemo";
 import { COLOR } from "@/lib/constants";
+import { isHttpOrHttpsUrl, isSafeExternalUrl } from "@/lib/security";
 
-const urlSchema = z.string().url({ message: "Must be a valid URL" });
+const urlSchema = z
+	.string()
+	.url({ message: "Must be a valid URL" })
+	.refine(isHttpOrHttpsUrl, { message: "Webhook URL must use http or https" });
 
 interface Props {
 	workspaceId: string;
@@ -48,6 +52,15 @@ export function WebhookManager({ workspaceId }: Props) {
 		const data = await testWebhook.mutateAsync();
 		setTestResult(JSON.stringify(data, null, 2));
 		setTimeout(() => setTestResult(null), 5000);
+	};
+
+	const handleOpenWebhook = async (webhookUrl: string) => {
+		if (!isSafeExternalUrl(webhookUrl)) {
+			setTestResult(`Blocked unsafe webhook URL: ${webhookUrl}`);
+			setTimeout(() => setTestResult(null), 5000);
+			return;
+		}
+		await open(webhookUrl);
 	};
 
 	const list = Array.isArray(webhooks) ? webhooks : [];
@@ -161,7 +174,7 @@ export function WebhookManager({ workspaceId }: Props) {
 											</span>
 											<button
 												type="button"
-												onClick={() => void open((wh as { url: string }).url)}
+												onClick={() => void handleOpenWebhook((wh as { url: string }).url)}
 												className="flex-shrink-0"
 												style={{
 													color: "var(--text-4)",

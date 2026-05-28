@@ -7,7 +7,7 @@ const POLL_INTERVAL_MS = 30_000;
 export function useHealthStatus() {
 	const { active } = useInstances();
 	return useQuery({
-		queryKey: ["health", active?.id, active?.baseUrl, active?.token],
+		queryKey: ["health", active?.id, active?.baseUrl, Boolean(active?.token)],
 		queryFn: async () => {
 			if (!active) throw new Error("No active instance");
 			return checkConnection(active.baseUrl, active.token || undefined);
