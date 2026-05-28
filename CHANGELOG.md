@@ -1,3 +1,10 @@
+## [0.12.1](https://github.com/offendingcommit/openconcho/compare/v0.12.0...v0.12.1) (2026-05-28)
+
+
+### Bug Fixes
+
+* **ci:** trigger release build on release publish, not tag push ([52a7f09](https://github.com/offendingcommit/openconcho/commit/52a7f09ce6c3202d4929e1d6282d1d6b12578b40))
+
 # [0.12.0](https://github.com/offendingcommit/openconcho/compare/v0.11.0...v0.12.0) (2026-05-28)
 
 
