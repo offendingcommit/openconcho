@@ -1,3 +1,10 @@
+# [0.10.0](https://github.com/offendingcommit/openconcho/compare/v0.9.0...v0.10.0) (2026-05-28)
+
+
+### Features
+
+* **api:** add scoped multi-instance query client ([de8db4b](https://github.com/offendingcommit/openconcho/commit/de8db4b7aaccd3337507aacfb93b1ec2f2ac42db))
+
 # [0.9.0](https://github.com/offendingcommit/openconcho/compare/v0.8.0...v0.9.0) (2026-05-28)
 
 
