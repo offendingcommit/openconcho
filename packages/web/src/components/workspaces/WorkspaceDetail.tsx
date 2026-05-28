@@ -1,6 +1,7 @@
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+	Activity,
 	Boxes,
 	ChevronDown,
 	CircleDot,
@@ -49,6 +50,12 @@ const NAV_SECTIONS = [
 		icon: Webhook,
 		to: "webhooks" as const,
 		description: "Manage event webhooks",
+	},
+	{
+		label: "Queue & dreams",
+		icon: Activity,
+		to: "queue" as const,
+		description: "Live view of in-flight work",
 	},
 ] as const;
 
@@ -107,7 +114,7 @@ export function WorkspaceDetail() {
 				{!isLoading && workspace && (
 					<div className="space-y-4">
 						{/* Nav cards */}
-						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
 							{NAV_SECTIONS.map((s, i) => {
 								const Icon = s.icon;
 								return (
