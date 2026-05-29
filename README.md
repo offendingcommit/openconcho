@@ -29,13 +29,20 @@ Browse memories, peers, sessions, and conclusions — or chat with full memory c
 | | |
 |---|---|
 | **Dashboard** | Workspace count and queue status, auto-refreshes every 10 s |
+| **Multiple instances** | Add and switch between several Honcho connections |
+| **Fleet dashboard** | Cross-instance observability — workspaces/sessions/queue side-by-side with per-instance badges |
 | **Workspaces** | Paginated list with per-workspace navigation |
 | **Peers** | Browse peers, view representations, context, and peer cards |
+| **Peer display names** | Set a friendly `display_name` (metadata) to replace raw peer ids |
+| **Peer Card Seed Kits** | Author reusable peer-card kits and apply them across instances |
 | **Sessions** | Paginated message history with summaries and context |
 | **Conclusions** | Semantic search across conclusions with observer/subject display |
+| **Dream viewer** | Browse dream/consolidation bursts with a recursive premise tree |
+| **Dialectic playground** | Fan one query across all reasoning levels side-by-side |
 | **Webhooks** | Manage and trigger webhooks per workspace |
 | **Chat** | Conversational interface through Honcho's chat endpoint with memory context |
 | **Schedule Dream** | Trigger Honcho's dream/consolidation pass on demand |
+| **Demo mode** | Mask identifiers/content for screenshots and screen-sharing |
 | **Dark / light mode** | Persisted per device, instant toggle |
 | **Optional auth** | Token field is optional; connection health check auto-detects auth requirement |
 
@@ -47,15 +54,15 @@ Pre-built binaries are attached to every [GitHub Release](https://github.com/off
 |---|---|
 | macOS (Apple Silicon) | `OpenConcho_*_aarch64.dmg` |
 | macOS (Intel) | `OpenConcho_*_x64.dmg` |
-| Linux | `openconcho_*_amd64.deb` / `openconcho_*_amd64.AppImage` |
+| Linux | `openconcho_*_amd64.deb` / `openconcho_*_amd64.AppImage` / `OpenConcho-*.x86_64.rpm` |
 | Windows | `OpenConcho_*_x64-setup.exe` / `OpenConcho_*_x64_en-US.msi` |
 
 ## Quick Start
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) ≥ 20
-- [pnpm](https://pnpm.io/) ≥ 9
+- [Node.js](https://nodejs.org/) ≥ 22
+- [pnpm](https://pnpm.io/) 10 (pinned via `packageManager`; `corepack enable` picks it up)
 - A running [Honcho](https://github.com/plastic-labs/honcho) instance (local or remote)
 
 ### Web app
@@ -79,6 +86,23 @@ cd openconcho
 pnpm install
 pnpm --filter @openconcho/desktop dev
 ```
+
+### Docker (web app)
+
+Run the web UI in a container — handy for adding it to a self-hosted Honcho
+Compose stack. The image serves the SPA and reverse-proxies the Honcho API under
+its own origin, so the browser makes same-origin requests (no CORS to configure).
+
+```bash
+docker run --rm -p 8080:8080 \
+  -e HONCHO_UPSTREAM=http://host.docker.internal:8000 \
+  ghcr.io/offendingcommit/openconcho-web:latest
+# → http://localhost:8080
+```
+
+To drop it into a Honcho Compose stack, use the `openconcho` service in
+[`docker-compose.yml`](docker-compose.yml). Full details, env vars, and the CORS
+options are in [`docs/docker.md`](docs/docker.md).
 
 ### Connecting to your instance
 
@@ -131,7 +155,7 @@ pnpm --filter @openconcho/web generate:api
 
 ## Privacy
 
-- Base URL and token stored in `localStorage` under `openconcho:config`
+- Connection details (base URL + token, one or more instances) stored in `localStorage` under `openconcho:instances`
 - Theme preference stored in `localStorage` under `openconcho:theme`
 - No telemetry, no analytics, no external requests beyond your configured Honcho instance
 
