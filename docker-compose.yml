@@ -1,8 +1,14 @@
-# Example: add OpenConcho's web UI to a self-hosted Honcho Docker Compose stack.
+# Run OpenConcho's web UI with `docker compose up`.
 #
-# Drop this `openconcho` service into the Compose project that already runs your
-# Honcho `api` service. nginx proxies /v3 and /health to the API, so the browser
-# makes same-origin requests and never hits CORS.
+# Standalone: serves the SPA on http://localhost:8080 and reverse-proxies the
+# Honcho API under the same origin (no browser CORS). By default it points at a
+# Honcho running on the host at :8000 — override HONCHO_UPSTREAM for anything else:
+#
+#   HONCHO_UPSTREAM=https://honcho.example.net docker compose up
+#
+# To fold this into an existing Honcho Compose stack, drop the `openconcho`
+# service into that project, set HONCHO_UPSTREAM to the api service
+# (e.g. http://api:8000), and add `depends_on: { api: { condition: service_healthy } }`.
 services:
   openconcho:
     image: ghcr.io/offendingcommit/openconcho-web:latest
@@ -10,14 +16,14 @@ services:
     # build: .
     environment:
       # nginx reverse-proxies /v3 and /health to this upstream (the Honcho API).
-      HONCHO_UPSTREAM: http://api:8000
+      HONCHO_UPSTREAM: ${HONCHO_UPSTREAM:-http://host.docker.internal:8000}
       # The SPA defaults its Honcho base URL to its own origin, so requests flow
       # through the proxy above — no browser CORS, token never leaves the origin.
-      # Set to an absolute URL instead to point the UI at a different backend.
       OPENCONCHO_DEFAULT_HONCHO_URL: same-origin
     ports:
       - "127.0.0.1:8080:8080"
-    depends_on:
-      api:
-        condition: service_healthy
+    # Lets the default host.docker.internal upstream resolve on Linux too
+    # (Docker Desktop / Colima provide it automatically).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
