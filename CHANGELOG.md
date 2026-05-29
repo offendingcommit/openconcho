@@ -1,3 +1,12 @@
+# [0.13.0](https://github.com/offendingcommit/openconcho/compare/v0.12.1...v0.13.0) (2026-05-28)
+
+
+### Features
+
+* **docker:** full self-hosted Compose support ([282ba1b](https://github.com/offendingcommit/openconcho/commit/282ba1b76c43b51aae5bf4d173fd2c76bfbd8eac))
+* **web:** add Fleet dashboard view for cross-instance observability ([12712bb](https://github.com/offendingcommit/openconcho/commit/12712bb0b087f3413173328cad96c9b04bb35ca5))
+* **web:** configurable peer display name ([3de6832](https://github.com/offendingcommit/openconcho/commit/3de6832a5dc7aad971ac87e356674d834fe9e715))
+
 ## [0.12.1](https://github.com/offendingcommit/openconcho/compare/v0.12.0...v0.12.1) (2026-05-28)
 
 
