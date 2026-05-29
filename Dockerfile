@@ -30,12 +30,6 @@ RUN pnpm --filter @openconcho/web build
 # under a read-only filesystem with cap_drop ALL.
 FROM nginxinc/nginx-unprivileged:alpine
 
-# Baked into the image config — the canonical, build-tool-independent signal GHCR
-# reads to connect the published package to this repo. Evaluated at package
-# creation, so it links freshly-created packages without relying on buildx
-# annotation levels.
-LABEL org.opencontainers.image.source="https://github.com/offendingcommit/openconcho"
-
 COPY --chown=101:101 --from=builder /app/packages/web/dist /usr/share/nginx/html
 # Rendered to /etc/nginx/conf.d/default.conf by the image's envsubst entrypoint.
 COPY --chown=101:101 docker/nginx.conf.template /etc/nginx/templates/default.conf.template
