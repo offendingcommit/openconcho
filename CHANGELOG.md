@@ -1,3 +1,10 @@
+## [0.13.1](https://github.com/offendingcommit/openconcho/compare/v0.13.0...v0.13.1) (2026-05-29)
+
+
+### Bug Fixes
+
+* **docker:** make docker-compose runnable standalone ([fde4836](https://github.com/offendingcommit/openconcho/commit/fde483657fabde5b0f39578ec354c2e5c8b02daa))
+
 # [0.13.0](https://github.com/offendingcommit/openconcho/compare/v0.12.1...v0.13.0) (2026-05-28)
 
 
