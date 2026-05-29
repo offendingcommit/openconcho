@@ -63,7 +63,8 @@ Before pushing any change under `packages/desktop/**` or `packages/desktop/src-t
 
 ## Key Constraints
 
-- **No hardcoded URLs** — all connection config lives in `localStorage` under `openconcho:config`
+- **No hardcoded URLs** — connection config lives in `localStorage` under `openconcho:instances` (multi-instance store; legacy `openconcho:config` is auto-migrated)
+- **Local git hooks** — `.husky/pre-commit` runs a secret scan + Biome on staged files; `.husky/pre-push` runs `pnpm check`. Your commits and pushes trigger these.
 - **TanStack Router flat-route params** — always cast `params` as `as never` at `navigate()` and `<Link>` callsites
 - **`framer-motion` Variants typing** — import `type Variants` and annotate objects; never use `as const` on variant objects
 - **Auth is optional** — token header only sent when non-empty; `checkConnection()` detects if auth is required
