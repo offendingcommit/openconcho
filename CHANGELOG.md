@@ -1,3 +1,25 @@
+# [0.14.0](https://github.com/offendingcommit/openconcho/compare/v0.13.1...v0.14.0) (2026-06-02)
+
+
+### Bug Fixes
+
+* **docker:** derive nginx resolver from container DNS ([66b299a](https://github.com/offendingcommit/openconcho/commit/66b299a28e912bc2f8c2922b40292696c4f7d81a))
+* **docker:** drop dead HONCHO_UPSTREAM and same-origin default ([a2854ab](https://github.com/offendingcommit/openconcho/commit/a2854ab8ea0a9eec2a06838fb394a0264f7dd80d))
+* **web:** enforce upstream allowlist in vite dev proxy ([b4fac95](https://github.com/offendingcommit/openconcho/commit/b4fac95f37da3985dbc4fbf64d04dd509ec86c2c))
+* **web:** raise connection-test timeout for cold upstreams ([409d7d8](https://github.com/offendingcommit/openconcho/commit/409d7d8be7f5cc94421dce32a54105ea48bfd44b))
+* **web:** strip content-encoding from vite dev proxy responses ([6b602c0](https://github.com/offendingcommit/openconcho/commit/6b602c05bb81721dfc102b3f97112b2cf58d4d60))
+
+
+### Features
+
+* **docker:** header-driven /api reverse proxy in nginx ([753c978](https://github.com/offendingcommit/openconcho/commit/753c978f56dab61d0c15b25b56ecf438cdc5ae88))
+* **docker:** render SSRF allowlist map from env ([0af1ad9](https://github.com/offendingcommit/openconcho/commit/0af1ad923cd2aa61a201d65ce4f19acb13858790))
+* **docker:** split compose into dev-forward build and prod pull ([c9bd2db](https://github.com/offendingcommit/openconcho/commit/c9bd2db07d84e0eedffeadcc6f2bc15c628eb251))
+* **web:** add dispatchFor transport helper for same-origin proxy ([9945e4c](https://github.com/offendingcommit/openconcho/commit/9945e4cf148aec6fc47bb853e8661c339c52ff32))
+* **web:** dev /api proxy middleware mirroring nginx ([ab8a1ba](https://github.com/offendingcommit/openconcho/commit/ab8a1ba866728ff972544c1d912fed59ba03a4a7))
+* **web:** route checkConnection and discovery through the proxy ([9893230](https://github.com/offendingcommit/openconcho/commit/9893230cde3d11ce73350bd12fffae236ee9adff))
+* **web:** route web build through same-origin /api proxy ([0935099](https://github.com/offendingcommit/openconcho/commit/0935099bc28468a21183f5f03105645f4ac8aa8a))
+
 ## [0.13.1](https://github.com/offendingcommit/openconcho/compare/v0.13.0...v0.13.1) (2026-05-29)
 
 
