@@ -1,5 +1,9 @@
 # Dependabot configuration
 # Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Grouping policy: collapse all minor+patch bumps into ONE PR per ecosystem so
+# the review queue stays small; majors get their own grouped PR per ecosystem so
+# breaking changes still get individual scrutiny.
 
 version: 2
 updates:
@@ -19,47 +23,17 @@ updates:
       - "dependencies"
       - "javascript"
     groups:
-      # Keep TanStack libs in lockstep — they release as a family
-      tanstack:
+      npm-minor-patch:
         patterns:
-          - "@tanstack/*"
-      # Tauri JS bindings
-      tauri:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      npm-major:
         patterns:
-          - "@tauri-apps/*"
-      # Test stack
-      testing:
-        patterns:
-          - "vitest"
-          - "@vitest/*"
-          - "@testing-library/*"
-          - "jsdom"
-          - "@playwright/*"
-      # Build/lint tooling
-      tooling:
-        patterns:
-          - "@biomejs/*"
-          - "turbo"
-          - "vite"
-          - "@vitejs/*"
-          - "typescript"
-      # React core
-      react:
-        patterns:
-          - "react"
-          - "react-dom"
-          - "@types/react"
-          - "@types/react-dom"
-      # Semantic-release ecosystem
-      semantic-release:
-        patterns:
-          - "semantic-release"
-          - "@semantic-release/*"
-      # Commitlint + husky
-      commit-tooling:
-        patterns:
-          - "@commitlint/*"
-          - "husky"
+          - "*"
+        update-types:
+          - "major"
 
   # ─── Rust / Cargo (Tauri desktop shell) ───────────────────────────────────
   - package-ecosystem: "cargo"
@@ -77,16 +51,17 @@ updates:
       - "dependencies"
       - "rust"
     groups:
-      tauri-core:
+      cargo-minor-patch:
         patterns:
-          - "tauri"
-          - "tauri-*"
-      tokio:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      cargo-major:
         patterns:
-          - "tokio"
-          - "tokio-*"
-          - "futures"
-          - "futures-*"
+          - "*"
+        update-types:
+          - "major"
 
   # ─── GitHub Actions workflow pins ─────────────────────────────────────────
   - package-ecosystem: "github-actions"
@@ -103,3 +78,7 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
