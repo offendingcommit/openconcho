@@ -91,18 +91,21 @@ pnpm --filter @openconcho/desktop dev
 
 Run the web UI in a container — handy for adding it to a self-hosted Honcho
 Compose stack. The image serves the SPA and reverse-proxies the Honcho API under
-its own origin, so the browser makes same-origin requests (no CORS to configure).
+its own origin: the browser calls `/api` same-origin and names the upstream in an
+`X-Honcho-Upstream` header, so there's no browser CORS to configure.
 
 ```bash
 docker run --rm -p 8080:8080 \
-  -e HONCHO_UPSTREAM=http://host.docker.internal:8000 \
+  -e OPENCONCHO_DEFAULT_HONCHO_URL=http://host.docker.internal:8000 \
   ghcr.io/offendingcommit/openconcho-web:latest
 # → http://localhost:8080
 ```
 
-To drop it into a Honcho Compose stack, use the `openconcho` service in
-[`docker-compose.yml`](docker-compose.yml). Full details, env vars, and the CORS
-options are in [`docs/docker.md`](docs/docker.md).
+`OPENCONCHO_DEFAULT_HONCHO_URL` seeds the first instance (absolute URL).
+`OPENCONCHO_UPSTREAM_ALLOWLIST` is an optional SSRF guard (comma-separated host
+globs) for when you expose the proxy. To drop it into a Honcho Compose stack, use
+the `openconcho` service in [`docker-compose.yml`](docker-compose.yml). Full
+details and env vars are in [`docs/docker.md`](docs/docker.md).
 
 ### Connecting to your instance
 

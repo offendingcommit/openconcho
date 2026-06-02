@@ -1,25 +1,30 @@
 # Run OpenConcho's web UI with `docker compose up`.
 #
-# Standalone: serves the SPA on http://localhost:8080 and reverse-proxies the
-# Honcho API under the same origin (no browser CORS). By default it points at a
-# Honcho running on the host at :8000 — override HONCHO_UPSTREAM for anything else:
+# Standalone: serves the SPA on http://localhost:8080. The browser issues all
+# Honcho calls same-origin to /api; nginx forwards each to the URL named in the
+# per-request X-Honcho-Upstream header (no browser CORS). Seed the first instance
+# with OPENCONCHO_DEFAULT_HONCHO_URL — override for anything else:
 #
-#   HONCHO_UPSTREAM=https://honcho.example.net docker compose up
+#   OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net docker compose up
 #
 # To fold this into an existing Honcho Compose stack, drop the `openconcho`
-# service into that project, set HONCHO_UPSTREAM to the api service
-# (e.g. http://api:8000), and add `depends_on: { api: { condition: service_healthy } }`.
+# service into that project, set OPENCONCHO_DEFAULT_HONCHO_URL to the api service
+# (e.g. http://api:8000 — nginx resolves it on the compose network), and add
+# `depends_on: { api: { condition: service_healthy } }`.
 services:
   openconcho:
     image: ghcr.io/offendingcommit/openconcho-web:latest
     # Or build from this repo instead of pulling the published image:
     # build: .
     environment:
-      # nginx reverse-proxies /v3 and /health to this upstream (the Honcho API).
-      HONCHO_UPSTREAM: ${HONCHO_UPSTREAM:-http://host.docker.internal:8000}
-      # The SPA defaults its Honcho base URL to its own origin, so requests flow
-      # through the proxy above — no browser CORS, token never leaves the origin.
-      OPENCONCHO_DEFAULT_HONCHO_URL: same-origin
+      # The SPA seeds its first instance from this absolute URL; the browser then
+      # routes all calls same-origin through /api, and nginx forwards them to the
+      # URL named per-request in the X-Honcho-Upstream header (no browser CORS).
+      OPENCONCHO_DEFAULT_HONCHO_URL: ${OPENCONCHO_DEFAULT_HONCHO_URL:-http://host.docker.internal:8000}
+      # Optional SSRF guard. Unset = forward anywhere (safe for the localhost-only
+      # binding below). Set comma-separated host globs before exposing the proxy:
+      #   OPENCONCHO_UPSTREAM_ALLOWLIST: honcho.example.net,*.honcho.dev
+      OPENCONCHO_UPSTREAM_ALLOWLIST: ${OPENCONCHO_UPSTREAM_ALLOWLIST:-}
     ports:
       - "127.0.0.1:8080:8080"
     # Lets the default host.docker.internal upstream resolve on Linux too

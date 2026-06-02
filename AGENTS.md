@@ -64,6 +64,7 @@ Before pushing any change under `packages/desktop/**` or `packages/desktop/src-t
 ## Key Constraints
 
 - **No hardcoded URLs** — connection config lives in `localStorage` under `openconcho:instances` (multi-instance store; legacy `openconcho:config` is auto-migrated)
+- **Web CORS via a same-origin `/api` proxy** — the web build issues all Honcho calls to `/api/*` with an `X-Honcho-Upstream` header (the active instance's URL); nginx (docker) and a Vite middleware (dev) forward server-side. Transport is resolved by `dispatchFor` in `src/lib/dispatch.ts`: web → relative `/api` + header; Tauri → absolute URL + reqwest. Optional `OPENCONCHO_UPSTREAM_ALLOWLIST` guards the proxy when exposed.
 - **Local git hooks** — `.husky/pre-commit` runs a secret scan + Biome on staged files; `.husky/pre-push` runs `pnpm check`. Your commits and pushes trigger these.
 - **TanStack Router flat-route params** — always cast `params` as `as never` at `navigate()` and `<Link>` callsites
 - **`framer-motion` Variants typing** — import `type Variants` and annotate objects; never use `as const` on variant objects
