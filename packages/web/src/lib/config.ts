@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { httpFetch } from "@/lib/http";
+import { dispatchFor, PROXY_REJECT_HEADER } from "@/lib/dispatch";
 import { runtimeDefaultBaseUrl } from "@/lib/runtimeConfig";
 
 const LEGACY_KEY = "openconcho:config";
@@ -162,21 +162,20 @@ export type HealthStatus = "ok" | "auth-required" | "unreachable" | "checking";
 export async function checkConnection(
 	baseUrl: string,
 	token?: string,
-): Promise<{
-	status: HealthStatus;
-	message: string;
-}> {
+): Promise<{ status: HealthStatus; message: string }> {
 	try {
-		const headers: Record<string, string> = { "Content-Type": "application/json" };
-		if (token) headers.Authorization = `Bearer ${token}`;
-
-		const res = await httpFetch(`${baseUrl}/v3/workspaces/list`, {
+		const { baseUrl: base, headers, fetch } = dispatchFor({ baseUrl, token });
+		const res = await fetch(`${base}/v3/workspaces/list`, {
 			method: "POST",
 			headers,
 			body: JSON.stringify({}),
 			signal: AbortSignal.timeout(5000),
 		});
 
+		const reject = res.headers.get(PROXY_REJECT_HEADER);
+		if (reject) {
+			return { status: "unreachable", message: `Proxy refused upstream (${reject})` };
+		}
 		if (res.ok) return { status: "ok", message: "Connected successfully" };
 		if (res.status === 401 || res.status === 403) {
 			return { status: "auth-required", message: "Authentication required — provide an API token" };
