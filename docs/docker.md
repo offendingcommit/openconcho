@@ -15,18 +15,41 @@ applies**; the nginx→Honcho hop is server-side, where CORS is irrelevant. The
 frontend stays the source of truth for which instance to talk to, so the
 multi-instance switcher and the Fleet view keep working.
 
-## Add it to a Honcho Compose stack (recommended)
+## Compose: dev-forward vs prod
 
-Honcho's self-hosting path is Docker Compose. Drop the `openconcho` service from
-[`docker-compose.yml`](../docker-compose.yml) into the project that runs your
-Honcho `api`:
+Two Compose files, env/ports defined once in the base:
+
+- **`docker-compose.yml`** — dev-forward: `build: .`, so it runs **your local source**.
+- **`docker-compose.prod.yml`** — override that swaps the build for the **published
+  image** (`ghcr.io/offendingcommit/openconcho-web:latest`, `pull_policy: always`).
+
+```bash
+make compose-up        # build from source + run        → http://localhost:8080
+make compose-up-prod   # pull ghcr…:latest instead of building
+make compose-down      # stop + remove
+```
+
+`make compose-up-prod` expands to
+`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`. Set env
+inline or via a `.env` file:
+
+```bash
+OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make compose-up-prod
+```
+
+The published image is multi-arch (amd64 + arm64); the first publish creates a
+private GHCR package — make it public for unauthenticated pulls.
+
+## Add it to an existing Honcho Compose stack
+
+Drop the `openconcho` service into the project that runs your Honcho `api`,
+pointing the seed at the api service (nginx resolves it on the compose network):
 
 ```yaml
 services:
   openconcho:
     image: ghcr.io/offendingcommit/openconcho-web:latest
     environment:
-      # Seeds the first instance; nginx resolves this on the compose network.
       OPENCONCHO_DEFAULT_HONCHO_URL: http://api:8000
     ports:
       - "127.0.0.1:8080:8080"
@@ -39,14 +62,13 @@ services:
 `OPENCONCHO_DEFAULT_HONCHO_URL` seeds the UI's first instance with an absolute
 URL. The browser sends that URL in the `X-Honcho-Upstream` header; nginx (on the
 compose network) forwards to it — **no browser CORS, and the API token never
-leaves the origin.** The published image is multi-arch (amd64 + arm64); the first
-publish creates a private GHCR package — make it public for unauthenticated pulls.
+leaves the origin.**
 
-## Standalone
+## Standalone (no compose)
 
 ```bash
-docker build -t openconcho-web .
-docker run --rm -p 8080:8080 -e OPENCONCHO_DEFAULT_HONCHO_URL=http://host.docker.internal:8000 openconcho-web
+docker run --rm -p 8080:8080 -e OPENCONCHO_DEFAULT_HONCHO_URL=http://host.docker.internal:8000 \
+  ghcr.io/offendingcommit/openconcho-web:latest
 # → http://localhost:8080  ·  GET /healthz returns "ok"
 ```
 
