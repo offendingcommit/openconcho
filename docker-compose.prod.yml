@@ -1,0 +1,11 @@
+# Production override — pull the published image instead of building from source.
+# Layer it on top of docker-compose.yml; it reuses every setting there (env, ports,
+# extra_hosts) and only swaps the local build for the latest published image.
+#
+#   make compose-up-prod
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+services:
+  openconcho:
+    build: !reset null
+    image: ghcr.io/offendingcommit/openconcho-web:latest
+    pull_policy: always

@@ -1,25 +1,25 @@
-# Run OpenConcho's web UI with `docker compose up`.
+# OpenConcho web UI — DEV-FORWARD compose (builds from THIS repo).
 #
-# Standalone: serves the SPA on http://localhost:8080. The browser issues all
-# Honcho calls same-origin to /api; nginx forwards each to the URL named in the
-# per-request X-Honcho-Upstream header (no browser CORS). Seed the first instance
-# with OPENCONCHO_DEFAULT_HONCHO_URL — override for anything else:
+#   make compose-up        # build from source + run        → http://localhost:8080
+#   make compose-up-prod   # pull the published image instead (see docker-compose.prod.yml)
+#   make compose-down      # stop + remove
 #
-#   OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net docker compose up
+# The SPA issues all Honcho calls same-origin to /api; nginx forwards each to the
+# URL named in the per-request X-Honcho-Upstream header (no browser CORS). Seed the
+# first instance with OPENCONCHO_DEFAULT_HONCHO_URL:
 #
-# To fold this into an existing Honcho Compose stack, drop the `openconcho`
-# service into that project, set OPENCONCHO_DEFAULT_HONCHO_URL to the api service
-# (e.g. http://api:8000 — nginx resolves it on the compose network), and add
-# `depends_on: { api: { condition: service_healthy } }`.
+#   OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make compose-up
+#
+# To fold into an existing Honcho Compose stack, set OPENCONCHO_DEFAULT_HONCHO_URL
+# to the api service (e.g. http://api:8000 — nginx resolves it on the compose
+# network) and add `depends_on: { api: { condition: service_healthy } }`.
 services:
   openconcho:
-    image: ghcr.io/offendingcommit/openconcho-web:latest
-    # Or build from this repo instead of pulling the published image:
-    # build: .
+    build: .
+    image: openconcho-web:local
     environment:
-      # The SPA seeds its first instance from this absolute URL; the browser then
-      # routes all calls same-origin through /api, and nginx forwards them to the
-      # URL named per-request in the X-Honcho-Upstream header (no browser CORS).
+      # Absolute URL seeding the first instance; the browser sends it as the
+      # X-Honcho-Upstream header and nginx forwards there (no browser CORS).
       OPENCONCHO_DEFAULT_HONCHO_URL: ${OPENCONCHO_DEFAULT_HONCHO_URL:-http://host.docker.internal:8000}
       # Optional SSRF guard. Unset = forward anywhere (safe for the localhost-only
       # binding below). Set comma-separated host globs before exposing the proxy:
