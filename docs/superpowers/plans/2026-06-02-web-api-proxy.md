@@ -15,6 +15,18 @@
 
 **Commit discipline:** conventional commits, one logical change per commit, body lines ≤100 chars, no AI attribution. Branch `feat/web-api-proxy` (already created; spec already committed there).
 
+> **Amendment (2026-06-02, post-execution):** Tasks 1–3 are implemented and committed
+> (`d4452ab`, `9945e4c`, `0935099`). During execution a design correction was made:
+> the web-mode base is **absolute same-origin** (`${location.origin}/api`), not the bare
+> relative `"/api"`. Reason: a relative base makes `openapi-fetch` call
+> `new Request("/api/...")`, which throws `ERR_INVALID_URL` under node/undici and is
+> fragile in the browser. `dispatchFor` now returns `${location.origin}${API_PREFIX}`
+> in web mode. Consequently `fleet.test.tsx` **was** updated (the original claim that it
+> "stays green untouched" was wrong — the transport contract genuinely changed) and any
+> test that inspects the dispatched URL asserts the absolute same-origin form. Tests mock
+> `@/lib/http` (not `globalThis.fetch`), because `httpFetch` captures the fetch reference
+> at module load, so `vi.stubGlobal("fetch", …)` would not intercept it.
+
 ---
 
 ## File Structure
@@ -315,26 +327,30 @@ git commit -m "feat(web): route api clients through dispatchFor"
 ```ts
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const mockIsTauri = vi.fn(() => false);
+// Mock the platform predicate (web mode) and the fetch boundary. We mock
+// @/lib/http — NOT globalThis.fetch — because httpFetch captures the fetch
+// reference at module load, so vi.stubGlobal would not be observed by dispatchFor.
+const { mockIsTauri, httpFetchMock } = vi.hoisted(() => ({
+	mockIsTauri: vi.fn(() => false),
+	httpFetchMock: vi.fn(),
+}));
 vi.mock("@/lib/platform", () => ({ isTauri: () => mockIsTauri() }));
+vi.mock("@/lib/http", () => ({ httpFetch: httpFetchMock }));
 
 import { checkConnection } from "@/lib/config";
 
-const fetchMock = vi.fn();
-vi.stubGlobal("fetch", fetchMock);
-
 afterEach(() => {
-	fetchMock.mockReset();
+	httpFetchMock.mockReset();
 	mockIsTauri.mockReturnValue(false);
 });
 
 describe("checkConnection — web proxy mode", () => {
-	it("calls the same-origin /api path with the upstream header", async () => {
-		fetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
+	it("calls the absolute same-origin /api path with the upstream header", async () => {
+		httpFetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
 		const res = await checkConnection("https://honcho.example.net", "sk-1");
 		expect(res.status).toBe("ok");
-		const [url, init] = fetchMock.mock.calls[0];
-		expect(String(url)).toBe("/api/v3/workspaces/list");
+		const [url, init] = httpFetchMock.mock.calls[0];
+		expect(String(url)).toBe(`${location.origin}/api/v3/workspaces/list`);
 		expect((init.headers as Record<string, string>)["X-Honcho-Upstream"]).toBe(
 			"https://honcho.example.net",
 		);
@@ -342,13 +358,13 @@ describe("checkConnection — web proxy mode", () => {
 	});
 
 	it("maps an upstream 401 to auth-required", async () => {
-		fetchMock.mockResolvedValue(new Response("{}", { status: 401 }));
+		httpFetchMock.mockResolvedValue(new Response("{}", { status: 401 }));
 		const res = await checkConnection("https://honcho.example.net");
 		expect(res.status).toBe("auth-required");
 	});
 
 	it("treats a proxy reject as unreachable, not auth-required", async () => {
-		fetchMock.mockResolvedValue(
+		httpFetchMock.mockResolvedValue(
 			new Response("", { status: 403, headers: { "X-Honcho-Proxy-Reject": "allowlist" } }),
 		);
 		const res = await checkConnection("https://blocked.example.net");
