@@ -58,7 +58,7 @@ describe("SettingsForm — self-hosted preset", () => {
 		renderForm(<SettingsForm instance={null} preset="self-hosted" />);
 		const baseUrl = screen.getByPlaceholderText("http://localhost:8000");
 		await user.clear(baseUrl);
-		await user.type(baseUrl, "http://100.67.206.76:8000");
+		await user.type(baseUrl, "http://192.0.2.10:8000");
 		await user.type(
 			screen.getByPlaceholderText(/required only if your instance has auth enabled/i),
 			"secret-token",

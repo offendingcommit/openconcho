@@ -52,12 +52,17 @@ check_pattern "Honcho-style JWT (likely)" 'eyJ[A-Za-z0-9_-]{20,}\.eyJ[A-Za-z0-9_
 check_pattern "RSA/EC/DSA/OpenSSH private key block" '-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----'
 check_pattern "Generic hardcoded password" '(password|passwd|pwd)[[:space:]]*[:=][[:space:]]*["'\'']\w{8,}["'\'']'
 
+# Environment-specific values — keep live infra out of committed code/docs/PRs.
+# Use examples instead (honcho.example.net; 192.0.2.x per RFC 5737 TEST-NET).
+check_pattern "Tailnet hostname (env-specific; use example.net)" '[A-Za-z0-9-]+\.ts\.net'
+check_pattern "Tailnet/CGNAT IP (env-specific; use 192.0.2.x)" '100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.[0-9]{1,3}\.[0-9]{1,3}'
+
 if [ $FOUND -eq 1 ]; then
-  printf '\n\033[31m✗ Secret scan: potential secrets in staged changes\033[0m\n' >&2
+  printf '\n\033[31m✗ Secret scan: potential secrets or environment-specific values in staged changes\033[0m\n' >&2
   printf '%b' "$FINDINGS" >&2
   printf '\n' >&2
   printf 'If this is a false positive, bypass with:  \033[33mgit commit --no-verify\033[0m\n' >&2
-  printf 'Otherwise: remove the secret, rotate the credential, and re-stage.\n\n' >&2
+  printf 'Otherwise: remove the secret/value (use an example), rotate if a credential, and re-stage.\n\n' >&2
   exit 1
 fi
 

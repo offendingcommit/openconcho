@@ -27,11 +27,11 @@ describe("security URL helpers", () => {
 		expect(isSecureTokenTransport("http://localhost:8000")).toBe(true);
 		expect(isSecureTokenTransport("http://127.0.0.1:8000")).toBe(true);
 		expect(isSecureTokenTransport("http://192.168.1.50:8000")).toBe(false);
-		expect(isSecureTokenTransport("http://100.67.206.76:8000")).toBe(false);
+		expect(isSecureTokenTransport("http://192.0.2.10:8000")).toBe(false);
 	});
 
 	it("returns a user-facing error for insecure token transport", () => {
-		expect(tokenTransportError("http://100.67.206.76:8000")).toMatch(/HTTPS/);
+		expect(tokenTransportError("http://192.0.2.10:8000")).toMatch(/HTTPS/);
 		expect(tokenTransportError("https://honcho.example.com")).toBeNull();
 	});
 });
