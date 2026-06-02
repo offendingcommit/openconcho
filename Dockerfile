@@ -37,9 +37,10 @@ COPY --chown=101:101 docker/nginx.conf.template /etc/nginx/templates/default.con
 # --chmod=0755 so nginx's docker-entrypoint.d actually executes it.
 COPY --chown=101:101 --chmod=0755 docker/40-openconcho-config.sh /docker-entrypoint.d/40-openconcho-config.sh
 
-# Defaults target the Honcho service in a typical Compose stack; override per deploy.
-ENV HONCHO_UPSTREAM=http://api:8000 \
-    OPENCONCHO_DEFAULT_HONCHO_URL=same-origin
+# Empty default → clean first run (configure the instance in Settings). Override per
+# deploy to seed the first instance; the browser routes via /api with an
+# X-Honcho-Upstream header. Optional OPENCONCHO_UPSTREAM_ALLOWLIST guards the proxy.
+ENV OPENCONCHO_DEFAULT_HONCHO_URL=""
 
 EXPOSE 8080
 
