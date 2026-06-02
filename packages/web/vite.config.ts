@@ -18,6 +18,19 @@ const { version } = JSON.parse(
 // so req.url is already the upstream path (e.g. /v3/workspaces/list).
 function honchoApiProxy(): Plugin {
 	const HEADER = "x-honcho-upstream";
+	// Mirror nginx's allowlist (spec §D): unset/empty => open; otherwise only
+	// matching upstream hosts forward. Glob `*` -> any non-slash run, like nginx.
+	const raw = process.env.OPENCONCHO_UPSTREAM_ALLOWLIST?.trim();
+	const allowlist: RegExp[] | null = raw
+		? raw
+				.split(",")
+				.map((h) => h.trim())
+				.filter(Boolean)
+				.map((host) => {
+					const esc = host.replace(/[.]/g, "\\.").replace(/[*]/g, "[^/]*");
+					return new RegExp(`^https?://${esc}(:[0-9]+)?(/.*)?$`);
+				})
+		: null;
 	return {
 		name: "honcho-api-proxy",
 		configureServer(server) {
@@ -26,6 +39,12 @@ function honchoApiProxy(): Plugin {
 				if (typeof upstream !== "string" || upstream.trim() === "") {
 					res.statusCode = 421;
 					res.setHeader("X-Honcho-Proxy-Reject", "no-upstream");
+					res.end();
+					return;
+				}
+				if (allowlist && !allowlist.some((re) => re.test(upstream))) {
+					res.statusCode = 403;
+					res.setHeader("X-Honcho-Proxy-Reject", "allowlist");
 					res.end();
 					return;
 				}
