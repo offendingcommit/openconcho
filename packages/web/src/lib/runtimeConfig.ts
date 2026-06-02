@@ -1,24 +1,17 @@
 const GLOBAL_KEY = "__OPENCONCHO_DEFAULT_HONCHO_URL__";
-const SAME_ORIGIN = "same-origin";
 
 /**
  * Runtime-injected default Honcho base URL for container deployments.
  *
- * The Docker image writes `/config.js` from the `OPENCONCHO_DEFAULT_HONCHO_URL`
- * env at container start, so one prebuilt image can target any backend without
- * a rebuild (Vite envs are baked at build time and can't do this).
+ * The Docker image writes `/config.js` from `OPENCONCHO_DEFAULT_HONCHO_URL` at
+ * container start, so one prebuilt image can target any backend without a rebuild.
+ * The web build proxies this URL via the same-origin `/api` reverse proxy (no CORS).
  *
- * - `"same-origin"` → the page's own origin (pairs with the nginx `/v3` reverse
- *   proxy, so the browser makes same-origin requests and CORS never applies)
- * - an absolute URL → that URL
- * - empty / unset → `null` (no default; the user configures in Settings)
+ * - an absolute URL → that URL (seeds the first instance)
+ * - empty / unset → null (no default; the user configures in Settings)
  */
 export function runtimeDefaultBaseUrl(): string | null {
 	const raw = (globalThis as Record<string, unknown>)[GLOBAL_KEY];
 	if (typeof raw !== "string" || raw.trim() === "") return null;
-	const value = raw.trim();
-	if (value === SAME_ORIGIN) {
-		return typeof location !== "undefined" ? location.origin : null;
-	}
-	return value;
+	return raw.trim();
 }
