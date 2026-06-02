@@ -16,6 +16,7 @@ Frontend UI for self-hosted Honcho instances — browse memories, peers, session
 | `make typecheck` | tsc --noEmit |
 | `make test` | Vitest (unit + integration), excludes `e2e/` |
 | `make test-e2e` | Playwright e2e (uncached) |
+| `make smoke-docker` | Local: build image + hermetic smoke test of the `/api` proxy (Docker required) |
 | `make check` | lint + typecheck + test |
 | `pnpm --filter @openconcho/desktop cargo-check` | Local Rust/Tauri compile check before pushing desktop changes |
 | `pnpm --filter @openconcho/web generate:api` | Regen `src/api/schema.d.ts` from `openapi.json` |

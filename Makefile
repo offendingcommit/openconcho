@@ -4,7 +4,7 @@
 
 .PHONY: bootstrap dev dev-web dev-desktop \
         build test test-e2e lint lint-fix typecheck check \
-        ci-web ci-desktop install help
+        ci-web ci-desktop smoke-docker install help
 
 help:
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS=":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -46,6 +46,9 @@ ci-web: ## CI: lint + typecheck + test + build for @openconcho/web
 
 ci-desktop: ## CI: cargo-check for @openconcho/desktop
 	pnpm ci:desktop
+
+smoke-docker: ## Local: build the image + smoke-test the /api proxy (Docker required)
+	bash docker/smoke-test.sh
 
 install: ## pnpm install (no playwright)
 	pnpm install
