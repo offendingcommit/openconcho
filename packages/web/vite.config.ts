@@ -61,8 +61,17 @@ function honchoApiProxy(): Plugin {
 						body: ["GET", "HEAD"].includes(req.method ?? "") ? undefined : Buffer.concat(chunks),
 					});
 					res.statusCode = upstreamRes.status;
+					// undici's fetch auto-decompresses the body, so the original
+					// content-encoding/length no longer describe what we re-send —
+					// drop those (and hop-by-hop headers) to avoid ERR_CONTENT_DECODING_FAILED.
+					const SKIP = new Set([
+						"content-encoding",
+						"content-length",
+						"transfer-encoding",
+						"connection",
+					]);
 					upstreamRes.headers.forEach((v, k) => {
-						res.setHeader(k, v);
+						if (!SKIP.has(k.toLowerCase())) res.setHeader(k, v);
 					});
 					res.end(Buffer.from(await upstreamRes.arrayBuffer()));
 				} catch (e) {
