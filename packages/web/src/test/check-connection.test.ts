@@ -45,3 +45,30 @@ describe("checkConnection — web proxy mode", () => {
 		expect(res.message).toMatch(/allowlist/i);
 	});
 });
+
+describe("checkConnection — timeout budget", () => {
+	// A fetch that resolves after `ms`, but rejects early if the abort signal fires —
+	// mirrors how a real slow upstream interacts with AbortSignal.timeout.
+	function delayedFetch(ms: number) {
+		return (_url: string, init: { signal?: AbortSignal }) =>
+			new Promise<Response>((resolve, reject) => {
+				const timer = setTimeout(() => resolve(new Response("{}", { status: 200 })), ms);
+				init.signal?.addEventListener("abort", () => {
+					clearTimeout(timer);
+					reject(new DOMException("The operation timed out", "TimeoutError"));
+				});
+			});
+	}
+
+	it("reports unreachable when the upstream is slower than the timeout budget", async () => {
+		httpFetchMock.mockImplementation(delayedFetch(80));
+		const res = await checkConnection("https://slow.example.net", undefined, 20);
+		expect(res.status).toBe("unreachable");
+	});
+
+	it("succeeds when a slow upstream responds within the (cold-start) budget", async () => {
+		httpFetchMock.mockImplementation(delayedFetch(20));
+		const res = await checkConnection("https://slow.example.net", undefined, 200);
+		expect(res.status).toBe("ok");
+	});
+});

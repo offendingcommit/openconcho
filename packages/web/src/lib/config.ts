@@ -7,6 +7,13 @@ const STORE_KEY = "openconcho:instances";
 
 export const HONCHO_CLOUD_URL = "https://api.honcho.dev";
 
+/**
+ * Connection-test timeout. Generous because a cold/idle self-hosted Honcho (DB
+ * pool spin-up, tunnel wake) can take several seconds on its first request — a
+ * tight 5s budget reported live-and-reachable instances as "Connection timed out".
+ */
+export const CONNECTION_TIMEOUT_MS = 15_000;
+
 function normalizeBaseUrl(url: string): string {
 	return url.trim().replace(/\/+$/, "").toLowerCase();
 }
@@ -162,6 +169,7 @@ export type HealthStatus = "ok" | "auth-required" | "unreachable" | "checking";
 export async function checkConnection(
 	baseUrl: string,
 	token?: string,
+	timeoutMs: number = CONNECTION_TIMEOUT_MS,
 ): Promise<{ status: HealthStatus; message: string }> {
 	try {
 		const { baseUrl: base, headers, fetch } = dispatchFor({ baseUrl, token });
@@ -169,7 +177,7 @@ export async function checkConnection(
 			method: "POST",
 			headers,
 			body: JSON.stringify({}),
-			signal: AbortSignal.timeout(5000),
+			signal: AbortSignal.timeout(timeoutMs),
 		});
 
 		const reject = res.headers.get(PROXY_REJECT_HEADER);
