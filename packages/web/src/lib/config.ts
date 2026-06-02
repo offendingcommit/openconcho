@@ -23,7 +23,7 @@ export function isCloudInstance(instance: Pick<Instance, "baseUrl">): boolean {
 }
 
 export const configSchema = z.object({
-	baseUrl: z.string().url({ message: "Must be a valid URL" }),
+	baseUrl: z.url({ message: "Must be a valid URL" }),
 	token: z.string().optional().default(""),
 });
 
@@ -32,7 +32,7 @@ export type Config = z.infer<typeof configSchema>;
 export const instanceSchema = z.object({
 	id: z.string().min(1),
 	name: z.string().min(1, { message: "Name is required" }),
-	baseUrl: z.string().url({ message: "Must be a valid URL" }),
+	baseUrl: z.url({ message: "Must be a valid URL" }),
 	token: z.string().optional().default(""),
 });
 
