@@ -1,7 +1,8 @@
 #!/bin/sh
 # Regenerate the SPA's runtime config from the environment at container start.
 # Lets one prebuilt image target any Honcho backend without a rebuild.
-#   OPENCONCHO_DEFAULT_HONCHO_URL — absolute URL, "same-origin", or empty.
+#   OPENCONCHO_DEFAULT_HONCHO_URL — absolute URL seeding the first instance, or empty.
+#   OPENCONCHO_UPSTREAM_ALLOWLIST — optional comma-separated host globs (SSRF guard).
 # Runs from /docker-entrypoint.d before nginx starts. Requires the html dir to
 # be writable (default); skip or bind-mount config.js when running --read-only.
 set -eu
