@@ -97,17 +97,18 @@ Two Compose modes (the published image is `ghcr.io/offendingcommit/openconcho-we
 
 ```bash
 # Dev-forward — build from this repo and run your local changes:
-OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make compose-up
+OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make up
 
 # Production — pull the latest published image instead of building:
-OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make compose-up-prod
+OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make prod
 
-make compose-down   # stop + remove
+make down    # stop + remove (dev or prod)
+make clean   # down + drop the locally built image
 # → http://localhost:8080
 ```
 
-`make compose-up` uses [`docker-compose.yml`](docker-compose.yml) (`build: .`);
-`make compose-up-prod` layers [`docker-compose.prod.yml`](docker-compose.prod.yml)
+`make up` uses [`docker-compose.yml`](docker-compose.yml) (`build: .`);
+`make prod` layers [`docker-compose.prod.yml`](docker-compose.prod.yml)
 to pull `ghcr…:latest`. `OPENCONCHO_DEFAULT_HONCHO_URL` seeds the first instance
 (absolute URL); `OPENCONCHO_UPSTREAM_ALLOWLIST` is an optional SSRF guard
 (comma-separated host globs) for when you expose the proxy. Full details and env

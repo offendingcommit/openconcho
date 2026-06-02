@@ -5,7 +5,7 @@
 .PHONY: bootstrap dev dev-web dev-desktop \
         build test test-e2e lint lint-fix typecheck check \
         ci-web ci-desktop smoke-docker \
-        compose-up compose-up-prod compose-down install help
+        up prod down clean install help
 
 help:
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS=":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -51,14 +51,17 @@ ci-desktop: ## CI: cargo-check for @openconcho/desktop
 smoke-docker: ## Local: build the image + smoke-test the /api proxy (Docker required)
 	bash docker/smoke-test.sh
 
-compose-up: ## Run the web container from source (builds; dev-forward) at :8080
+up: ## Run the web container from source (dev-forward, builds) at :8080
 	docker compose up -d --build
 
-compose-up-prod: ## Run the web container from the published image (pulls latest)
+prod: ## Run the web container from the published image (pulls ghcr latest)
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
-compose-down: ## Stop and remove the web container
+down: ## Stop + remove the web container (works for dev or prod)
 	docker compose down --remove-orphans
+
+clean: down ## down + remove the locally built image
+	-docker image rm openconcho-web:local
 
 install: ## pnpm install (no playwright)
 	pnpm install

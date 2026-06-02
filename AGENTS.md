@@ -17,9 +17,10 @@ Frontend UI for self-hosted Honcho instances — browse memories, peers, session
 | `make test` | Vitest (unit + integration), excludes `e2e/` |
 | `make test-e2e` | Playwright e2e (uncached) |
 | `make smoke-docker` | Local: build image + hermetic smoke test of the `/api` proxy (Docker required) |
-| `make compose-up` | Run the web container from source (dev-forward, builds) at :8080 |
-| `make compose-up-prod` | Run the web container from the published image (pulls `ghcr…:latest`) |
-| `make compose-down` | Stop + remove the web container |
+| `make up` | Run the web container from source (dev-forward, builds) at :8080 |
+| `make prod` | Run the web container from the published image (pulls `ghcr…:latest`) |
+| `make down` | Stop + remove the web container (dev or prod) |
+| `make clean` | `down` + remove the locally built image |
 | `make check` | lint + typecheck + test |
 | `pnpm --filter @openconcho/desktop cargo-check` | Local Rust/Tauri compile check before pushing desktop changes |
 | `pnpm --filter @openconcho/web generate:api` | Regen `src/api/schema.d.ts` from `openapi.json` |

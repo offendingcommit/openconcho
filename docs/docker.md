@@ -24,17 +24,18 @@ Two Compose files, env/ports defined once in the base:
   image** (`ghcr.io/offendingcommit/openconcho-web:latest`, `pull_policy: always`).
 
 ```bash
-make compose-up        # build from source + run        → http://localhost:8080
-make compose-up-prod   # pull ghcr…:latest instead of building
-make compose-down      # stop + remove
+make up      # build from source + run                → http://localhost:8080
+make prod    # pull ghcr…:latest instead of building
+make down    # stop + remove (dev or prod)
+make clean   # down + drop the locally built image
 ```
 
-`make compose-up-prod` expands to
+`make prod` expands to
 `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`. Set env
 inline or via a `.env` file:
 
 ```bash
-OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make compose-up-prod
+OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make prod
 ```
 
 The published image is multi-arch (amd64 + arm64); the first publish creates a

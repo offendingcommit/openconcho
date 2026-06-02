@@ -1,14 +1,15 @@
 # OpenConcho web UI — DEV-FORWARD compose (builds from THIS repo).
 #
-#   make compose-up        # build from source + run        → http://localhost:8080
-#   make compose-up-prod   # pull the published image instead (see docker-compose.prod.yml)
-#   make compose-down      # stop + remove
+#   make up      # build from source + run               → http://localhost:8080
+#   make prod    # pull the published image instead (see docker-compose.prod.yml)
+#   make down    # stop + remove (dev or prod)
+#   make clean   # down + drop the locally built image
 #
 # The SPA issues all Honcho calls same-origin to /api; nginx forwards each to the
 # URL named in the per-request X-Honcho-Upstream header (no browser CORS). Seed the
 # first instance with OPENCONCHO_DEFAULT_HONCHO_URL:
 #
-#   OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make compose-up
+#   OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make up
 #
 # To fold into an existing Honcho Compose stack, set OPENCONCHO_DEFAULT_HONCHO_URL
 # to the api service (e.g. http://api:8000 — nginx resolves it on the compose
