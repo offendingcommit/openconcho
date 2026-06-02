@@ -19,6 +19,17 @@ function normalizeUpstream(url: string): string {
 }
 
 /**
+ * Absolute same-origin base for the web proxy. Absolute (origin + `/api`), not the
+ * bare relative `/api`, so openapi-fetch and node/undici can construct a Request
+ * without an ambient document base — and so it resolves identically in the browser,
+ * behind a tunnel, and under jsdom.
+ */
+function webApiBase(): string {
+	const origin = typeof location !== "undefined" ? location.origin : "";
+	return `${origin}${API_PREFIX}`;
+}
+
+/**
  * Resolve how to issue a request for an instance.
  * - Web: same-origin `/api` + `X-Honcho-Upstream` header (proxy forwards server-side, no CORS).
  * - Tauri: the absolute instance URL via reqwest (no browser same-origin policy).
@@ -32,5 +43,5 @@ export function dispatchFor(instance: { baseUrl: string; token?: string }): Disp
 	}
 
 	headers[UPSTREAM_HEADER] = normalizeUpstream(instance.baseUrl);
-	return { baseUrl: API_PREFIX, headers, fetch: httpFetch };
+	return { baseUrl: webApiBase(), headers, fetch: httpFetch };
 }

@@ -8,10 +8,10 @@ import { API_PREFIX, dispatchFor, PROXY_REJECT_HEADER, UPSTREAM_HEADER } from "@
 afterEach(() => mockIsTauri.mockReset());
 
 describe("dispatchFor — web mode", () => {
-	it("targets the /api prefix and carries the upstream header", () => {
+	it("targets the absolute same-origin /api base and carries the upstream header", () => {
 		mockIsTauri.mockReturnValue(false);
 		const d = dispatchFor({ baseUrl: "https://honcho.example.net/", token: "" });
-		expect(d.baseUrl).toBe(API_PREFIX);
+		expect(d.baseUrl).toBe(`${location.origin}${API_PREFIX}`);
 		expect(d.headers[UPSTREAM_HEADER]).toBe("https://honcho.example.net");
 		expect(d.headers.Authorization).toBeUndefined();
 	});
