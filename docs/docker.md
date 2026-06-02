@@ -15,24 +15,26 @@ applies**; the nginx→Honcho hop is server-side, where CORS is irrelevant. The
 frontend stays the source of truth for which instance to talk to, so the
 multi-instance switcher and the Fleet view keep working.
 
-## Compose: dev-forward vs prod
+## Compose: dev vs prod profiles
 
-Two Compose files, env/ports defined once in the base:
+One [`docker-compose.yml`](../docker-compose.yml) with two profiles; the shared
+config (env, ports, extra_hosts) is defined once via a YAML anchor:
 
-- **`docker-compose.yml`** — dev-forward: `build: .`, so it runs **your local source**.
-- **`docker-compose.prod.yml`** — override that swaps the build for the **published
-  image** (`ghcr.io/offendingcommit/openconcho-web:latest`, `pull_policy: always`).
+- **`dev` profile** — `build: .`, runs **your local source** (`make up`).
+- **`prod` profile** — pulls the **published image**
+  (`ghcr.io/offendingcommit/openconcho-web:latest`, `pull_policy: always`) (`make prod`).
 
 ```bash
 make up      # build from source + run                → http://localhost:8080
 make prod    # pull ghcr…:latest instead of building
-make down    # stop + remove (dev or prod)
+make down    # stop + remove (either profile)
 make clean   # down + drop the locally built image
 ```
 
-`make prod` expands to
-`docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`. Set env
-inline or via a `.env` file:
+`make up` expands to `docker compose --profile dev up -d --build` and `make prod`
+to `docker compose --profile prod up -d`. A bare `docker compose up` (no profile)
+starts nothing — use the make targets or pass `--profile`. Set env inline or via a
+`.env` file:
 
 ```bash
 OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make prod

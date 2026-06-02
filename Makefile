@@ -51,14 +51,14 @@ ci-desktop: ## CI: cargo-check for @openconcho/desktop
 smoke-docker: ## Local: build the image + smoke-test the /api proxy (Docker required)
 	bash docker/smoke-test.sh
 
-up: ## Run the web container from source (dev-forward, builds) at :8080
-	docker compose up -d --build
+up: ## Run the web container from source (dev profile, builds) at :8080
+	docker compose --profile dev up -d --build
 
-prod: ## Run the web container from the published image (pulls ghcr latest)
-	docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+prod: ## Run the web container from the published image (prod profile, pulls latest)
+	docker compose --profile prod up -d
 
-down: ## Stop + remove the web container (works for dev or prod)
-	docker compose down --remove-orphans
+down: ## Stop + remove the web container (either profile)
+	docker compose --profile dev --profile prod down --remove-orphans
 
 clean: down ## down + remove the locally built image
 	-docker image rm openconcho-web:local

@@ -107,9 +107,9 @@ make clean   # down + drop the locally built image
 # → http://localhost:8080
 ```
 
-`make up` uses [`docker-compose.yml`](docker-compose.yml) (`build: .`);
-`make prod` layers [`docker-compose.prod.yml`](docker-compose.prod.yml)
-to pull `ghcr…:latest`. `OPENCONCHO_DEFAULT_HONCHO_URL` seeds the first instance
+Both modes live in one [`docker-compose.yml`](docker-compose.yml) as Compose
+profiles: `make up` runs the `dev` profile (`build: .`), `make prod` runs the
+`prod` profile (pulls `ghcr…:latest`). `OPENCONCHO_DEFAULT_HONCHO_URL` seeds the first instance
 (absolute URL); `OPENCONCHO_UPSTREAM_ALLOWLIST` is an optional SSRF guard
 (comma-separated host globs) for when you expose the proxy. Full details and env
 vars are in [`docs/docker.md`](docs/docker.md).
