@@ -1,6 +1,6 @@
-# OpenConcho — nginx site config (envsubst template).
-# The nginx image renders ${HONCHO_UPSTREAM} from the environment at start.
-# Serves the React SPA and reverse-proxies the Honcho API under the same origin.
+# OpenConcho — nginx site config.
+# Serves the React SPA and header-driven same-origin /api proxy to Honcho.
+# The browser sends X-Honcho-Upstream per request; nginx forwards server-side (no browser CORS).
 
 server {
     listen       8080;
@@ -12,23 +12,28 @@ server {
     # Don't leak the nginx version.
     server_tokens off;
 
-    # Same-origin reverse proxy to Honcho so the browser never sees a
-    # cross-origin request (no CORS). The variable + Docker resolver let nginx
-    # start even when the upstream isn't resolvable yet, re-resolving per request.
-    resolver 127.0.0.11 ipv6=off valid=10s;
-    set $honcho_upstream "${HONCHO_UPSTREAM}";
+    # The resolver (required for per-request DNS with a runtime-variable proxy_pass)
+    # is rendered by the entrypoint into conf.d from the container's own DNS, so it
+    # works on both user-defined networks (127.0.0.11) and the default bridge.
 
-    # `^~` so these win over the static-asset regex below.
-    location ^~ /v3/ {
-        proxy_pass         $honcho_upstream$request_uri;
-        proxy_set_header   Host $host;
-        proxy_set_header   X-Real-IP $remote_addr;
-        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header   X-Forwarded-Proto $scheme;
-    }
-    location = /health {
-        proxy_pass         $honcho_upstream/health;
-        proxy_set_header   Host $host;
+    # Header-driven same-origin proxy: the browser names the Honcho upstream per
+    # request via X-Honcho-Upstream, so the browser never makes a cross-origin call.
+    # $allow_upstream is provided by the allowlist map in conf.d (entrypoint-rendered).
+    location ^~ /api/ {
+        set $upstream $http_x_honcho_upstream;
+        if ($upstream = "") {
+            add_header X-Honcho-Proxy-Reject "no-upstream" always;
+            return 421;
+        }
+        if ($allow_upstream = 0) {
+            add_header X-Honcho-Proxy-Reject "allowlist" always;
+            return 403;
+        }
+        rewrite ^/api/(.*)$ /$1 break;
+        proxy_pass               $upstream;
+        proxy_ssl_server_name    on;
+        proxy_set_header Host    $proxy_host;
+        proxy_set_header X-Honcho-Upstream "";
     }
 
     # Runtime config — regenerated per container start, must never be cached.

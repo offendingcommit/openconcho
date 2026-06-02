@@ -1,11 +1,18 @@
 import { z } from "zod";
-import { httpFetch } from "@/lib/http";
+import { dispatchFor, PROXY_REJECT_HEADER } from "@/lib/dispatch";
 import { runtimeDefaultBaseUrl } from "@/lib/runtimeConfig";
 
 const LEGACY_KEY = "openconcho:config";
 const STORE_KEY = "openconcho:instances";
 
 export const HONCHO_CLOUD_URL = "https://api.honcho.dev";
+
+/**
+ * Connection-test timeout. Generous because a cold/idle self-hosted Honcho (DB
+ * pool spin-up, tunnel wake) can take several seconds on its first request — a
+ * tight 5s budget reported live-and-reachable instances as "Connection timed out".
+ */
+export const CONNECTION_TIMEOUT_MS = 15_000;
 
 function normalizeBaseUrl(url: string): string {
 	return url.trim().replace(/\/+$/, "").toLowerCase();
@@ -16,7 +23,7 @@ export function isCloudInstance(instance: Pick<Instance, "baseUrl">): boolean {
 }
 
 export const configSchema = z.object({
-	baseUrl: z.string().url({ message: "Must be a valid URL" }),
+	baseUrl: z.url({ message: "Must be a valid URL" }),
 	token: z.string().optional().default(""),
 });
 
@@ -25,7 +32,7 @@ export type Config = z.infer<typeof configSchema>;
 export const instanceSchema = z.object({
 	id: z.string().min(1),
 	name: z.string().min(1, { message: "Name is required" }),
-	baseUrl: z.string().url({ message: "Must be a valid URL" }),
+	baseUrl: z.url({ message: "Must be a valid URL" }),
 	token: z.string().optional().default(""),
 });
 
@@ -162,21 +169,21 @@ export type HealthStatus = "ok" | "auth-required" | "unreachable" | "checking";
 export async function checkConnection(
 	baseUrl: string,
 	token?: string,
-): Promise<{
-	status: HealthStatus;
-	message: string;
-}> {
+	timeoutMs: number = CONNECTION_TIMEOUT_MS,
+): Promise<{ status: HealthStatus; message: string }> {
 	try {
-		const headers: Record<string, string> = { "Content-Type": "application/json" };
-		if (token) headers.Authorization = `Bearer ${token}`;
-
-		const res = await httpFetch(`${baseUrl}/v3/workspaces/list`, {
+		const { baseUrl: base, headers, fetch } = dispatchFor({ baseUrl, token });
+		const res = await fetch(`${base}/v3/workspaces/list`, {
 			method: "POST",
 			headers,
 			body: JSON.stringify({}),
-			signal: AbortSignal.timeout(5000),
+			signal: AbortSignal.timeout(timeoutMs),
 		});
 
+		const reject = res.headers.get(PROXY_REJECT_HEADER);
+		if (reject) {
+			return { status: "unreachable", message: `Proxy refused upstream (${reject})` };
+		}
 		if (res.ok) return { status: "ok", message: "Connected successfully" };
 		if (res.status === 401 || res.status === 403) {
 			return { status: "auth-required", message: "Authentication required — provide an API token" };

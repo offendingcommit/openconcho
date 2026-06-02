@@ -103,23 +103,25 @@ describe("scoped option builders", () => {
 		(httpFetch as ReturnType<typeof vi.fn>).mockClear();
 	});
 
-	it("scopes queue status requests by instance baseUrl and token", async () => {
+	it("scopes queue status requests via the same-origin proxy, upstream header, and token", async () => {
 		const { httpFetch } = await import("@/lib/http");
 		const opts = scopedQueueStatusOptions(neo, "ws-1");
 		await opts.queryFn();
 		const req = (httpFetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as Request;
-		expect(req.url).toBe("http://localhost:8001/v3/workspaces/ws-1/queue/status");
+		expect(req.url).toBe(`${location.origin}/api/v3/workspaces/ws-1/queue/status`);
+		expect(req.headers.get("X-Honcho-Upstream")).toBe("http://localhost:8001");
 		expect(req.headers.get("Authorization")).toBe("Bearer neo-token");
 	});
 
-	it("scopes conclusions-count requests by instance baseUrl and token", async () => {
+	it("scopes conclusions-count requests via the same-origin proxy, upstream header, and token", async () => {
 		const { httpFetch } = await import("@/lib/http");
 		const opts = scopedConclusionsCountOptions(iris, "ws-9");
 		await opts.queryFn();
 		const req = (httpFetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as Request;
-		expect(req.url.startsWith("http://localhost:8002/v3/workspaces/ws-9/conclusions/list")).toBe(
+		expect(req.url.startsWith(`${location.origin}/api/v3/workspaces/ws-9/conclusions/list`)).toBe(
 			true,
 		);
+		expect(req.headers.get("X-Honcho-Upstream")).toBe("http://localhost:8002");
 		expect(req.headers.get("Authorization")).toBe("Bearer iris-token");
 	});
 
