@@ -12,8 +12,9 @@ server {
     # Don't leak the nginx version.
     server_tokens off;
 
-    # Resolver required for per-request DNS when proxy_pass targets a runtime variable.
-    resolver 127.0.0.11 ipv6=off valid=10s;
+    # The resolver (required for per-request DNS with a runtime-variable proxy_pass)
+    # is rendered by the entrypoint into conf.d from the container's own DNS, so it
+    # works on both user-defined networks (127.0.0.11) and the default bridge.
 
     # Header-driven same-origin proxy: the browser names the Honcho upstream per
     # request via X-Honcho-Upstream, so the browser never makes a cross-origin call.
