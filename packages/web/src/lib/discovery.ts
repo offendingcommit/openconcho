@@ -1,12 +1,11 @@
 import { httpFetch } from "@/lib/http";
+import { isTauri } from "@/lib/platform";
+
+export { isTauri } from "@/lib/platform";
 
 export interface DiscoveredInstance {
 	port: number;
 	base_url: string;
-}
-
-export function isTauri(): boolean {
-	return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
 /**
