@@ -15,7 +15,6 @@ import {
 	MessageSquare,
 	Moon,
 	MoonStar,
-	Network,
 	Settings,
 	Sun,
 	Users,
@@ -32,7 +31,6 @@ import { COLOR } from "@/lib/constants";
 
 const TOP_NAV = [
 	{ to: "/" as const, label: "Dashboard", icon: LayoutDashboard, exact: true },
-	{ to: "/fleet" as const, label: "Fleet", icon: Network, exact: false },
 	{ to: "/workspaces" as const, label: "Workspaces", icon: Boxes, exact: false },
 	{ to: "/seed-kits" as const, label: "Seed Kits", icon: Layers, exact: false },
 	{ to: "/settings" as const, label: "Settings", icon: Settings, exact: false },
