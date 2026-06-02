@@ -10,7 +10,7 @@
 
 The web build (`@openconcho/web`) talks to Honcho directly from the browser. When
 the configured instance URL is a different origin than the page (e.g. a self-hosted
-Honcho at `https://honcho.hydra-capella.ts.net` while the UI runs on
+Honcho at `https://honcho.example.net` while the UI runs on
 `http://localhost:8080`), the browser issues a CORS preflight on the `Authorization`
 header and the request fails — Honcho ships no `CORSMiddleware`.
 
@@ -23,12 +23,12 @@ the moment a user typed an absolute URL into Settings — which is the bug that 
 
 ### Evidence gathered
 
-- Browser → `honcho.hydra-capella.ts.net` is reachable; the CORS error proves the
+- Browser → `honcho.example.net` is reachable; the CORS error proves the
   request reached Honcho and only the browser policy check failed.
 - A Docker container under Colima **also** reaches the tailnet: `docker run ...
-  curl https://honcho.hydra-capella.ts.net/health` returned **HTTP 200**, connected
-  to `100.72.133.27:443` with TLS verified. So a container-side proxy is viable on
-  this host (Colima forwards container egress through the host's tailnet routing).
+  curl https://honcho.example.net/health` returned **HTTP 200**, connected over the
+  tailnet on `:443` with TLS verified. So a container-side proxy is viable on this
+  host (Colima forwards container egress through the host's tailnet routing).
 
 ## Decisions
 
@@ -53,15 +53,15 @@ the moment a user typed an absolute URL into Settings — which is the bug that 
 ```
 WEB (docker + dev):
   browser ──same-origin──▶ /api/v3/...                (openapi-fetch base = "/api")
-    X-Honcho-Upstream: https://honcho.hydra-capella.ts.net   (from instance.baseUrl)
+    X-Honcho-Upstream: https://honcho.example.net   (from instance.baseUrl)
     Authorization: Bearer …                                  (unchanged, when set)
         │  proxy: validate header, allowlist-check, strip "/api",
         │         proxy_pass $upstream, set SNI/Host, drop routing header
         ▼
-  https://honcho.hydra-capella.ts.net/v3/...          (server-side hop — no CORS)
+  https://honcho.example.net/v3/...          (server-side hop — no CORS)
 
 TAURI:
-  webview ──reqwest──▶ https://honcho.hydra-capella.ts.net/v3/...   (unchanged)
+  webview ──reqwest──▶ https://honcho.example.net/v3/...   (unchanged)
 ```
 
 **Why a custom header is free here:** `X-Honcho-Upstream` rides a *same-origin*
@@ -156,7 +156,7 @@ the docker image (local/CI parity).
   `src/lib/runtimeConfig.ts`.
 - **Retire `HONCHO_UPSTREAM`** from compose — the upstream now comes from the header.
 - New optional `OPENCONCHO_UPSTREAM_ALLOWLIST` (comma-separated host globs, e.g.
-  `honcho.hydra-capella.ts.net,*.honcho.dev`). The entrypoint renders it into the
+  `honcho.example.net,*.honcho.dev`). The entrypoint renders it into the
   nginx `map` for `$allow_upstream`; unset ⇒ map default 1.
 
 ## Data flow (Fleet aggregation, web mode)
