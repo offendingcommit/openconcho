@@ -9,14 +9,15 @@ metadata:
     helm.sh/hook-delete-policy: before-hook-creation
 spec:
   restartPolicy: Never
+  activeDeadlineSeconds: 60
   containers:
     - name: healthz
-      image: busybox
+      image: busybox:1.36
       command:
         - sh
         - -c
         - |
-          RESPONSE=$(wget -qO- http://{{ include "openconcho.fullname" . }}:{{ .Values.service.port }}/healthz)
+          RESPONSE=$(wget -T 10 -qO- http://{{ include "openconcho.fullname" . }}:{{ .Values.service.port }}/healthz)
           if [ "$RESPONSE" != "ok" ]; then
             echo "FAIL: expected 'ok', got '$RESPONSE'"
             exit 1

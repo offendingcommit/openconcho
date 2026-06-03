@@ -9,14 +9,15 @@ metadata:
     helm.sh/hook-delete-policy: before-hook-creation
 spec:
   restartPolicy: Never
+  activeDeadlineSeconds: 60
   containers:
     - name: spa-root
-      image: busybox
+      image: busybox:1.36
       command:
         - sh
         - -c
         - |
-          if ! wget -qO /dev/null http://{{ include "openconcho.fullname" . }}:{{ .Values.service.port }}/; then
+          if ! wget -T 10 -q --spider http://{{ include "openconcho.fullname" . }}:{{ .Values.service.port }}/; then
             echo "FAIL: GET / did not return HTTP 200"
             exit 1
           fi
