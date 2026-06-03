@@ -59,6 +59,22 @@ function renderDashboard() {
 describe("Dashboard — unified server-aware view", () => {
 	afterEach(() => localStorage.clear());
 
+	it("does not loop when Date.now advances on each call (CI render-loop repro)", async () => {
+		// On CI, consecutive Date.now() calls cross millisecond boundaries, so setNow(Date.now())
+		// in the cache-event subscriber always produces a new value → React keeps re-rendering
+		// Sidebar → hits the 25-cycle "Maximum update depth exceeded" limit.
+		// This test forces that CI condition locally to catch regressions.
+		let t = 1_000_000;
+		const spy = vi.spyOn(Date, "now").mockImplementation(() => t++);
+		saveStore({ instances: [neo, iris], activeId: "neo" });
+		renderDashboard();
+		await waitFor(() => {
+			expect(screen.getByText("(Neo)")).toBeInTheDocument();
+			expect(screen.getByText("(Iris)")).toBeInTheDocument();
+		});
+		spy.mockRestore();
+	});
+
 	it("lists each server's workspaces labelled with the server name", async () => {
 		saveStore({ instances: [neo, iris], activeId: "neo" });
 		renderDashboard();
