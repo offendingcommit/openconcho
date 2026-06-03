@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router";
-import { render, screen, waitFor, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DemoProvider } from "@/context/DemoContext";
 import { MetadataProvider } from "@/context/MetadataContext";
@@ -77,10 +76,10 @@ describe("Dashboard — unified server-aware view", () => {
 
 	it("narrows to a single server when filtered", async () => {
 		saveStore({ instances: [neo, iris], activeId: "neo" });
-		const user = userEvent.setup();
 		renderDashboard();
 		await screen.findByText("(Iris)");
-		await user.selectOptions(await screen.findByLabelText("Filter by server"), "iris");
+		const select = await screen.findByLabelText("Filter by server");
+		fireEvent.change(select, { target: { value: "iris" } });
 		await waitFor(() => {
 			expect(screen.queryByText("(Neo)")).not.toBeInTheDocument();
 			expect(screen.getByText("(Iris)")).toBeInTheDocument();
