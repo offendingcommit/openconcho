@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Boxes, LayoutDashboard, Network, Settings as SettingsIcon } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
 	computeFleetAggregates,
 	DEFAULT_ROW_METRICS,
@@ -28,6 +28,12 @@ export function Dashboard() {
 	const navigate = useNavigate();
 	const [serverFilter, setServerFilter] = useState<string>(ALL_SERVERS);
 	const [metricsById, setMetricsById] = useState<Record<string, FleetRowMetrics>>({});
+
+	useEffect(() => {
+		if (serverFilter !== ALL_SERVERS && !instances.find((i) => i.id === serverFilter)) {
+			setServerFilter(ALL_SERVERS);
+		}
+	}, [instances, serverFilter]);
 
 	const onMetrics = useCallback((id: string, m: FleetRowMetrics) => {
 		setMetricsById((prev) => ({ ...prev, [id]: m }));
