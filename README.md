@@ -114,6 +114,34 @@ profiles: `make up` runs the `dev` profile (`build: .`), `make prod` runs the
 (comma-separated host globs) for when you expose the proxy. Full details and env
 vars are in [`docs/docker.md`](docs/docker.md).
 
+### Kubernetes (Helm)
+
+The chart is published as an OCI artifact to GHCR on every tagged release.
+
+```bash
+helm install openconcho oci://ghcr.io/offendingcommit/charts/openconcho \
+  --version 0.14.0 \
+  --create-namespace --namespace openconcho \
+  --set honcho.defaultUrl=https://honcho.example.com
+```
+
+Enable an Ingress and TLS:
+
+```bash
+helm install openconcho oci://ghcr.io/offendingcommit/charts/openconcho \
+  --version 0.14.0 \
+  --create-namespace --namespace openconcho \
+  --set honcho.defaultUrl=https://honcho.example.com \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx \
+  --set 'ingress.hosts[0].host=openconcho.example.com' \
+  --set 'ingress.hosts[0].paths[0].path=/' \
+  --set 'ingress.tls[0].secretName=openconcho-tls' \
+  --set 'ingress.tls[0].hosts[0]=openconcho.example.com'
+```
+
+Full chart documentation, configuration reference, and an ArgoCD Application example are in [`charts/openconcho/README.md`](charts/openconcho/README.md).
+
 ### Connecting to your instance
 
 1. Enter the base URL of your Honcho instance (e.g. `http://localhost:8000`)

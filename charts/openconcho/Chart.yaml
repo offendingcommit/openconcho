@@ -1,0 +1,16 @@
+apiVersion: v2
+name: openconcho
+description: Self-hosted UI for Honcho — browse memories, peers, sessions, conclusions, and chat with memory context.
+type: application
+version: 0.14.0
+appVersion: "0.14.0"
+keywords:
+  - honcho
+  - memory
+  - ai
+home: https://github.com/offendingcommit/openconcho
+sources:
+  - https://github.com/offendingcommit/openconcho
+maintainers:
+  - name: offendingcommit
+    url: https://github.com/offendingcommit

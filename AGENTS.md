@@ -38,6 +38,7 @@ Frontend UI for self-hosted Honcho instances — browse memories, peers, session
 | `packages/web/src/test/` | Vitest unit/integration tests + setup |
 | `packages/web/e2e/` | Playwright e2e specs |
 | `packages/desktop/` | Tauri shell that bundles the built web app |
+| `charts/openconcho/` | Helm 3 chart for self-hosting on Kubernetes (OCI artifact on GHCR) |
 | `.claude/rules/` | Coding conventions (auto-loaded; stack-agnostic, applies to all agents) |
 | `docs/` | Architecture and references |
 
