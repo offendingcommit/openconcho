@@ -1,12 +1,11 @@
-import { httpFetch } from "@/lib/http";
+import { dispatchFor } from "@/lib/dispatch";
+import { isTauri } from "@/lib/platform";
+
+export { isTauri } from "@/lib/platform";
 
 export interface DiscoveredInstance {
 	port: number;
 	base_url: string;
-}
-
-export function isTauri(): boolean {
-	return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
 /**
@@ -38,9 +37,10 @@ export function deriveNameFromWorkspaceId(workspaceId: string): string {
  */
 export async function suggestNameForInstance(baseUrl: string): Promise<string | null> {
 	try {
-		const res = await httpFetch(`${baseUrl}/v3/workspaces/list?page=1&page_size=1`, {
+		const { baseUrl: base, headers, fetch } = dispatchFor({ baseUrl });
+		const res = await fetch(`${base}/v3/workspaces/list?page=1&page_size=1`, {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers,
 			body: JSON.stringify({}),
 			signal: AbortSignal.timeout(2000),
 		});

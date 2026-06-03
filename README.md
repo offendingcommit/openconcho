@@ -89,20 +89,58 @@ pnpm --filter @openconcho/desktop dev
 
 ### Docker (web app)
 
-Run the web UI in a container — handy for adding it to a self-hosted Honcho
-Compose stack. The image serves the SPA and reverse-proxies the Honcho API under
-its own origin, so the browser makes same-origin requests (no CORS to configure).
+The container serves the SPA and reverse-proxies the Honcho API under its own
+origin: the browser calls `/api` same-origin and names the upstream in an
+`X-Honcho-Upstream` header, so there's no browser CORS to configure.
+
+Two Compose modes (the published image is `ghcr.io/offendingcommit/openconcho-web`):
 
 ```bash
-docker run --rm -p 8080:8080 \
-  -e HONCHO_UPSTREAM=http://host.docker.internal:8000 \
-  ghcr.io/offendingcommit/openconcho-web:latest
+# Dev-forward — build from this repo and run your local changes:
+OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make up
+
+# Production — pull the latest published image instead of building:
+OPENCONCHO_DEFAULT_HONCHO_URL=https://honcho.example.net make prod
+
+make down    # stop + remove (dev or prod)
+make clean   # down + drop the locally built image
 # → http://localhost:8080
 ```
 
-To drop it into a Honcho Compose stack, use the `openconcho` service in
-[`docker-compose.yml`](docker-compose.yml). Full details, env vars, and the CORS
-options are in [`docs/docker.md`](docs/docker.md).
+Both modes live in one [`docker-compose.yml`](docker-compose.yml) as Compose
+profiles: `make up` runs the `dev` profile (`build: .`), `make prod` runs the
+`prod` profile (pulls `ghcr…:latest`). `OPENCONCHO_DEFAULT_HONCHO_URL` seeds the first instance
+(absolute URL); `OPENCONCHO_UPSTREAM_ALLOWLIST` is an optional SSRF guard
+(comma-separated host globs) for when you expose the proxy. Full details and env
+vars are in [`docs/docker.md`](docs/docker.md).
+
+### Kubernetes (Helm)
+
+The chart is published as an OCI artifact to GHCR on every tagged release.
+
+```bash
+helm install openconcho oci://ghcr.io/offendingcommit/charts/openconcho \
+  --version 0.14.0 \
+  --create-namespace --namespace openconcho \
+  --set honcho.defaultUrl=https://honcho.example.com
+```
+
+Enable an Ingress and TLS:
+
+```bash
+helm install openconcho oci://ghcr.io/offendingcommit/charts/openconcho \
+  --version 0.14.0 \
+  --create-namespace --namespace openconcho \
+  --set honcho.defaultUrl=https://honcho.example.com \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx \
+  --set 'ingress.hosts[0].host=openconcho.example.com' \
+  --set 'ingress.hosts[0].paths[0].path=/' \
+  --set 'ingress.tls[0].secretName=openconcho-tls' \
+  --set 'ingress.tls[0].hosts[0]=openconcho.example.com'
+```
+
+Full chart documentation, configuration reference, and an ArgoCD Application example are in [`charts/openconcho/README.md`](charts/openconcho/README.md).
 
 ### Connecting to your instance
 

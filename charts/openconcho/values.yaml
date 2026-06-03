@@ -1,0 +1,178 @@
+# Number of pod replicas. Increase for high availability or use autoscaling instead.
+replicaCount: 1
+
+image:
+  # Container image repository. Override to use a custom registry or fork.
+  repository: ghcr.io/offendingcommit/openconcho-web
+  # Image tag. Defaults to the chart appVersion when left empty.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+# Secrets for pulling images from private registries.
+# Example: [{ name: my-registry-secret }]
+imagePullSecrets: []
+
+# Override the name portion used in resource names and labels.
+nameOverride: ""
+# Override the full resource name (normally release-name + chart-name).
+fullnameOverride: ""
+
+serviceAccount:
+  # Create a dedicated ServiceAccount for the pod.
+  create: true
+  # Disable automatic ServiceAccount token mounting — the app never calls the Kubernetes API.
+  automount: false
+  # Annotations to add to the ServiceAccount (e.g. for IRSA, Workload Identity, Vault).
+  annotations: {}
+  # Use a pre-existing ServiceAccount instead of creating one. Ignored when create is true.
+  name: ""
+
+# Annotations applied to every pod (not the Deployment). Useful for Prometheus scraping,
+# Vault agent injection, Datadog unified service tagging, etc.
+podAnnotations: {}
+# Extra labels applied to every pod.
+podLabels: {}
+
+# Pod-level security context shared by all containers.
+# UID/GID 101 matches the nginx-unprivileged base image — do not change without rebuilding.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 101
+  runAsGroup: 101
+  fsGroup: 101
+  seccompProfile:
+    type: RuntimeDefault
+
+# Container-level security context.
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+# Directories mounted as ephemeral tmpfs (in-memory) to satisfy nginx's write requirements
+# when the root filesystem is read-only. Add entries for any additional writable paths.
+tmpfsMounts:
+  - mountPath: /var/cache/nginx
+  - mountPath: /var/run
+  - mountPath: /tmp
+
+service:
+  # Kubernetes Service type. Options: ClusterIP | NodePort | LoadBalancer
+  type: ClusterIP
+  # Port exposed by the Service (what the Ingress or other pods target).
+  port: 80
+  # Port the container actually listens on (nginx-unprivileged default).
+  containerPort: 8080
+
+ingress:
+  enabled: false
+  # IngressClass name. Leave empty to accept the cluster default.
+  # Examples: nginx | traefik | alb | kong
+  className: ""
+  # Annotations forwarded verbatim to the Ingress resource.
+  # Example (cert-manager + nginx-ingress):
+  #   kubernetes.io/ingress.class: nginx
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+  annotations: {}
+  hosts:
+    - host: openconcho.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  # TLS configuration. Provide a Secret containing the certificate.
+  # Example:
+  #   - secretName: openconcho-tls
+  #     hosts:
+  #       - openconcho.example.com
+  tls: []
+
+honcho:
+  # Default Honcho instance URL pre-populated in the UI on first load.
+  # Users can change or add instances at runtime; this only seeds the initial value.
+  # Example: https://honcho.example.com
+  defaultUrl: ""
+  # Optional SSRF guard: comma-separated host globs the nginx proxy is allowed to forward to.
+  # Leave empty to allow any upstream. Applies only when the proxy is publicly reachable.
+  # Example: honcho.example.com,*.internal.example.com
+  upstreamAllowlist: ""
+
+# CPU and memory requests / limits for the web container.
+# The SPA is static HTML/JS, so memory is the primary concern and CPU is negligible at rest.
+resources:
+  requests:
+    cpu: 50m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  # Scale up when average CPU utilization across pods exceeds this percentage.
+  targetCPUUtilizationPercentage: 80
+
+podDisruptionBudget:
+  enabled: false
+  # Minimum number of pods that must remain available during voluntary disruptions
+  # (node drains, rolling upgrades). Set maxUnavailable instead to flip the direction.
+  minAvailable: 1
+  # Uncomment to use maxUnavailable instead — cannot set both simultaneously.
+  # maxUnavailable: 1
+
+# Restrict pod-to-pod traffic at the network layer. When enabled, only pods in the
+# same namespace may reach the web container.
+# WARNING: if ingress is also enabled, you must add a policy that allows traffic from
+# the ingress-controller namespace — run `helm status <release>` to see the reminder.
+networkPolicy:
+  enabled: false
+
+# Spread pods across failure domains (availability zones, nodes, etc.) to reduce
+# the blast radius of a single-node or single-zone failure.
+# Example (zone spread):
+#   - maxSkew: 1
+#     topologyKey: topology.kubernetes.io/zone
+#     whenUnsatisfiable: DoNotSchedule
+#     labelSelector:
+#       matchLabels:
+#         app.kubernetes.io/name: openconcho
+topologySpreadConstraints: []
+
+# Constrain pods to nodes whose labels match these key/value pairs.
+# Example: kubernetes.io/arch: amd64
+nodeSelector: {}
+
+# Allow pods to be scheduled on tainted nodes.
+# Example:
+#   - key: dedicated
+#     operator: Equal
+#     value: web
+#     effect: NoSchedule
+tolerations: []
+
+# Advanced pod affinity / anti-affinity rules.
+# Example (soft anti-affinity — prefer spreading across different nodes):
+#   podAntiAffinity:
+#     preferredDuringSchedulingIgnoredDuringExecution:
+#       - weight: 100
+#         podAffinityTerm:
+#           labelSelector:
+#             matchLabels:
+#               app.kubernetes.io/name: openconcho
+#           topologyKey: kubernetes.io/hostname
+affinity: {}

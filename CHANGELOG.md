@@ -1,3 +1,47 @@
+# [0.15.0](https://github.com/offendingcommit/openconcho/compare/v0.14.0...v0.15.0) (2026-06-03)
+
+
+### Bug Fixes
+
+* **helm:** guard tmpfs blocks when empty, cap volume names at 63 chars ([d5a65d7](https://github.com/offendingcommit/openconcho/commit/d5a65d73b59378f5ce39bf76e0572da478cecbda))
+* **helm:** pdb mutual exclusion, ingress null rules guard, hpa nil utilization guard ([b4939bd](https://github.com/offendingcommit/openconcho/commit/b4939bd57f2dba5ebca9efcd42901457512e70e4))
+* **helm:** pin busybox:1.36, add -T 10 timeout, use --spider, add activeDeadlineSeconds ([8fac5d0](https://github.com/offendingcommit/openconcho/commit/8fac5d060f45b68141917efad4afe499ca2fda56))
+* **helm:** use http://json-schema.org/draft-07/schema# for Helm compatibility ([8d41455](https://github.com/offendingcommit/openconcho/commit/8d41455e39db51617d7476e5cc48577eb7fff158))
+
+
+### Features
+
+* **helm:** add _helpers.tpl with name, label, and imageTag partials ([0268275](https://github.com/offendingcommit/openconcho/commit/02682750ab766851570eae58eb0b92761b98724f))
+* **helm:** add Deployment template with read-only FS, tmpfs, probes ([514e1d4](https://github.com/offendingcommit/openconcho/commit/514e1d46c0248bfae5da1f2ceb12ca8799a81468))
+* **helm:** add NOTES.txt with access instructions and NetworkPolicy/Ingress warning ([ce211df](https://github.com/offendingcommit/openconcho/commit/ce211df48cc59dfe933eb7a1b1415591b0e9f7fa))
+* **helm:** add optional HPA, PDB, and NetworkPolicy templates ([b0b648b](https://github.com/offendingcommit/openconcho/commit/b0b648bdcf64732c0a713bd8e45077c5f1b39ba6))
+* **helm:** add optional Ingress template ([9aa106c](https://github.com/offendingcommit/openconcho/commit/9aa106cede7d5719ee2cbc48c1c677491deea568))
+* **helm:** add Service and ServiceAccount templates ([ee916ea](https://github.com/offendingcommit/openconcho/commit/ee916eabc485f37cdc56ffbdd8d9004f33f3a7b7))
+* **helm:** add test-healthz and test-spa-root helm test jobs ([ee4630e](https://github.com/offendingcommit/openconcho/commit/ee4630e79ca588ee0f9cb167ac0f58ae4b8223cc))
+* **helm:** chart scaffold — Chart.yaml, values, schema ([4112270](https://github.com/offendingcommit/openconcho/commit/411227046a3dee125a555a0d1a426afed0e74ec3))
+
+# [0.14.0](https://github.com/offendingcommit/openconcho/compare/v0.13.1...v0.14.0) (2026-06-02)
+
+
+### Bug Fixes
+
+* **docker:** derive nginx resolver from container DNS ([66b299a](https://github.com/offendingcommit/openconcho/commit/66b299a28e912bc2f8c2922b40292696c4f7d81a))
+* **docker:** drop dead HONCHO_UPSTREAM and same-origin default ([a2854ab](https://github.com/offendingcommit/openconcho/commit/a2854ab8ea0a9eec2a06838fb394a0264f7dd80d))
+* **web:** enforce upstream allowlist in vite dev proxy ([b4fac95](https://github.com/offendingcommit/openconcho/commit/b4fac95f37da3985dbc4fbf64d04dd509ec86c2c))
+* **web:** raise connection-test timeout for cold upstreams ([409d7d8](https://github.com/offendingcommit/openconcho/commit/409d7d8be7f5cc94421dce32a54105ea48bfd44b))
+* **web:** strip content-encoding from vite dev proxy responses ([6b602c0](https://github.com/offendingcommit/openconcho/commit/6b602c05bb81721dfc102b3f97112b2cf58d4d60))
+
+
+### Features
+
+* **docker:** header-driven /api reverse proxy in nginx ([753c978](https://github.com/offendingcommit/openconcho/commit/753c978f56dab61d0c15b25b56ecf438cdc5ae88))
+* **docker:** render SSRF allowlist map from env ([0af1ad9](https://github.com/offendingcommit/openconcho/commit/0af1ad923cd2aa61a201d65ce4f19acb13858790))
+* **docker:** split compose into dev-forward build and prod pull ([c9bd2db](https://github.com/offendingcommit/openconcho/commit/c9bd2db07d84e0eedffeadcc6f2bc15c628eb251))
+* **web:** add dispatchFor transport helper for same-origin proxy ([9945e4c](https://github.com/offendingcommit/openconcho/commit/9945e4cf148aec6fc47bb853e8661c339c52ff32))
+* **web:** dev /api proxy middleware mirroring nginx ([ab8a1ba](https://github.com/offendingcommit/openconcho/commit/ab8a1ba866728ff972544c1d912fed59ba03a4a7))
+* **web:** route checkConnection and discovery through the proxy ([9893230](https://github.com/offendingcommit/openconcho/commit/9893230cde3d11ce73350bd12fffae236ee9adff))
+* **web:** route web build through same-origin /api proxy ([0935099](https://github.com/offendingcommit/openconcho/commit/0935099bc28468a21183f5f03105645f4ac8aa8a))
+
 ## [0.13.1](https://github.com/offendingcommit/openconcho/compare/v0.13.0...v0.13.1) (2026-05-29)
 
 

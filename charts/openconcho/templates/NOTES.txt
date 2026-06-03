@@ -1,0 +1,40 @@
+OpenConcho {{ .Chart.AppVersion }} deployed to namespace {{ .Release.Namespace }}.
+
+{{- if .Values.ingress.enabled }}
+Access:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else if eq .Values.service.type "NodePort" }}
+Access (NodePort):
+  export NODE_PORT=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "openconcho.fullname" . }} -o jsonpath="{.spec.ports[0].nodePort}")
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo "http://$NODE_IP:$NODE_PORT"
+{{- else if eq .Values.service.type "LoadBalancer" }}
+Access (LoadBalancer — IP may take a few minutes):
+  export LB_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "openconcho.fullname" . }} --template '{{ "{{" }}range (index .status.loadBalancer.ingress 0){{ "}}" }}{{ "{{" }}.{{ "}}" }}{{ "{{" }}end{{ "}}" }}')
+  echo "http://$LB_IP:{{ .Values.service.port }}"
+{{- else }}
+Access (port-forward):
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "openconcho.fullname" . }} 8080:{{ .Values.service.port }}
+  Then open http://localhost:8080
+{{- end }}
+
+Run Helm tests to verify the deployment:
+  helm test {{ .Release.Name }}
+
+{{- if and .Values.networkPolicy.enabled .Values.ingress.enabled }}
+
+WARNING: NetworkPolicy + Ingress are both enabled.
+The default NetworkPolicy allows port {{ .Values.service.containerPort }} only from pods within
+namespace {{ .Release.Namespace }}. Ingress controllers typically run in a separate
+namespace (ingress-nginx, kube-system, etc.) and will be blocked.
+To allow ingress-controller traffic, add a namespaceSelector rule:
+
+  kubectl edit networkpolicy --namespace {{ .Release.Namespace }} {{ include "openconcho.fullname" . }}
+
+  # Under spec.ingress[0].from, add:
+  - namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: <ingress-controller-namespace>
+{{- end }}
