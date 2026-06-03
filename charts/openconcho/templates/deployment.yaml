@@ -51,17 +51,21 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.tmpfsMounts }}
           volumeMounts:
             {{- range .Values.tmpfsMounts }}
-            - name: {{ .mountPath | trimPrefix "/" | replace "/" "-" }}
+            - name: {{ .mountPath | trimPrefix "/" | replace "/" "-" | trunc 63 | trimSuffix "-" }}
               mountPath: {{ .mountPath }}
             {{- end }}
+          {{- end }}
+      {{- if .Values.tmpfsMounts }}
       volumes:
         {{- range .Values.tmpfsMounts }}
-        - name: {{ .mountPath | trimPrefix "/" | replace "/" "-" }}
+        - name: {{ .mountPath | trimPrefix "/" | replace "/" "-" | trunc 63 | trimSuffix "-" }}
           emptyDir:
             medium: Memory
         {{- end }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
