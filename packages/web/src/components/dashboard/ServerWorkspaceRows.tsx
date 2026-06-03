@@ -80,8 +80,6 @@ export function ServerWorkspaceRows({ instance, onOpenWorkspace, onMetrics }: Pr
 		: workspacesQ.isSuccess
 			? "ok"
 			: "loading";
-	const lastSeen = workspacesQ.dataUpdatedAt > 0 ? workspacesQ.dataUpdatedAt : null;
-
 	const metrics: FleetRowMetrics = useMemo(
 		() => ({
 			workspaceCount: totalWorkspaces,
