@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "openconcho.fullname" . }}-test-spa-root"
+  labels:
+    {{- include "openconcho.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  restartPolicy: Never
+  containers:
+    - name: spa-root
+      image: busybox
+      command:
+        - sh
+        - -c
+        - |
+          if ! wget -qO /dev/null http://{{ include "openconcho.fullname" . }}:{{ .Values.service.port }}/; then
+            echo "FAIL: GET / did not return HTTP 200"
+            exit 1
+          fi
+          echo "PASS: / returned HTTP 200"

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "openconcho.fullname" . }}-test-healthz"
+  labels:
+    {{- include "openconcho.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  restartPolicy: Never
+  containers:
+    - name: healthz
+      image: busybox
+      command:
+        - sh
+        - -c
+        - |
+          RESPONSE=$(wget -qO- http://{{ include "openconcho.fullname" . }}:{{ .Values.service.port }}/healthz)
+          if [ "$RESPONSE" != "ok" ]; then
+            echo "FAIL: expected 'ok', got '$RESPONSE'"
+            exit 1
+          fi
+          echo "PASS: /healthz returned 'ok'"
