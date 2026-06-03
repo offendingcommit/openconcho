@@ -88,10 +88,10 @@ export function ServerWorkspaceRows({ instance, onOpenWorkspace, onMetrics }: Pr
 			conclusionCount,
 			queueActive,
 			queuePending,
-			lastSeen,
+			lastSeen: null,
 			health,
 		}),
-		[totalWorkspaces, conclusionCount, queueActive, queuePending, lastSeen, health],
+		[totalWorkspaces, conclusionCount, queueActive, queuePending, health],
 	);
 
 	const lastReported = useRef<FleetRowMetrics | null>(null);
