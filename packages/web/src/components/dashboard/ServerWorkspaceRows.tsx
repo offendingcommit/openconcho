@@ -1,7 +1,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ChevronRight, CircleDot } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import {
 	scopedConclusionsCountOptions,
 	scopedQueueStatusOptions,
@@ -27,16 +27,6 @@ interface Props {
 }
 
 const WORKSPACE_PAGE_SIZE = 100;
-
-function metricsEqual(a: FleetRowMetrics, b: FleetRowMetrics): boolean {
-	return (
-		a.workspaceCount === b.workspaceCount &&
-		a.conclusionCount === b.conclusionCount &&
-		a.queueActive === b.queueActive &&
-		a.queuePending === b.queuePending &&
-		a.health === b.health
-	);
-}
 
 /**
  * Renders one `<tr>` per workspace on a single server (instance), labelled
@@ -80,24 +70,19 @@ export function ServerWorkspaceRows({ instance, onOpenWorkspace, onMetrics }: Pr
 		: workspacesQ.isSuccess
 			? "ok"
 			: "loading";
-	const metrics: FleetRowMetrics = useMemo(
-		() => ({
+	// Dep array uses primitives only — an object dep (e.g. the metrics shape) would
+	// create a new reference on each render even when values are unchanged, causing
+	// onMetrics → setMetricsById → re-render → new object → onMetrics … loop.
+	useEffect(() => {
+		onMetrics(instance.id, {
 			workspaceCount: totalWorkspaces,
 			conclusionCount,
 			queueActive,
 			queuePending,
 			lastSeen: null,
 			health,
-		}),
-		[totalWorkspaces, conclusionCount, queueActive, queuePending, health],
-	);
-
-	const lastReported = useRef<FleetRowMetrics | null>(null);
-	useEffect(() => {
-		if (lastReported.current && metricsEqual(lastReported.current, metrics)) return;
-		lastReported.current = metrics;
-		onMetrics(instance.id, metrics);
-	}, [instance.id, metrics, onMetrics]);
+		});
+	}, [instance.id, totalWorkspaces, conclusionCount, queueActive, queuePending, health, onMetrics]);
 
 	if (workspacesQ.isError) {
 		return (
