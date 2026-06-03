@@ -19,6 +19,7 @@ spec:
   tls:
     {{- toYaml .Values.ingress.tls | nindent 4 }}
   {{- end }}
+  {{- if .Values.ingress.hosts }}
   rules:
     {{- range .Values.ingress.hosts }}
     - host: {{ .host | quote }}
@@ -26,7 +27,7 @@ spec:
         paths:
           {{- range .paths }}
           - path: {{ .path }}
-            pathType: {{ .pathType }}
+            pathType: {{ .pathType | default "Prefix" }}
             backend:
               service:
                 name: {{ $fullName }}
@@ -34,4 +35,5 @@ spec:
                   number: {{ $svcPort }}
           {{- end }}
     {{- end }}
+  {{- end }}
 {{- end }}
