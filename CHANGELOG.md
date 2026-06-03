@@ -1,3 +1,25 @@
+# [0.15.0](https://github.com/offendingcommit/openconcho/compare/v0.14.0...v0.15.0) (2026-06-03)
+
+
+### Bug Fixes
+
+* **helm:** guard tmpfs blocks when empty, cap volume names at 63 chars ([d5a65d7](https://github.com/offendingcommit/openconcho/commit/d5a65d73b59378f5ce39bf76e0572da478cecbda))
+* **helm:** pdb mutual exclusion, ingress null rules guard, hpa nil utilization guard ([b4939bd](https://github.com/offendingcommit/openconcho/commit/b4939bd57f2dba5ebca9efcd42901457512e70e4))
+* **helm:** pin busybox:1.36, add -T 10 timeout, use --spider, add activeDeadlineSeconds ([8fac5d0](https://github.com/offendingcommit/openconcho/commit/8fac5d060f45b68141917efad4afe499ca2fda56))
+* **helm:** use http://json-schema.org/draft-07/schema# for Helm compatibility ([8d41455](https://github.com/offendingcommit/openconcho/commit/8d41455e39db51617d7476e5cc48577eb7fff158))
+
+
+### Features
+
+* **helm:** add _helpers.tpl with name, label, and imageTag partials ([0268275](https://github.com/offendingcommit/openconcho/commit/02682750ab766851570eae58eb0b92761b98724f))
+* **helm:** add Deployment template with read-only FS, tmpfs, probes ([514e1d4](https://github.com/offendingcommit/openconcho/commit/514e1d46c0248bfae5da1f2ceb12ca8799a81468))
+* **helm:** add NOTES.txt with access instructions and NetworkPolicy/Ingress warning ([ce211df](https://github.com/offendingcommit/openconcho/commit/ce211df48cc59dfe933eb7a1b1415591b0e9f7fa))
+* **helm:** add optional HPA, PDB, and NetworkPolicy templates ([b0b648b](https://github.com/offendingcommit/openconcho/commit/b0b648bdcf64732c0a713bd8e45077c5f1b39ba6))
+* **helm:** add optional Ingress template ([9aa106c](https://github.com/offendingcommit/openconcho/commit/9aa106cede7d5719ee2cbc48c1c677491deea568))
+* **helm:** add Service and ServiceAccount templates ([ee916ea](https://github.com/offendingcommit/openconcho/commit/ee916eabc485f37cdc56ffbdd8d9004f33f3a7b7))
+* **helm:** add test-healthz and test-spa-root helm test jobs ([ee4630e](https://github.com/offendingcommit/openconcho/commit/ee4630e79ca588ee0f9cb167ac0f58ae4b8223cc))
+* **helm:** chart scaffold — Chart.yaml, values, schema ([4112270](https://github.com/offendingcommit/openconcho/commit/411227046a3dee125a555a0d1a426afed0e74ec3))
+
 # [0.14.0](https://github.com/offendingcommit/openconcho/compare/v0.13.1...v0.14.0) (2026-06-02)
 
 
