@@ -34,7 +34,6 @@ function metricsEqual(a: FleetRowMetrics, b: FleetRowMetrics): boolean {
 		a.conclusionCount === b.conclusionCount &&
 		a.queueActive === b.queueActive &&
 		a.queuePending === b.queuePending &&
-		a.lastSeen === b.lastSeen &&
 		a.health === b.health
 	);
 }

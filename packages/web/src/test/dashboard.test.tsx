@@ -41,7 +41,9 @@ function renderDashboard() {
 		routeTree,
 		history: createMemoryHistory({ initialEntries: ["/"] }),
 	});
-	const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const qc = new QueryClient({
+		defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+	});
 	return render(
 		<QueryClientProvider client={qc}>
 			<DemoProvider>
