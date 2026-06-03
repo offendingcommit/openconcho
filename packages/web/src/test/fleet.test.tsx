@@ -155,21 +155,18 @@ describe("Fleet route", () => {
 		localStorage.clear();
 	});
 
-	it("mounts FleetDashboard at /fleet when an instance is configured", async () => {
+	it("redirects /fleet to the Dashboard", async () => {
 		saveStore({ instances: [neo], activeId: "neo" });
 		renderRouteAt("/fleet");
-		expect(await screen.findByRole("heading", { name: /Fleet/i })).toBeInTheDocument();
+		expect(await screen.findByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
 	});
 
-	it("renders one table row per configured instance", async () => {
+	it("shows each instance after /fleet redirect", async () => {
 		saveStore({ instances: [neo, iris], activeId: "neo" });
 		renderRouteAt("/fleet");
-		const table = await screen.findByRole("table");
 		await waitFor(() => {
-			expect(within(table).getByText("Neo")).toBeInTheDocument();
-			expect(within(table).getByText("Iris")).toBeInTheDocument();
+			expect(screen.getByText("Neo — no workspaces")).toBeInTheDocument();
+			expect(screen.getByText("Iris — no workspaces")).toBeInTheDocument();
 		});
-		// 1 header + 2 instance rows
-		expect(within(table).getAllByRole("row")).toHaveLength(3);
 	});
 });
