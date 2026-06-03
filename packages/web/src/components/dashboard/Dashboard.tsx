@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Boxes, LayoutDashboard, Network, Settings as SettingsIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	computeFleetAggregates,
 	DEFAULT_ROW_METRICS,
@@ -28,6 +28,7 @@ export function Dashboard() {
 	const navigate = useNavigate();
 	const [serverFilter, setServerFilter] = useState<string>(ALL_SERVERS);
 	const [metricsById, setMetricsById] = useState<Record<string, FleetRowMetrics>>({});
+	const lastMetrics = useRef<Record<string, FleetRowMetrics>>({});
 
 	useEffect(() => {
 		if (serverFilter !== ALL_SERVERS && !instances.find((i) => i.id === serverFilter)) {
@@ -36,6 +37,17 @@ export function Dashboard() {
 	}, [instances, serverFilter]);
 
 	const onMetrics = useCallback((id: string, m: FleetRowMetrics) => {
+		const prev = lastMetrics.current[id];
+		if (
+			prev &&
+			prev.workspaceCount === m.workspaceCount &&
+			prev.conclusionCount === m.conclusionCount &&
+			prev.queueActive === m.queueActive &&
+			prev.queuePending === m.queuePending &&
+			prev.health === m.health
+		)
+			return;
+		lastMetrics.current = { ...lastMetrics.current, [id]: m };
 		setMetricsById((prev) => ({ ...prev, [id]: m }));
 	}, []);
 

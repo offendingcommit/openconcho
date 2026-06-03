@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ServerWorkspaceRows } from "@/components/dashboard/ServerWorkspaceRows";
+import type { FleetRowMetrics } from "@/components/fleet/fleetAggregates";
 import { DemoProvider } from "@/context/DemoContext";
 import type { Instance } from "@/lib/config";
 
@@ -29,7 +30,7 @@ function makeQc() {
 	return new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
 }
 
-function renderRows(instance: Instance, onMetrics: ReturnType<typeof vi.fn>) {
+function renderRows(instance: Instance, onMetrics: (id: string, metrics: FleetRowMetrics) => void) {
 	const qc = makeQc();
 	return render(
 		<QueryClientProvider client={qc}>
@@ -52,7 +53,7 @@ describe("ServerWorkspaceRows — onMetrics stability", () => {
 	afterEach(() => localStorage.clear());
 
 	it("calls onMetrics with health:ok after data loads", async () => {
-		const onMetrics = vi.fn();
+		const onMetrics = vi.fn<(id: string, m: FleetRowMetrics) => void>();
 		renderRows(neo, onMetrics);
 		await waitFor(() =>
 			expect(onMetrics).toHaveBeenCalledWith(
@@ -63,7 +64,7 @@ describe("ServerWorkspaceRows — onMetrics stability", () => {
 	});
 
 	it("does not call onMetrics again when values have not changed", async () => {
-		const onMetrics = vi.fn();
+		const onMetrics = vi.fn<(id: string, m: FleetRowMetrics) => void>();
 		renderRows(neo, onMetrics);
 
 		// Wait until we have at least one call with stable state
@@ -83,7 +84,7 @@ describe("ServerWorkspaceRows — onMetrics stability", () => {
 	});
 
 	it("calls onMetrics when health transitions from loading to ok", async () => {
-		const onMetrics = vi.fn();
+		const onMetrics = vi.fn<(id: string, m: FleetRowMetrics) => void>();
 		renderRows(neo, onMetrics);
 
 		// Must eventually report ok (not just loading)
