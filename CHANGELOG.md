@@ -1,3 +1,23 @@
+# [0.16.0](https://github.com/offendingcommit/openconcho/compare/v0.15.0...v0.16.0) (2026-06-10)
+
+
+### Bug Fixes
+
+* **ci:** replace userEvent.selectOptions with fireEvent.change; bump setup-node to v6 ([1c28cae](https://github.com/offendingcommit/openconcho/commit/1c28cae3f2aed84e9c2deff7c7fcb622bb86df2e))
+* **dashboard:** guard setMetricsById against same-value calls to end loop ([3b88a41](https://github.com/offendingcommit/openconcho/commit/3b88a41afda842eb3d493b7d77a825595164cb94))
+* **dashboard:** remove lastSeen from metrics useMemo deps to break render loop ([f79cdaf](https://github.com/offendingcommit/openconcho/commit/f79cdafba7aa16004c75d2684d7dedd6279f3265))
+* **dashboard:** use primitive deps in onMetrics effect to break render loop ([9cc8637](https://github.com/offendingcommit/openconcho/commit/9cc8637dc7ebf62b2002a0a3d8e4b3781660e770))
+* **test:** remove unused within import from fleet.test.tsx ([36fb6ee](https://github.com/offendingcommit/openconcho/commit/36fb6ee51923c8eb3261d851a1754f7f1c6ec0b9))
+* **web:** break metricsEqual lastSeen dep-loop; add staleTime to test ([173f096](https://github.com/offendingcommit/openconcho/commit/173f096e33157a1744ffa2ef9d09a170216ac036))
+* **web:** reset serverFilter when the selected instance is removed ([699ec38](https://github.com/offendingcommit/openconcho/commit/699ec3848016aad31db33eecc0079645f24f83b6))
+* **web:** stop Sidebar re-render loop from cache-event subscriber ([7e529c8](https://github.com/offendingcommit/openconcho/commit/7e529c8c44b358d3f437f1f1888c0e7fa5664d52))
+
+
+### Features
+
+* **web:** merge Fleet into a server-filterable Dashboard ([e66f927](https://github.com/offendingcommit/openconcho/commit/e66f927f89cbfda6e900080369599fe0d4eeb5bf)), closes [#54](https://github.com/offendingcommit/openconcho/issues/54)
+* **web:** redirect /fleet to Dashboard; update fleet tests ([da126b2](https://github.com/offendingcommit/openconcho/commit/da126b2e74f89cdeca323e00232a4f49764fb992))
+
 # [0.15.0](https://github.com/offendingcommit/openconcho/compare/v0.14.0...v0.15.0) (2026-06-03)
 
 
