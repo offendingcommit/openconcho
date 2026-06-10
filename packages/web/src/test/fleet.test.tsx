@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { scopedConclusionsCountOptions, scopedQueueStatusOptions } from "@/api/compareQueries";
 import {
@@ -157,21 +157,18 @@ describe("Fleet route", () => {
 		localStorage.clear();
 	});
 
-	it("mounts FleetDashboard at /fleet when an instance is configured", async () => {
+	it("redirects /fleet to the Dashboard", async () => {
 		saveStore({ instances: [neo], activeId: "neo" });
 		renderRouteAt("/fleet");
-		expect(await screen.findByRole("heading", { name: /Fleet/i })).toBeInTheDocument();
+		expect(await screen.findByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
 	});
 
-	it("renders one table row per configured instance", async () => {
+	it("shows each instance after /fleet redirect", async () => {
 		saveStore({ instances: [neo, iris], activeId: "neo" });
 		renderRouteAt("/fleet");
-		const table = await screen.findByRole("table");
 		await waitFor(() => {
-			expect(within(table).getByText("Neo")).toBeInTheDocument();
-			expect(within(table).getByText("Iris")).toBeInTheDocument();
+			expect(screen.getByText("Neo — no workspaces")).toBeInTheDocument();
+			expect(screen.getByText("Iris — no workspaces")).toBeInTheDocument();
 		});
-		// 1 header + 2 instance rows
-		expect(within(table).getAllByRole("row")).toHaveLength(3);
 	});
 });

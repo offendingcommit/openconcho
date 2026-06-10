@@ -15,7 +15,6 @@ import {
 	MessageSquare,
 	Moon,
 	MoonStar,
-	Network,
 	Settings,
 	Sun,
 	Users,
@@ -32,7 +31,6 @@ import { COLOR } from "@/lib/constants";
 
 const TOP_NAV = [
 	{ to: "/" as const, label: "Dashboard", icon: LayoutDashboard, exact: true },
-	{ to: "/fleet" as const, label: "Fleet", icon: Network, exact: false },
 	{ to: "/workspaces" as const, label: "Workspaces", icon: Boxes, exact: false },
 	{ to: "/seed-kits" as const, label: "Seed Kits", icon: Layers, exact: false },
 	{ to: "/settings" as const, label: "Settings", icon: Settings, exact: false },
@@ -62,7 +60,9 @@ function useLastDataUpdate(): string {
 
 	useEffect(() => {
 		function refresh() {
-			setNow(Date.now());
+			// No setNow here — calling setNow on every cache event causes a render loop on
+			// CI (each Date.now() call crosses a ms boundary → new value → React re-renders
+			// Sidebar → cache events fire again → loop). setNow belongs only in the interval.
 			const latest = queryClient
 				.getQueryCache()
 				.getAll()
@@ -72,7 +72,10 @@ function useLastDataUpdate(): string {
 
 		refresh();
 		const unsubscribe = queryClient.getQueryCache().subscribe(refresh);
-		const interval = window.setInterval(refresh, 30_000);
+		const interval = window.setInterval(() => {
+			setNow(Date.now()); // refresh relative-time display ("X ago") every 30s
+			refresh();
+		}, 30_000);
 		return () => {
 			unsubscribe();
 			window.clearInterval(interval);

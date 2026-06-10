@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { FleetDashboard } from "@/components/fleet/FleetDashboard";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/fleet")({
-	component: FleetDashboard,
+	beforeLoad: () => {
+		throw redirect({ to: "/" });
+	},
 });
