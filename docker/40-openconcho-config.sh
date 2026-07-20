@@ -15,9 +15,12 @@ EOF
 # proxy_pass resolves on BOTH user-defined networks (Docker embedded DNS at
 # 127.0.0.11) and the default bridge (host nameservers from /etc/resolv.conf).
 # Hardcoding 127.0.0.11 breaks `docker run` on the default bridge (no embedded DNS).
-RESOLVERS=$(awk '/^nameserver/ { print $2 }' /etc/resolv.conf | tr '\n' ' ' | sed 's/ *$//')
+# IPv6 nameservers (e.g. Fly.io's fdaa::3) must be bracketed, or nginx reads the
+# text after the last colon as a port and dies: [emerg] invalid port in resolver.
+RESOLVERS=$(awk '/^nameserver/ { print ($2 ~ /:/) ? "[" $2 "]" : $2 }' /etc/resolv.conf | tr '\n' ' ' | sed 's/ *$//')
 [ -z "$RESOLVERS" ] && RESOLVERS=127.0.0.11
-printf 'resolver %s ipv6=off valid=10s;\n' "$RESOLVERS" > /etc/nginx/conf.d/00-resolver.conf
+# No ipv6=off here: IPv6-only upstreams (e.g. Fly.io .flycast) need AAAA answers.
+printf 'resolver %s valid=10s;\n' "$RESOLVERS" > /etc/nginx/conf.d/00-resolver.conf
 
 # Render the SSRF allowlist into an nginx map for $allow_upstream.
 # Unset/empty OPENCONCHO_UPSTREAM_ALLOWLIST → open (default 1), fine for the
