@@ -10,9 +10,11 @@ set -eu
 # Stage the openconcho server config into the writable tmpfs the chart mounts
 # at /etc/nginx/conf.d. The image ships the config at /etc/openconcho/nginx.conf
 # so the base image's envsubst step has nothing to render against the read-only
-# filesystem. The base image's 10-listen-on-ipv6-by-default.sh exits 0 when
-# default.conf is absent, so it's safe to stage the file here.
-install -m 0644 -o 101 -g 101 /etc/openconcho/nginx.conf /etc/nginx/conf.d/default.conf
+# filesystem. The base image's 10-listen-on-ipv6-by-default.sh may have created
+# default.conf already on a writable mount, so we force-overwrite with cp -f.
+cp -f /etc/openconcho/nginx.conf /etc/nginx/conf.d/default.conf
+chmod 0644 /etc/nginx/conf.d/default.conf
+chown 101:101 /etc/nginx/conf.d/default.conf
 
 cat > /tmp/openconcho-config.js <<EOF
 window.__OPENCONCHO_DEFAULT_HONCHO_URL__ = "${OPENCONCHO_DEFAULT_HONCHO_URL:-}";
