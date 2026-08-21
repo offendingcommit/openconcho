@@ -31,8 +31,12 @@ RUN pnpm --filter @openconcho/web build
 FROM nginxinc/nginx-unprivileged:alpine
 
 COPY --chown=101:101 --from=builder /app/packages/web/dist /usr/share/nginx/html
-# Rendered to /etc/nginx/conf.d/default.conf by the image's envsubst entrypoint.
-COPY --chown=101:101 docker/nginx.conf.template /etc/nginx/templates/default.conf.template
+# Served verbatim by 40-openconcho-config.sh from /etc/openconcho/nginx.conf
+# to /etc/nginx/conf.d/default.conf at container start. Stored outside
+# /etc/nginx/templates/ on purpose so the base image's 20-envsubst-on-templates.sh
+# does not try to render it back into the read-only root filesystem — the
+# template has no $VAR placeholders, so envsubst adds nothing.
+COPY --chown=101:101 docker/nginx.conf.template /etc/openconcho/nginx.conf
 # Writes /usr/share/nginx/html/config.js from OPENCONCHO_DEFAULT_HONCHO_URL.
 # --chmod=0755 so nginx's docker-entrypoint.d actually executes it.
 COPY --chown=101:101 --chmod=0755 docker/40-openconcho-config.sh /docker-entrypoint.d/40-openconcho-config.sh
