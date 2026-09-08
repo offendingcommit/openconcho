@@ -4,8 +4,17 @@ import { QK } from "./keys";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function formatApiError(e: unknown): string {
+	if (typeof e === "object" && e !== null && "detail" in e && typeof e.detail === "string") {
+		const detail = e.detail.trim();
+		if (detail) return detail;
+	}
+	if (typeof e === "object") return JSON.stringify(e);
+	return String(e);
+}
+
 function err(e: unknown): never {
-	throw new Error(typeof e === "object" ? JSON.stringify(e) : String(e));
+	throw new Error(formatApiError(e));
 }
 
 // ─── Workspaces ──────────────────────────────────────────────────────────────
