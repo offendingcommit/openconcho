@@ -13,6 +13,7 @@ import {
 	dreamCounts,
 	type ExtendedConclusion,
 	expandPremiseTree,
+	hasPremiseTree,
 	inferConclusionType,
 	type PremiseNode,
 } from "@/lib/dreams";
@@ -43,13 +44,20 @@ const COLUMNS: Array<{ type: ConclusionType; label: string; description: string 
 
 interface DreamDetailProps {
 	dream: Dream;
+	/** Workspace-wide conclusion index so `source_ids` can resolve across dreams. */
+	workspaceIndex: Map<string, ExtendedConclusion>;
 	onClose: () => void;
 }
 
-export function DreamDetail({ dream, onClose }: DreamDetailProps) {
+export function DreamDetail({ dream, workspaceIndex, onClose }: DreamDetailProps) {
 	const { mask } = useDemo();
 	const counts = useMemo(() => dreamCounts(dream), [dream]);
-	const index = useMemo(() => buildPremiseIndex(dream.conclusions), [dream]);
+	// Prefer the workspace-wide index; fall back to dream-local so demo data and
+	// partial loads still resolve within their own dream.
+	const index = useMemo(
+		() => (workspaceIndex.size > 0 ? workspaceIndex : buildPremiseIndex(dream.conclusions)),
+		[dream, workspaceIndex],
+	);
 
 	const grouped = useMemo(() => {
 		const buckets: Record<ConclusionType, ExtendedConclusion[]> = {
@@ -190,10 +198,7 @@ function ConclusionCard({ conclusion, index, expandable }: ConclusionCardProps) 
 		() => (open ? expandPremiseTree(conclusion.id, index) : null),
 		[open, conclusion.id, index],
 	);
-	const hasPremises = Boolean(
-		(conclusion.reasoning_tree?.premises?.length ?? 0) > 0 ||
-			(conclusion.premises?.length ?? 0) > 0,
-	);
+	const hasPremises = hasPremiseTree(conclusion);
 
 	return (
 		<div

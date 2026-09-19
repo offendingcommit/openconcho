@@ -12,6 +12,7 @@ import { Caption, MonoCaption, Muted, PageTitle } from "@/components/ui/typograp
 import { useDemo } from "@/hooks/useDemo";
 import { COLOR } from "@/lib/constants";
 import {
+	buildPremiseIndex,
 	clusterConclusionsIntoDreams,
 	type Dream,
 	dreamCounts,
@@ -36,6 +37,13 @@ export function DreamList() {
 	const dreams = useMemo<Dream[]>(() => {
 		const conclusions = (data as ExtendedConclusion[] | undefined) ?? [];
 		return clusterConclusionsIntoDreams(conclusions);
+	}, [data]);
+
+	// Workspace-wide premise index: a deductive conclusion's `source_ids` may
+	// point at explicit conclusions grouped into a *different* dream.
+	const premiseIndex = useMemo<Map<string, ExtendedConclusion>>(() => {
+		const conclusions = (data as ExtendedConclusion[] | undefined) ?? [];
+		return buildPremiseIndex(conclusions);
 	}, [data]);
 
 	const selected = useMemo(
@@ -90,7 +98,11 @@ export function DreamList() {
 						transition={{ duration: 0.22, ease: "easeInOut" }}
 						className="overflow-hidden mb-6"
 					>
-						<DreamDetail dream={selected} onClose={() => setSelectedId(null)} />
+						<DreamDetail
+							dream={selected}
+							workspaceIndex={premiseIndex}
+							onClose={() => setSelectedId(null)}
+						/>
 					</motion.div>
 				)}
 			</AnimatePresence>

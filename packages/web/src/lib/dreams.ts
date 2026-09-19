@@ -11,13 +11,16 @@ export const CONCLUSION_TYPES: readonly ConclusionType[] = [
 	"contradiction",
 ] as const;
 
-// The generated OpenAPI schema (Honcho 3.0.5) does not expose `level`, `premises`, or
-// `reasoning_tree`, but live Honcho 3.0.11 returns `level` on every conclusion.
-// Declared optional here so the UI consumes them when present and degrades gracefully
-// when absent. `premises`/`reasoning_tree` are still unserved — the premise tree stays
-// empty until Honcho ships them.
-export type ExtendedConclusion = ApiConclusion & {
-	/** Widened to `string`: Honcho may add levels this client doesn't know yet. */
+// Honcho < 3.2.0 sent conclusion fields the generated schema lacked, so
+// ExtendedConclusion widened the type manually. The schema now targets
+// Honcho 3.2.0 where `level`, `source_ids`, and `times_derived` are
+// first-class. `Omit` + re-declaration keeps `level` widened to `string`:
+// Honcho may add levels this client doesn't know yet, and the UI must
+// classify unknown levels as explicit rather than dropping them.
+// `premises`/`reasoning_tree` were never served by upstream Honcho; they
+// stay as optional legacy-fallback inputs so older deployments degrade
+// the same way they always did.
+export type ExtendedConclusion = Omit<ApiConclusion, "level"> & {
 	level?: string | null;
 	premises?: string[] | null;
 	reasoning_tree?: ReasoningTreeNode | null;
@@ -26,6 +29,20 @@ export type ExtendedConclusion = ApiConclusion & {
 export interface ReasoningTreeNode {
 	conclusion_id: string;
 	premises?: ReasoningTreeNode[];
+}
+
+/** Native premises: `source_ids` (Honcho >= 3.2.0), falling back to the legacy alias. */
+export function conclusionSourceIds(c: ExtendedConclusion): string[] {
+	if (c.source_ids?.length) return c.source_ids;
+	return c.premises ?? [];
+}
+
+/**
+ * Cheap pre-check for whether the premise tree could be non-empty, so the UI
+ * only offers expansion when there is something to show.
+ */
+export function hasPremiseTree(c: ExtendedConclusion): boolean {
+	return conclusionSourceIds(c).length > 0 || Boolean(c.reasoning_tree?.premises?.length);
 }
 
 export interface Dream {
@@ -199,8 +216,9 @@ function walk(
 		children = conclusion.reasoning_tree.premises.map((node) =>
 			walk(node.conclusion_id, index, nextVisited, depth + 1, maxDepth),
 		);
-	} else if (conclusion.premises?.length) {
-		children = conclusion.premises.map((id) => walk(id, index, nextVisited, depth + 1, maxDepth));
+	} else {
+		const sources = conclusionSourceIds(conclusion);
+		children = sources.map((id) => walk(id, index, nextVisited, depth + 1, maxDepth));
 	}
 	return { conclusion, conclusionId, depth, children, cycle: false };
 }
