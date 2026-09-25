@@ -88,6 +88,29 @@ with `--tmpfs /tmp --tmpfs /var/cache/nginx`. Note: the entrypoint writes
 `--read-only` either bind-mount those paths or leave the env empty and configure
 the URL in Settings.
 
+## Serving under a sub-path
+
+To host the UI under a path such as `https://example.net/honcho/`, build with the
+`BASE_PATH` build arg (leading and trailing slash required) and let your reverse
+proxy strip the prefix:
+
+```bash
+docker build --build-arg BASE_PATH=/honcho/ -t openconcho-web:honcho .
+docker run -d -p 127.0.0.1:8080:8080 \
+  -e OPENCONCHO_DEFAULT_HONCHO_URL=http://host.docker.internal:8000 openconcho-web:honcho
+```
+
+```nginx
+location = /honcho { return 308 /honcho/; }
+location /honcho/ {
+    proxy_pass http://127.0.0.1:8080/;   # trailing slash strips /honcho
+}
+```
+
+Assets, routes, `config.js`, and the `/api` proxy all resolve under the prefix
+(`/honcho/api/*`). Outside Docker, pass the same flag to the web build:
+`pnpm --filter @openconcho/web build --base /honcho/`.
+
 ## SSRF: when to set the allowlist
 
 The header-driven proxy forwards to whatever upstream the client names. With the

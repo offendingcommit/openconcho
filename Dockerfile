@@ -23,7 +23,10 @@ RUN pnpm install --frozen-lockfile --filter @openconcho/web...
 
 # Copy remaining sources + build.
 COPY . .
-RUN pnpm --filter @openconcho/web build
+# Public URL path the SPA is served under (e.g. /honcho/ behind a reverse proxy
+# that strips the prefix). Must start and end with a slash.
+ARG BASE_PATH=/
+RUN pnpm --filter @openconcho/web build --base "$BASE_PATH"
 
 # ---------- Runtime stage ----------
 # Unprivileged variant runs as UID 101 with no root setup steps, so it works

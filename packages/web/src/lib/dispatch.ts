@@ -2,7 +2,7 @@ import { httpFetch } from "@/lib/http";
 import { isTauri } from "@/lib/platform";
 
 /** Same-origin path prefix the web build issues all Honcho calls through. */
-export const API_PREFIX = "/api";
+export const API_PREFIX = `${import.meta.env.BASE_URL}api`;
 /** Request header naming the real Honcho upstream for the proxy to forward to. */
 export const UPSTREAM_HEADER = "X-Honcho-Upstream";
 /** Response header the proxy sets on its OWN refusals (so they aren't read as upstream auth). */
