@@ -20,6 +20,7 @@ import { Badge } from "@/components/shared/Badge";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { JsonViewer } from "@/components/shared/JsonViewer";
 import { PageLoader } from "@/components/shared/LoadingSpinner";
+import { MessageMarkdown } from "@/components/shared/MessageMarkdown";
 import { Pagination } from "@/components/shared/Pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -263,7 +264,7 @@ export function SessionDetail() {
 														<Caption>{new Date(msg.created_at).toLocaleString()}</Caption>
 													)}
 												</div>
-												<Body className="whitespace-pre-wrap">{mask(msg.content)}</Body>
+												<MessageMarkdown content={mask(msg.content)} />
 											</div>
 										))}
 									</div>
