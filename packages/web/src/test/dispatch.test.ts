@@ -23,6 +23,24 @@ describe("dispatchFor — web mode", () => {
 	});
 });
 
+describe("dispatchFor — sub-path build", () => {
+	afterEach(() => {
+		vi.unstubAllEnvs();
+		vi.resetModules();
+	});
+
+	it("prefixes the /api proxy with the Vite base", async () => {
+		vi.stubEnv("BASE_URL", "/honcho/");
+		vi.resetModules();
+		const mod = await import("@/lib/dispatch");
+		mockIsTauri.mockReturnValue(false);
+		expect(mod.API_PREFIX).toBe("/honcho/api");
+		expect(mod.dispatchFor({ baseUrl: "https://h.example" }).baseUrl).toBe(
+			`${location.origin}/honcho/api`,
+		);
+	});
+});
+
 describe("dispatchFor — tauri mode", () => {
 	it("targets the absolute URL with no upstream header", () => {
 		mockIsTauri.mockReturnValue(true);

@@ -131,7 +131,7 @@ export function Sidebar() {
 			<div className="px-3 sm:px-5 py-5" style={{ borderBottom: "1px solid var(--border)" }}>
 				<div className="flex items-center gap-2.5 justify-center sm:justify-start">
 					<img
-						src="/favicon.svg"
+						src={`${import.meta.env.BASE_URL}favicon.svg`}
 						alt="OpenConcho"
 						className="w-7 h-7 rounded-lg shrink-0"
 						style={{ boxShadow: `0 0 16px ${COLOR.accentGlow}` }}

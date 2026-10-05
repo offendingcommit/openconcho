@@ -25,7 +25,7 @@ function SettingsPage() {
 			>
 				<div className="mb-8 text-center">
 					<img
-						src="/favicon.svg"
+						src={`${import.meta.env.BASE_URL}favicon.svg`}
 						alt="OpenConcho"
 						className="w-14 h-14 rounded-2xl mx-auto mb-4"
 						style={{ boxShadow: "0 0 32px rgba(99,102,241,0.35)" }}
