@@ -27,7 +27,7 @@ export function useScopedWorkspaces(instance: Instance, page = 1, pageSize = 20)
 		queryFn: async () => {
 			const client = createScopedClient(instance);
 			const { data, error } = await client.POST("/v3/workspaces/list", {
-				params: { query: { page, page_size: pageSize } },
+				params: { query: { page, size: pageSize } },
 				body: {},
 			});
 			return data ?? err(error);
@@ -41,7 +41,7 @@ export function useScopedPeers(instance: Instance, workspaceId: string, page = 1
 		queryFn: async () => {
 			const client = createScopedClient(instance);
 			const { data, error } = await client.POST("/v3/workspaces/{workspace_id}/peers/list", {
-				params: { path: { workspace_id: workspaceId }, query: { page, page_size: pageSize } },
+				params: { path: { workspace_id: workspaceId }, query: { page, size: pageSize } },
 				body: {},
 			});
 			return data ?? err(error);

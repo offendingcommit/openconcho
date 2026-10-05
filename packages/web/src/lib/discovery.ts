@@ -38,7 +38,7 @@ export function deriveNameFromWorkspaceId(workspaceId: string): string {
 export async function suggestNameForInstance(baseUrl: string): Promise<string | null> {
 	try {
 		const { baseUrl: base, headers, fetch } = dispatchFor({ baseUrl });
-		const res = await fetch(`${base}/v3/workspaces/list?page=1&page_size=1`, {
+		const res = await fetch(`${base}/v3/workspaces/list?page=1&size=1`, {
 			method: "POST",
 			headers,
 			body: JSON.stringify({}),

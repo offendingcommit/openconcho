@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+	Brain,
 	Check,
 	Eye,
 	EyeOff,
@@ -13,16 +14,19 @@ import {
 	Users,
 	X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+	useConclusionTargetPeers,
 	usePeer,
 	usePeerCard,
 	usePeerContext,
 	usePeerRepresentation,
+	useQueryPeerConclusions,
 	useSearchPeer,
 	useSetPeerCard,
 	useUpdatePeer,
 } from "@/api/queries";
+import type { components } from "@/api/schema.d.ts";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Badge } from "@/components/shared/Badge";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
@@ -72,6 +76,61 @@ export function PeerDetail() {
 
 	const [cardDraft, setCardDraft] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState("");
+
+	// Knowledge/conclusion search: scoped to this peer as observer. The observed
+	// target is DISCOVERED from the conclusions this peer actually holds (no
+	// hardcoded peer names, no unrestricted fallback): when exactly one target
+	// exists it is auto-selected; otherwise the user picks it explicitly from
+	// the picker. Typing a free-form name is no longer the only path.
+	const [knowledgeQuery, setKnowledgeQuery] = useState("");
+	const [activeKnowledgeQuery, setActiveKnowledgeQuery] = useState("");
+	const [knowledgeTarget, setKnowledgeTarget] = useState<string | null>(null);
+	const {
+		data: discovery,
+		isLoading: discoveryLoading,
+		error: discoveryError,
+	} = useConclusionTargetPeers(workspaceId, peerId);
+	const targetPeers = discovery?.targets ?? [];
+	const discoveryIncomplete = discovery !== undefined && !discovery.complete;
+
+	// Reset per-peer target state when the viewed workspace or peer changes: a
+	// stale target from the previous context would silently scope the knowledge
+	// search wrong and a burnt auto-select flag would disable auto-picking for
+	// the new context.
+	const prevScopeRef = useRef(`${workspaceId}\u0000${peerId}`);
+	useEffect(() => {
+		const scope = `${workspaceId}\u0000${peerId}`;
+		if (prevScopeRef.current !== scope) {
+			prevScopeRef.current = scope;
+			setKnowledgeTarget(null);
+			setTargetAutoSelected(false);
+		}
+	}, [workspaceId, peerId]);
+
+	// Auto-select when exactly one real target exists. Only when nothing is
+	// picked yet, so an explicit user choice wins, and only when discovery is
+	// COMPLETE — a single target found by a cap-truncated walk is not proven to
+	// be the only one.
+	const [targetAutoSelected, setTargetAutoSelected] = useState(false);
+	useEffect(() => {
+		if (targetAutoSelected || knowledgeTarget !== null || !discovery) return;
+		if (discovery.complete && targetPeers.length === 1) {
+			setKnowledgeTarget(targetPeers[0].id);
+			setTargetAutoSelected(true);
+		}
+	}, [targetAutoSelected, knowledgeTarget, discovery, targetPeers]);
+
+	const {
+		data: knowledgeResults,
+		isLoading: knowledgeLoading,
+		error: knowledgeError,
+	} = useQueryPeerConclusions(
+		workspaceId,
+		peerId,
+		activeKnowledgeQuery,
+		knowledgeTarget,
+		Boolean(activeKnowledgeQuery),
+	);
 
 	const peerMeta = (peer as { metadata?: Record<string, unknown> } | undefined)?.metadata;
 	const displayName = peerDisplayName(peerMeta, peerId);
@@ -279,6 +338,166 @@ export function PeerDetail() {
 													<Body className="whitespace-pre-wrap">{mask(r.content)}</Body>
 												</div>
 											))
+										)}
+									</motion.div>
+								)}
+							</AnimatePresence>
+						</motion.div>
+
+						{/* Knowledge search — conclusions this peer holds, scoped observer → observed */}
+						<motion.div
+							initial={{ opacity: 0, y: 8 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.07 }}
+							className="rounded-xl p-5 theme-card"
+						>
+							<SectionHeading className="flex items-center gap-1.5 mb-1">
+								<Brain className="w-3.5 h-3.5" strokeWidth={2} />
+								Search peer knowledge (conclusions)
+							</SectionHeading>
+							<Muted className="mb-2 block text-xs">
+								Semantic search over distilled conclusions this peer holds — not raw messages.
+							</Muted>
+							{/* Selected scope, shown up front: observer → discovered target. The
+								target comes from a picker over REAL stored targets, never a guess. */}
+							<div className="flex items-center gap-2 mb-3 flex-wrap text-xs">
+								<Badge variant="blue">
+									scope: {mask(peerId)} → {mask(knowledgeTarget ?? "(select observed peer)")}
+								</Badge>
+								{discoveryIncomplete && (
+									<Caption>
+										Target list may be incomplete (store exceeds the discovery page cap).
+									</Caption>
+								)}
+								{discoveryError && (
+									<Caption>Target discovery failed — knowledge search unavailable.</Caption>
+								)}
+								{!discoveryLoading && !discoveryError && targetPeers.length === 0 && (
+									<Caption>This peer holds no conclusions yet.</Caption>
+								)}
+							</div>
+							<form
+								onSubmit={(e) => {
+									e.preventDefault();
+									setActiveKnowledgeQuery(knowledgeQuery.trim());
+								}}
+								className="flex gap-2 mb-4 flex-wrap"
+							>
+								<Input
+									value={knowledgeQuery}
+									onChange={(e) => setKnowledgeQuery(e.target.value)}
+									placeholder="Search this peer's conclusions…"
+									className="flex-1 text-sm min-w-48"
+								/>
+								<select
+									aria-label="Observed peer (knowledge target)"
+									value={knowledgeTarget ?? ""}
+									onChange={(e) => setKnowledgeTarget(e.target.value || null)}
+									className="w-56 rounded-md px-2 py-1 text-xs font-mono"
+									style={{
+										background: "var(--bg-3)",
+										border: "1px solid var(--border)",
+										color: "var(--text-2)",
+									}}
+								>
+									<option value="">
+										{discoveryLoading
+											? "loading targets…"
+											: discoveryError
+												? "target discovery failed"
+												: targetPeers.length === 0
+													? "no targets available"
+													: "observed peer — pick target"}
+									</option>
+									{targetPeers.map((t) => (
+										<option key={t.id} value={t.id}>
+											{mask(t.id)} ({t.count})
+										</option>
+									))}
+								</select>
+								<Button type="submit" variant="accent" disabled={knowledgeLoading}>
+									{knowledgeLoading ? "…" : "Search"}
+								</Button>
+								{activeKnowledgeQuery && (
+									<Button
+										type="button"
+										variant="surface"
+										onClick={() => {
+											setActiveKnowledgeQuery("");
+											setKnowledgeQuery("");
+										}}
+									>
+										<X className="w-3.5 h-3.5" strokeWidth={2} />
+									</Button>
+								)}
+							</form>
+							<ErrorAlert error={knowledgeError instanceof Error ? knowledgeError : null} />
+							<AnimatePresence>
+								{activeKnowledgeQuery && (
+									<motion.div
+										initial={{ opacity: 0, height: 0 }}
+										animate={{ opacity: 1, height: "auto" }}
+										exit={{ opacity: 0, height: 0 }}
+										className="space-y-3 overflow-hidden"
+									>
+										{knowledgeLoading ? (
+											<PageLoader />
+										) : !knowledgeTarget ? (
+											<Muted>
+												Pick an observed peer above — targets are listed from the conclusions this
+												peer actually holds.
+											</Muted>
+										) : !Array.isArray(knowledgeResults) ||
+											(knowledgeResults as components["schemas"]["Conclusion"][]).length === 0 ? (
+											<Muted>No conclusions found for this scope.</Muted>
+										) : (
+											/* Display-only dedup: identical contents repeat heavily in the
+											   store (bulk import). Collapse them here — the database is NOT
+											   touched (no data lane in this repair). First occurrence wins;
+											   provenance (observer→observed, session, timestamp) is kept
+											   from that first row. */
+											(() => {
+												const all = knowledgeResults as components["schemas"]["Conclusion"][];
+												const seenContent = new Set<string>();
+												const deduped = all.filter((c) => {
+													if (seenContent.has(c.content)) return false;
+													seenContent.add(c.content);
+													return true;
+												});
+												const hidden = all.length - deduped.length;
+												return (
+													<>
+														{deduped.map((c) => (
+															<div
+																key={c.id}
+																className="py-3 px-4 rounded-lg"
+																style={{
+																	background: "var(--surface)",
+																	border: "1px solid var(--border)",
+																}}
+															>
+																<div className="flex items-center gap-2 mb-1.5 flex-wrap">
+																	<Badge variant="yellow">
+																		{mask(c.observer_id)} → {mask(c.observed_id)}
+																	</Badge>
+																	{c.session_id && <Caption>session: {mask(c.session_id)}</Caption>}
+																	{c.created_at && (
+																		<Caption>{new Date(c.created_at).toLocaleString()}</Caption>
+																	)}
+																</div>
+																<Body className="whitespace-pre-wrap">{mask(c.content)}</Body>
+															</div>
+														))}
+														{hidden > 0 && (
+															<Muted className="text-xs">
+																{deduped.length} unique result{deduped.length === 1 ? "" : "s"} (
+																{hidden} identical duplicate{hidden === 1 ? "" : "s"} hidden —
+																display only, no data changed)
+															</Muted>
+														)}
+													</>
+												);
+											})()
 										)}
 									</motion.div>
 								)}

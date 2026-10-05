@@ -33,7 +33,7 @@ function useScopedWorkspacesAll(instance: Instance | null) {
 			if (!instance) return [] as Array<{ id: string }>;
 			const client = createScopedClient(instance);
 			const { data, error } = await client.POST("/v3/workspaces/list", {
-				params: { query: { page: 1, page_size: 100 } },
+				params: { query: { page: 1, size: 100 } },
 				body: {},
 			});
 			const payload = data ?? err(error);
