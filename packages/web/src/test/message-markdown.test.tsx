@@ -156,6 +156,53 @@ describe("session message markdown", () => {
 		renderAt(sessionPath());
 		expect(await screen.findByText("12 tokens")).toBeInTheDocument();
 	});
+
+	it("keeps a single newline in a plain-text message", async () => {
+		mockHoncho({ messageContent: "line one\nline two" });
+		renderAt(sessionPath());
+		const line = await screen.findByText(/line one/);
+		expect(line.querySelector("br")).not.toBeNull();
+	});
+
+	it("keeps timestamp lines in source order", async () => {
+		mockHoncho({
+			messageContent: "[2026-01-01 00:00:00] alpha-ts\n[2026-01-02 00:00:00] beta-ts",
+		});
+		renderAt(sessionPath());
+		await screen.findByText(/alpha-ts/);
+		const text = document.body.textContent ?? "";
+		expect(text.indexOf("alpha-ts")).toBeLessThan(text.indexOf("beta-ts"));
+	});
+
+	it("keeps a nested list nested", async () => {
+		mockHoncho({ messageContent: "- outer-md\n   - nested-md" });
+		renderAt(sessionPath());
+		const nested = await screen.findByText("nested-md");
+		expect(nested.closest("li")?.parentElement?.closest("li")).not.toBeNull();
+	});
+
+	it("keeps an indented code block as a code block", async () => {
+		mockHoncho({ messageContent: "Intro line.\n\n    const indented = 1\n" });
+		renderAt(sessionPath());
+		expect((await screen.findByText("const indented = 1")).closest("pre")).not.toBeNull();
+	});
+
+	it("leaves a bracketed token as literal text", async () => {
+		mockHoncho({
+			messageContent: "## Contradictions\n\n**CONTRADICTION**: See [abcdefghijklmn] here",
+		});
+		renderAt(sessionPath());
+		expect(await screen.findByText(/abcdefghijklmn/)).toBeInTheDocument();
+	});
+
+	it("renders representation-like headings as ordinary headings", async () => {
+		mockHoncho({
+			messageContent: "## Inductive Observations\n\n**Pattern** [high]: user likes cats",
+		});
+		renderAt(sessionPath());
+		await screen.findByText(/user likes cats/);
+		expect(screen.queryByText("high")).toBeNull();
+	});
 });
 
 describe("chat message markdown", () => {
@@ -171,5 +218,32 @@ describe("chat message markdown", () => {
 		renderAt(chatPath());
 		await user.type(await screen.findByPlaceholderText(/Message this peer/i), "hello{Enter}");
 		expect(await screen.findByRole("heading", { name: "Assistant heading" })).toBeInTheDocument();
+	});
+
+	it("does not override user bubble paragraph color", async () => {
+		const user = userEvent.setup();
+		Element.prototype.scrollIntoView = vi.fn();
+		mockHoncho({ chatContent: "ok" });
+		renderAt(chatPath());
+		await user.type(
+			await screen.findByPlaceholderText(/Message this peer/i),
+			"Contrast check{Enter}",
+		);
+		const text = await screen.findByText("Contrast check");
+		const paragraph = text.closest("p") ?? text;
+		expect(paragraph.getAttribute("style") ?? "").not.toMatch(/--text-2/);
+	});
+
+	it("does not override user bubble list color", async () => {
+		const user = userEvent.setup();
+		Element.prototype.scrollIntoView = vi.fn();
+		mockHoncho({ chatContent: "ok" });
+		renderAt(chatPath());
+		await user.type(
+			await screen.findByPlaceholderText(/Message this peer/i),
+			"- bubble-item{Enter}",
+		);
+		const item = await screen.findByText("bubble-item");
+		expect(item.closest("ul")?.getAttribute("style") ?? "").not.toMatch(/--text-2/);
 	});
 });
