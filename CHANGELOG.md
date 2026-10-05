@@ -1,3 +1,20 @@
+# [0.17.0](https://github.com/offendingcommit/openconcho/compare/v0.16.2...v0.17.0) (2026-10-05)
+
+
+### Bug Fixes
+
+* **docker:** support IPv6 nameservers in nginx resolver derivation ([a7a59c8](https://github.com/offendingcommit/openconcho/commit/a7a59c8f4f4b6193b2685895d717b0de533b1f5a))
+* surface workspace deletion errors ([be9d6d9](https://github.com/offendingcommit/openconcho/commit/be9d6d97f1e698c6ef54c09d9f117076c992aff8))
+* **web:** conclusion knowledge search with target discovery and correct size pagination ([fc43695](https://github.com/offendingcommit/openconcho/commit/fc436954061050c63efbc9dde5d9a66785e79392))
+
+
+### Features
+
+* link workspace title to overview ([a00fd7e](https://github.com/offendingcommit/openconcho/commit/a00fd7e112612cfb97483ae00fcb42548ca3cc72))
+* warn when Honcho token is missing ([b0bfefb](https://github.com/offendingcommit/openconcho/commit/b0bfefb15923cc65bd790af03e438ef0f9f7fbe1))
+* **web:** render conclusion provenance from Honcho 3.2.0 source_ids ([7fbf238](https://github.com/offendingcommit/openconcho/commit/7fbf238f48fe0882c6cf3267a3aaf63dff00f41d))
+* **web:** support serving under a sub-path via Vite base ([8e61c80](https://github.com/offendingcommit/openconcho/commit/8e61c80aa26033522d7e835f41149da277e0344f))
+
 ## [0.16.2](https://github.com/offendingcommit/openconcho/compare/v0.16.1...v0.16.2) (2026-08-13)
 
 
