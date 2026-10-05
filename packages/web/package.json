@@ -9,7 +9,7 @@
 		"preview": "vite preview",
 		"lint": "biome check src/",
 		"lint:fix": "biome check --write src/",
-		"test": "vitest run --passWithNoTests",
+		"test": "vitest run --passWithNoTests && node scripts/test-dev-proxy.mjs",
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "playwright test",
 		"generate:api": "openapi-typescript openapi.json -o src/api/schema.d.ts"

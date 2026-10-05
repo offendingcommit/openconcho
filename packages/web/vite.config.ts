@@ -34,7 +34,7 @@ function honchoApiProxy(): Plugin {
 	return {
 		name: "honcho-api-proxy",
 		configureServer(server) {
-			server.middlewares.use("/api", async (req, res) => {
+			server.middlewares.use(`${server.config.base.replace(/\/+$/, "")}/api`, async (req, res) => {
 				const upstream = req.headers[HEADER];
 				if (typeof upstream !== "string" || upstream.trim() === "") {
 					res.statusCode = 421;
