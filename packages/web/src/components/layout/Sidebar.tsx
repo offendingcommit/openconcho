@@ -281,15 +281,18 @@ export function Sidebar() {
 							transition={{ duration: 0.22, ease: "easeInOut" }}
 							className="overflow-hidden"
 						>
-							{/* Workspace ID label */}
+							{/* Workspace ID — links back to this workspace's overview */}
 							<div className="px-3 pt-2 pb-1 hidden sm:block">
-								<p
-									className="text-xs font-mono truncate"
-									style={{ color: "var(--text-4)" }}
+								<Link
+									to={"/workspaces/$workspaceId" as never}
+									params={{ workspaceId: activeWorkspaceId } as never}
+									aria-label={`Workspace overview: ${mask(activeWorkspaceId)}`}
 									title={mask(activeWorkspaceId)}
+									className="block text-xs font-mono truncate rounded-md transition-colors hover:text-[color:var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--sidebar-bg)]"
+									style={{ color: "var(--text-4)" }}
 								>
 									{mask(activeWorkspaceId)}
-								</p>
+								</Link>
 							</div>
 
 							{/* Section links — indented */}
