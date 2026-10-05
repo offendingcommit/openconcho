@@ -18,6 +18,7 @@ interface ConfirmDialogProps {
 	onCancel: () => void;
 	danger?: boolean;
 	loading?: boolean;
+	error?: string;
 }
 
 export function ConfirmDialog({
@@ -29,6 +30,7 @@ export function ConfirmDialog({
 	onCancel,
 	danger = true,
 	loading = false,
+	error,
 }: ConfirmDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={(o) => !o && onCancel()}>
@@ -51,6 +53,11 @@ export function ConfirmDialog({
 						<DialogDescription className="mt-1">{description}</DialogDescription>
 					</div>
 				</div>
+				{error ? (
+					<p role="alert" className="text-sm mb-1" style={{ color: COLOR.destructive }}>
+						{error}
+					</p>
+				) : null}
 				<DialogFooter>
 					<Button variant="surface" size="sm" onClick={onCancel}>
 						Cancel

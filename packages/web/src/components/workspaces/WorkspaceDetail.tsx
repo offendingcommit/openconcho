@@ -59,6 +59,8 @@ const NAV_SECTIONS = [
 	},
 ] as const;
 
+const WORKSPACE_DELETE_FAILED = "Could not delete workspace. Try again.";
+
 export function WorkspaceDetail() {
 	const { mask } = useDemo();
 	const { showMetadata } = useMetadata();
@@ -76,8 +78,22 @@ export function WorkspaceDetail() {
 	const [sessionsExpanded, setSessionsExpanded] = useState(false);
 
 	const handleDelete = async () => {
-		await deleteWorkspace.mutateAsync(workspaceId);
+		try {
+			await deleteWorkspace.mutateAsync(workspaceId);
+		} catch {
+			return;
+		}
 		navigate({ to: "/workspaces" as never });
+	};
+
+	const openDelete = () => {
+		deleteWorkspace.reset();
+		setConfirmDelete(true);
+	};
+
+	const cancelDelete = () => {
+		deleteWorkspace.reset();
+		setConfirmDelete(false);
 	};
 
 	return (
@@ -98,7 +114,7 @@ export function WorkspaceDetail() {
 							<Zap className="w-3.5 h-3.5" strokeWidth={2} />
 							Schedule Dream
 						</Button>
-						<Button variant="destructive" size="sm" onClick={() => setConfirmDelete(true)}>
+						<Button variant="destructive" size="sm" onClick={openDelete}>
 							<Trash2 className="w-3.5 h-3.5" strokeWidth={2} />
 							Delete
 						</Button>
@@ -344,8 +360,13 @@ export function WorkspaceDetail() {
 				description={`This will permanently delete workspace "${mask(workspaceId)}" and all its data. This cannot be undone.`}
 				confirmLabel="Delete workspace"
 				onConfirm={handleDelete}
-				onCancel={() => setConfirmDelete(false)}
+				onCancel={cancelDelete}
 				loading={deleteWorkspace.isPending}
+				error={
+					deleteWorkspace.isError
+						? deleteWorkspace.error?.message || WORKSPACE_DELETE_FAILED
+						: undefined
+				}
 			/>
 
 			<ScheduleDreamModal
