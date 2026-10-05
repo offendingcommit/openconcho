@@ -110,7 +110,7 @@ export function DialecticPlayground() {
 				"/v3/workspaces/{workspace_id}/peers/{peer_id}/chat",
 				{
 					params: { path: { workspace_id: workspaceId, peer_id: peerId } },
-					body: { query: q, stream: false, reasoning_level: level },
+					body: { query: q, stream: false, reasoning_level: level, include_evidence: false },
 				},
 			);
 			if (error) {

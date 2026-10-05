@@ -16,6 +16,13 @@ export default defineConfig({
 		__APP_VERSION__: JSON.stringify("0.0.0-test"),
 	},
 	test: {
+		// jsdom ≥ 29 treats a missing URL as an opaque origin and disables
+		// localStorage/sessionStorage, which most tests rely on. Pin the origin.
+		environmentOptions: {
+			jsdom: {
+				url: "http://localhost:5173/",
+			},
+		},
 		environment: "jsdom",
 		globals: true,
 		setupFiles: ["./src/test/setup.ts"],

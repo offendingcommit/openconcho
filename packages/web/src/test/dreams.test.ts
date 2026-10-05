@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
 	buildPremiseIndex,
 	clusterConclusionsIntoDreams,
+	conclusionSourceIds,
 	dreamCounts,
 	type ExtendedConclusion,
 	expandPremiseTree,
+	hasPremiseTree,
 } from "@/lib/dreams";
 
 // Helpers ─────────────────────────────────────────────────────────────────────
@@ -21,6 +23,7 @@ function mkConclusion(
 		observed_id: "observed-b",
 		session_id: null,
 		created_at: createdAt,
+		times_derived: 1,
 		...overrides,
 	};
 }
@@ -243,5 +246,64 @@ describe("expandPremiseTree", () => {
 
 		const tree = expandPremiseTree("top", index);
 		expect(tree.children.map((n) => n.conclusionId)).toEqual(["e2"]);
+	});
+
+	// Honcho >= 3.2.0 serves attribution natively ────────────────────────────
+
+	it("walks native source_ids into direct children", () => {
+		const e1 = mkConclusion("e1", iso(0), { level: "explicit" });
+		const e2 = mkConclusion("e2", iso(1), { level: "explicit" });
+		const top = mkConclusion("top", iso(5), {
+			level: "deductive",
+			source_ids: ["e1", "e2"],
+			times_derived: 1,
+		});
+		const index = buildPremiseIndex([e1, e2, top]);
+
+		const tree = expandPremiseTree("top", index);
+		expect(tree.children.map((n) => n.conclusionId)).toEqual(["e1", "e2"]);
+		expect(tree.children.every((n) => n.conclusion !== null)).toBe(true);
+	});
+
+	it("prefers source_ids over the legacy premises alias", () => {
+		const native = mkConclusion("native", iso(0));
+		const legacy = mkConclusion("legacy", iso(0));
+		const top = mkConclusion("top", iso(5), {
+			source_ids: ["native"],
+			premises: ["legacy"],
+		});
+		const index = buildPremiseIndex([native, legacy, top]);
+
+		const tree = expandPremiseTree("top", index);
+		expect(tree.children.map((n) => n.conclusionId)).toEqual(["native"]);
+	});
+
+	it("still falls back to legacy premises when source_ids is absent", () => {
+		const e1 = mkConclusion("e1", iso(0));
+		const top = mkConclusion("top", iso(5), { premises: ["e1"] });
+		const index = buildPremiseIndex([e1, top]);
+
+		const tree = expandPremiseTree("top", index);
+		expect(tree.children.map((n) => n.conclusionId)).toEqual(["e1"]);
+	});
+
+	describe("hasPremiseTree", () => {
+		it("is true for native source_ids", () => {
+			expect(hasPremiseTree(mkConclusion("c", iso(0), { source_ids: ["x"] }))).toBe(true);
+		});
+
+		it("is true for the legacy premises alias", () => {
+			expect(hasPremiseTree(mkConclusion("c", iso(0), { premises: ["x"] }))).toBe(true);
+		});
+
+		it("is false when neither is present", () => {
+			expect(hasPremiseTree(mkConclusion("c", iso(0)))).toBe(false);
+		});
+	});
+
+	describe("conclusionSourceIds", () => {
+		it("returns an empty array when neither source is present", () => {
+			expect(conclusionSourceIds(mkConclusion("c", iso(0)))).toEqual([]);
+		});
 	});
 });

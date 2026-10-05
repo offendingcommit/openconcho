@@ -75,10 +75,11 @@ export function useScheduleDream(workspaceId: string) {
 			observed?: string | null;
 			dream_type: "omni";
 			session_id?: string | null;
+			rebuild?: boolean;
 		}) => {
 			const { error } = await client.current.POST("/v3/workspaces/{workspace_id}/schedule_dream", {
 				params: { path: { workspace_id: workspaceId } },
-				body,
+				body: { rebuild: false, ...body },
 			});
 			if (error) err(error);
 		},
@@ -301,7 +302,12 @@ export function useChat(
 				"/v3/workspaces/{workspace_id}/peers/{peer_id}/chat",
 				{
 					params: { path: { workspace_id: workspaceId, peer_id: peerId } },
-					body: { query: message, stream: false, reasoning_level: reasoningLevel },
+					body: {
+						query: message,
+						stream: false,
+						reasoning_level: reasoningLevel,
+						include_evidence: false,
+					},
 				},
 			);
 			return data ?? err(error);
