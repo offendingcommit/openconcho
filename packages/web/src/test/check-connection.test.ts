@@ -36,6 +36,12 @@ describe("checkConnection — web proxy mode", () => {
 		expect(res.status).toBe("auth-required");
 	});
 
+	it("maps an upstream 403 to auth-required", async () => {
+		httpFetchMock.mockResolvedValue(new Response("{}", { status: 403 }));
+		const res = await checkConnection("https://honcho.example.net");
+		expect(res.status).toBe("auth-required");
+	});
+
 	it("treats a proxy reject as unreachable, not auth-required", async () => {
 		httpFetchMock.mockResolvedValue(
 			new Response("", { status: 403, headers: { "X-Honcho-Proxy-Reject": "allowlist" } }),
