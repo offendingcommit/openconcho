@@ -314,16 +314,20 @@ export function useChat(
 
 // ─── Sessions ─────────────────────────────────────────────────────────────────
 
-export function useSessions(workspaceId: string, page = 1, pageSize = 20) {
+export function useSessions(workspaceId: string, page = 1, pageSize = 20, reverse = true) {
 	return useQuery({
-		queryKey: QK.sessions(workspaceId, page, pageSize),
+		queryKey: QK.sessions(workspaceId, page, pageSize, reverse),
 		queryFn: async () => {
 			const { data, error } = await client.current.POST(
 				"/v3/workspaces/{workspace_id}/sessions/list",
 				{
 					params: {
 						path: { workspace_id: workspaceId },
-						query: { page, page_size: pageSize },
+						// Server-side global ordering: the honcho fork orders by
+						// created_at only (`reverse`), so Newest/Oldest must be
+						// requested, not re-sorted client-side — a client sort
+						// only shuffles the current page slice.
+						query: { page, size: pageSize, reverse },
 					},
 					body: {},
 				},

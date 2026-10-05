@@ -2311,6 +2311,8 @@ export interface operations {
 				page?: number;
 				/** @description Page size */
 				size?: number;
+				/** @description Whether to reverse the order of results (newest created_at first) */
+				reverse?: boolean | null;
 			};
 			header?: never;
 			path: {

@@ -13,7 +13,8 @@ export const QK = {
 	peerSessions: (wsId: string, pId: string, page: number, size: number) =>
 		["peer-sessions", wsId, pId, page, size] as const,
 
-	sessions: (wsId: string, page: number, size: number) => ["sessions", wsId, page, size] as const,
+	sessions: (wsId: string, page: number, size: number, reverse?: boolean) =>
+		["sessions", wsId, page, size, reverse] as const,
 	session: (wsId: string, sId: string) => ["session", wsId, sId] as const,
 	sessionMessages: (wsId: string, sId: string, page: number, size: number) =>
 		["session-messages", wsId, sId, page, size] as const,
