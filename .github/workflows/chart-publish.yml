@@ -1,0 +1,42 @@
+name: Publish chart
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Chart version to publish (e.g. 0.14.0-sha-fdfc584)'
+        required: false
+        default: '0.14.0-dev'
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish-chart:
+    name: Package & push Helm chart to GHCR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Log in to GHCR (Helm OCI)
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io \
+            --username "${{ github.actor }}" \
+            --password-stdin
+
+      - name: Package chart
+        run: |
+          VERSION="${{ inputs.version }}"
+          helm package charts/openconcho \
+            --version "$VERSION" \
+            --app-version "$VERSION"
+
+      - name: Push chart
+        run: |
+          VERSION="${{ inputs.version }}"
+          helm push "openconcho-$VERSION.tgz" \
+            oci://ghcr.io/${{ github.repository_owner }}/charts

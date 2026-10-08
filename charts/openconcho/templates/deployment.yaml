@@ -54,14 +54,14 @@ spec:
           {{- if .Values.tmpfsMounts }}
           volumeMounts:
             {{- range .Values.tmpfsMounts }}
-            - name: {{ .mountPath | trimPrefix "/" | replace "/" "-" | trunc 63 | trimSuffix "-" }}
+            - name: {{ .mountPath | trimPrefix "/" | replace "/" "-" | replace "." "-" | trunc 63 | trimSuffix "-" }}
               mountPath: {{ .mountPath }}
             {{- end }}
           {{- end }}
       {{- if .Values.tmpfsMounts }}
       volumes:
         {{- range .Values.tmpfsMounts }}
-        - name: {{ .mountPath | trimPrefix "/" | replace "/" "-" | trunc 63 | trimSuffix "-" }}
+        - name: {{ .mountPath | trimPrefix "/" | replace "/" "-" | replace "." "-" | trunc 63 | trimSuffix "-" }}
           emptyDir:
             medium: Memory
         {{- end }}
