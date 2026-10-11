@@ -3,7 +3,8 @@
 # Multi-stage build:
 #   1. node:22-alpine + pnpm builds the @openconcho/web SPA to packages/web/dist
 #   2. nginx-unprivileged serves the static bundle as non-root (UID 101) on
-#      port 8080 — runs cleanly under read-only filesystem + cap_drop ALL.
+#      port 8080 by default (OPENCONCHO_PORT) — runs cleanly under read-only
+#      filesystem + cap_drop ALL.
 
 # ---------- Builder stage ----------
 FROM node:22-alpine AS builder
@@ -43,7 +44,10 @@ COPY --chown=101:101 --chmod=0755 docker/40-openconcho-config.sh /docker-entrypo
 # Empty default → clean first run (configure the instance in Settings). Override per
 # deploy to seed the first instance; the browser routes via /api with an
 # X-Honcho-Upstream header. Optional OPENCONCHO_UPSTREAM_ALLOWLIST guards the proxy.
+# OPENCONCHO_PORT changes nginx's listen port at start (default 8080). EXPOSE is
+# metadata only; map the published host port to the same container port.
 ENV OPENCONCHO_DEFAULT_HONCHO_URL=""
+ENV OPENCONCHO_PORT=8080
 
 EXPOSE 8080
 

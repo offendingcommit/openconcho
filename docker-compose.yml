@@ -24,8 +24,12 @@ x-openconcho: &openconcho
     # binding below). Set comma-separated host globs before exposing the proxy:
     #   OPENCONCHO_UPSTREAM_ALLOWLIST: honcho.example.net,*.honcho.dev
     OPENCONCHO_UPSTREAM_ALLOWLIST: ${OPENCONCHO_UPSTREAM_ALLOWLIST:-}
+    # nginx listen port inside the container. Host mapping below uses the same
+    # value as the target port. To change only the host port, edit the left side
+    # (127.0.0.1:9090:8080) and leave this at 8080.
+    OPENCONCHO_PORT: ${OPENCONCHO_PORT:-8080}
   ports:
-    - "127.0.0.1:8080:8080"
+    - "127.0.0.1:8080:${OPENCONCHO_PORT:-8080}"
   # Lets the default host.docker.internal upstream resolve on Linux too
   # (Docker Desktop / Colima provide it automatically).
   extra_hosts:

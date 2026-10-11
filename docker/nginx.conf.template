@@ -3,8 +3,8 @@
 # The browser sends X-Honcho-Upstream per request; nginx forwards server-side (no browser CORS).
 
 server {
-    listen       8080;
-    listen       [::]:8080;
+    listen       __OPENCONCHO_PORT__;
+    listen       [::]:__OPENCONCHO_PORT__;
     server_name  _;
     root         /usr/share/nginx/html;
     index        index.html;

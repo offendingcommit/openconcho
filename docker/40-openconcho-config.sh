@@ -3,9 +3,26 @@
 # Lets one prebuilt image target any Honcho backend without a rebuild.
 #   OPENCONCHO_DEFAULT_HONCHO_URL — absolute URL seeding the first instance, or empty.
 #   OPENCONCHO_UPSTREAM_ALLOWLIST — optional comma-separated host globs (SSRF guard).
+#   OPENCONCHO_PORT — nginx listen port; unset/empty → 8080. Decimal 1-65535, no
+#     leading zeros. UID 101 cannot bind privileged ports (<1024) unless the host allows it.
 # Runs from /docker-entrypoint.d before nginx starts. Writes config.js to /tmp
 # so the container works cleanly under a read-only root filesystem.
 set -eu
+
+# Validate before any config writes. Do not envsubst the nginx file: that would
+# empty runtime variables such as $upstream and $proxy_host.
+port="${OPENCONCHO_PORT:-8080}"
+case "$port" in
+	[1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9]) ;;
+	*)
+		echo "openconcho: OPENCONCHO_PORT must be a decimal port 1-65535 with no leading zeros, got '${OPENCONCHO_PORT:-}'" >&2
+		exit 1
+		;;
+esac
+if [ "$port" -gt 65535 ]; then
+	echo "openconcho: OPENCONCHO_PORT must be a decimal port 1-65535 with no leading zeros, got '${OPENCONCHO_PORT:-}'" >&2
+	exit 1
+fi
 
 cat > /tmp/openconcho-config.js <<EOF
 window.__OPENCONCHO_DEFAULT_HONCHO_URL__ = "${OPENCONCHO_DEFAULT_HONCHO_URL:-}";
@@ -42,4 +59,21 @@ else
 		done
 		printf '}\n'
 	} > "$ALLOWLIST_CONF"
+fi
+
+# Render both listen directives from the validated port. 20-envsubst copies the
+# template first; this replaces only __OPENCONCHO_PORT__ in the staged file.
+NGINX_CONF=/etc/nginx/conf.d/default.conf
+if [ ! -f "$NGINX_CONF" ]; then
+	echo "openconcho: $NGINX_CONF is missing; cannot set listen port" >&2
+	exit 1
+fi
+sed -i "s/__OPENCONCHO_PORT__/${port}/g" "$NGINX_CONF"
+if grep -q '__OPENCONCHO_PORT__' "$NGINX_CONF"; then
+	echo "openconcho: failed to render listen port into $NGINX_CONF" >&2
+	exit 1
+fi
+if ! grep -qF "listen       ${port};" "$NGINX_CONF" || ! grep -qF "listen       [::]:${port};" "$NGINX_CONF"; then
+	echo "openconcho: listen directives were not updated to ${port}" >&2
+	exit 1
 fi

@@ -81,12 +81,23 @@ Runtime knobs (no rebuild needed):
 |-----|---------|---------|
 | `OPENCONCHO_DEFAULT_HONCHO_URL` | _(empty)_ | Absolute URL seeding the first instance; empty = configure in Settings |
 | `OPENCONCHO_UPSTREAM_ALLOWLIST` | _(empty)_ | Optional SSRF guard: comma-separated host globs (e.g. `honcho.example.net,*.honcho.dev`). Empty = forward anywhere |
+| `OPENCONCHO_PORT` | `8080` | nginx listen port inside the container (IPv4 and IPv6). Unset or empty keeps 8080. Decimal 1-65535, no leading zeros. |
+
+`OPENCONCHO_PORT` is the process listen port, not the published host port. On a
+bridge network `docker run -p 9090:8080` already remaps localhost without a
+rebuild. Set the env when the process itself must listen elsewhere (host
+networking, or a required container port). The image runs as UID 101, so ports
+below 1024 fail to bind unless the host allows unprivileged low ports. Compose
+publishes `127.0.0.1:8080:${OPENCONCHO_PORT:-8080}` so the target matches the
+listener; change the left-hand host port separately if you only need a different
+localhost port.
 
 Hardened run adds `--read-only --cap-drop ALL --security-opt no-new-privileges`
-with `--tmpfs /tmp --tmpfs /var/cache/nginx`. Note: the entrypoint writes
-`config.js` and the allowlist map at start, which a read-only root blocks — under
-`--read-only` either bind-mount those paths or leave the env empty and configure
-the URL in Settings.
+with tmpfs on `/tmp`, `/var/cache/nginx`, `/var/run`, and `/etc/nginx/conf.d`.
+Those tmpfs mounts must be writable by UID 101 (`uid=101,gid=101` on `docker run
+--tmpfs`, or `fsGroup: 101` in the chart). The entrypoint writes `config.js`, the
+allowlist map, and the listen port at start, which a read-only root blocks
+without those mounts.
 
 ## Serving under a sub-path
 
