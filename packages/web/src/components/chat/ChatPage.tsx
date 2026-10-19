@@ -4,6 +4,7 @@ import { Brain, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@/api/queries";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { MessageMarkdown } from "@/components/shared/MessageMarkdown";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
 import { SectionHeading } from "@/components/ui/typography";
@@ -146,7 +147,7 @@ export function ChatPage() {
 											}
 								}
 							>
-								<p className="whitespace-pre-wrap leading-relaxed">{mask(msg.content)}</p>
+								<MessageMarkdown content={mask(msg.content)} />
 							</div>
 						</motion.div>
 					))}
