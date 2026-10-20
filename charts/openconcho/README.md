@@ -226,4 +226,4 @@ helm test openconcho --logs
 | `seccompProfile` | `RuntimeDefault` |
 | `allowPrivilegeEscalation` | `false` |
 | `automountServiceAccountToken` | `false` |
-| Writable paths | `/var/cache/nginx`, `/var/run`, `/tmp` (tmpfs) |
+| Writable paths | `/etc/nginx/conf.d`, `/var/cache/nginx`, `/var/run`, `/tmp` (tmpfs) |
