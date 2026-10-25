@@ -28,7 +28,8 @@ const KIND_STYLES: Record<string, KindStyle> = {
 function peerKind(id: string): (KindStyle & { label: string }) | null {
 	if (id.startsWith("agent-")) return { label: "agent", ...KIND_STYLES.agent };
 	if (id.startsWith("discord-")) return { label: "discord", ...KIND_STYLES.discord };
-	if (["claude", "hermes", "codex"].includes(id)) return { label: "ai", ...KIND_STYLES.ai };
+	if (["claude", "claude-code", "hermes", "codex", "grok", "grok-bot"].includes(id.toLowerCase()))
+		return { label: "ai", ...KIND_STYLES.ai };
 	return null;
 }
 
